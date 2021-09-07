@@ -8,7 +8,9 @@
 #include "../models/ImageFileSystemModel.h"
 
 namespace realn {
-  DirBrowserWidget::DirBrowserWidget() {
+  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<ExtPluginList> plugins) 
+    : plugins(plugins)
+  {
     setMinimumWidth(200);
 
     rootLabel = new QLabel();
@@ -53,6 +55,7 @@ namespace realn {
     rootLabel->setText(rootDir);
 
     model = new ImageFileSystemModel();
+    model->setSupportedExtensions(plugins->getSupportedExts());
     model->setRootPath(rootDir);
 
     treeView->setModel(model);

@@ -4,12 +4,16 @@
 #include <QLabel>
 #include <QPointer>
 #include <QFileInfo>
+#include <QImage>
+#include <QMovie>
+
+#include "../extensions/ExtPlugin.h"
 
 namespace realn {
   class ImageView : public QWidget {
     Q_OBJECT;
   public:
-    ImageView();
+    ImageView(std::shared_ptr<ExtPluginList> plugins);
 
     void setImage(QFileInfo fileInfo);
 
@@ -20,6 +24,11 @@ namespace realn {
     void ResetImage();
 
     QPointer<QLabel> label;
-    QPixmap image;
+    std::unique_ptr<QImage> image;
+    std::unique_ptr<QMovie> movie;
+
+    QPixmap shownImage;
+    
+    std::shared_ptr<ExtPluginList> plugins;
   };
 }

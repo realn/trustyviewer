@@ -9,13 +9,13 @@ namespace realn {
   class MainWindow : public QMainWindow {
     Q_OBJECT;
   public:
-    MainWindow();
+    MainWindow(std::shared_ptr<ExtPluginList> plugins);
 
   private slots:
     void setImageToImageView();
 
   private:
-    QWidget* createUI();
+    void createUI();
 
     QPointer<ImageView> view;
     QPointer<DirBrowserWidget> dirBrowser;

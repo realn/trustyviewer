@@ -5,6 +5,7 @@
 #include <QTreeView>
 #include <QLabel>
 
+#include "../extensions/StdImageExtPlugin.h"
 #include "../models/ImageFileSystemModel.h"
 
 namespace realn {
@@ -12,7 +13,7 @@ namespace realn {
     Q_OBJECT
 
   public:
-    DirBrowserWidget();
+    DirBrowserWidget(std::shared_ptr<ExtPluginList> plugins);
 
     QFileInfo getSelectedFileInfo() const;
 
@@ -29,5 +30,6 @@ namespace realn {
     QPointer<QTreeView> treeView;
 
     QPointer<ImageFileSystemModel> model;
+    std::shared_ptr<ExtPluginList> plugins;
   };
 }

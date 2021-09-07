@@ -4,6 +4,8 @@
 
 #include <QApplication>
 
+#include "Extensions/ExtPlugin.h"
+
 namespace realn {
   class MainWindow;
 
@@ -14,6 +16,8 @@ namespace realn {
     ~Application();
 
   private:
+    std::shared_ptr<ExtPluginList> plugins;
+
     std::unique_ptr<MainWindow> mainWindow;
   };
 }

@@ -14,6 +14,7 @@ namespace realn {
     ImageFileSystemModel();
 
     void setRootPath(QString path);
+    void setSupportedExtensions(const QStringList& exts);
 
     QFileInfo getFileInfoForIndex(const QModelIndex& index);
 
@@ -48,11 +49,14 @@ namespace realn {
       ItemPtr ptr() { return shared_from_this(); }
     };
 
-    ItemPtr scanDir(QString path, ItemPtr parent);
     static ItemPtr fromIndex(const QModelIndex& index);
+
+    ItemPtr scanDir(QString path, ItemPtr parent);
+    QStringList getNameFilters() const;
 
     ItemPtr rootItem;
     QDir rootDir;
     std::unique_ptr<QFileIconProvider> iconProvider;
+    QStringList supportedExts;
   };
 }

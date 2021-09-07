@@ -7,11 +7,12 @@
 #include "MainWindow.h"
 
 namespace realn {
-  MainWindow::MainWindow() {
+  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins) {
 
-    auto widget = createUI();
-    setCentralWidget(widget);
-    
+    view = new ImageView(plugins);
+    dirBrowser = new DirBrowserWidget(plugins);
+
+    createUI();
   }
 
   void MainWindow::setImageToImageView() {
@@ -21,20 +22,16 @@ namespace realn {
     view->setImage(info);
   }
 
-  QWidget* MainWindow::createUI()
+  void MainWindow::createUI()
   {
-    view = new ImageView();
-    dirBrowser = new DirBrowserWidget();
-
-    auto dock = new QDockWidget("Library", this);
+    auto dock = new QDockWidget("Explorer", this);
     dock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetMovable);
     dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dock->setWidget(dirBrowser);
 
     addDockWidget(Qt::LeftDockWidgetArea, dock);
+    setCentralWidget(view);
 
     connect(dirBrowser, &DirBrowserWidget::selectionChanged, this, &MainWindow::setImageToImageView);
-
-    return view;
   }
 }

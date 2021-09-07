@@ -37,6 +37,12 @@
     <ClCompile Include="models\ImageFileSystemModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="extensions\StdImageExtPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\ExtPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -48,5 +54,9 @@
     <QtMoc Include="MainWindow.h">
       <Filter>Source Files</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="extensions\ExtPlugin.h" />
+    <ClInclude Include="extensions\StdImageExtPlugin.h" />
   </ItemGroup>
 </Project>

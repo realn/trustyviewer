@@ -87,6 +87,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="extensions\ExtPlugin.cpp" />
+    <ClCompile Include="extensions\StdImageExtPlugin.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
@@ -99,6 +101,10 @@
     <QtMoc Include="widgets\ImageView.h" />
     <QtMoc Include="Application.h" />
     <QtMoc Include="MainWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="extensions\ExtPlugin.h" />
+    <ClInclude Include="extensions\StdImageExtPlugin.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

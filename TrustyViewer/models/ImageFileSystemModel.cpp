@@ -14,6 +14,11 @@ namespace realn {
     endResetModel();
   }
 
+  void ImageFileSystemModel::setSupportedExtensions(const QStringList& exts)
+  {
+    supportedExts = exts;
+  }
+
   QFileInfo ImageFileSystemModel::getFileInfoForIndex(const QModelIndex& index)
   {
     if (!index.isValid())
@@ -106,8 +111,10 @@ namespace realn {
 
       auto dir = QDir(path, "*", QDir::Type | QDir::IgnoreCase, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
 
+
+
       int idx = 0;
-      for (auto& dirName : dir.entryList()) {
+      for (auto& dirName : dir.entryList(getNameFilters())) {
         auto subPath = dir.filePath(dirName);
 
         auto child = scanDir(subPath, item);
@@ -117,6 +124,15 @@ namespace realn {
     }
 
     return item;
+  }
+
+  QStringList ImageFileSystemModel::getNameFilters() const
+  {
+    auto result = QStringList();
+    for (auto& ext : supportedExts) {
+      result << ("*." + ext);
+    }
+    return result;
   }
 
   ImageFileSystemModel::ItemPtr ImageFileSystemModel::fromIndex(const QModelIndex& index)

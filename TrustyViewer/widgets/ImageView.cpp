@@ -6,7 +6,9 @@
 #include "ImageView.h"
 
 namespace realn {
-  ImageView::ImageView() {
+  ImageView::ImageView(std::shared_ptr<ExtPluginList> plugins)
+    : plugins(plugins)
+  {
 
     setMinimumSize(640, 480);
 
@@ -27,7 +29,15 @@ namespace realn {
     if (fileInfo.isDir())
       return;
 
-    image = QPixmap(fileInfo.absoluteFilePath());
+    auto filepath = fileInfo.absoluteFilePath();
+    auto fileext = fileInfo.completeSuffix();
+
+    auto plugin = plugins->getPluginForExt(fileext);
+    if (!plugin)
+      return;
+
+    image = plugin->loadImage(filepath);
+    shownImage = QPixmap::fromImage(*image);
     ResetImage();
   }
 
@@ -39,6 +49,6 @@ namespace realn {
 
   void ImageView::ResetImage()
   {
-    label->setPixmap(image.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
+    label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
   }
 }
