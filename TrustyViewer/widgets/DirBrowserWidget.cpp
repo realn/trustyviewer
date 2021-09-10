@@ -8,13 +8,20 @@
 #include "../models/ImageFileSystemModel.h"
 
 namespace realn {
-  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<ExtPluginList> plugins) 
-    : plugins(plugins)
+  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase) 
+    : database(mediaDatabase)
   {
     setMinimumWidth(200);
 
+    model = new ImageFileSystemModel(database);
+
     rootLabel = new QLabel();
+
     treeView = new QTreeView();
+    treeView->setModel(model);
+
+    connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
+    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::selectionChanged);
 
     auto layout = new QVBoxLayout();
 
@@ -47,18 +54,15 @@ namespace realn {
   QFileInfo DirBrowserWidget::getSelectedFileInfo() const
   {
     auto index = treeView->selectionModel()->selectedIndexes().first();
-    return model->getFileInfoForIndex(index);
+    return QFileInfo(model->getItemForIndex(index)->getFilePath());
   }
 
   void DirBrowserWidget::setupRoot(QString rootDir)
   {
     rootLabel->setText(rootDir);
 
-    model = new ImageFileSystemModel();
-    model->setSupportedExtensions(plugins->getSupportedExts());
-    model->setRootPath(rootDir);
+    database->rebuid(rootDir);
 
-    treeView->setModel(model);
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::selectionChanged);
+    emit rootChanged(rootDir);
   }
 }

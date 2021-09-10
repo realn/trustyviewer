@@ -2,30 +2,19 @@
 #include "ImageFileSystemModel.h"
 
 namespace realn {
-  ImageFileSystemModel::ImageFileSystemModel()
+  ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase)
+    : database(mediaDatabase)
   {
     iconProvider = std::make_unique<QFileIconProvider>();
   }
 
-  void ImageFileSystemModel::setRootPath(QString path)
-  {
-    beginResetModel();
-    rootItem = scanDir(path, nullptr);
-    endResetModel();
-  }
-
-  void ImageFileSystemModel::setSupportedExtensions(const QStringList& exts)
-  {
-    supportedExts = exts;
-  }
-
-  QFileInfo ImageFileSystemModel::getFileInfoForIndex(const QModelIndex& index)
-  {
+  MediaItem::ptr_t ImageFileSystemModel::getItemForIndex(const QModelIndex& index) const {
     if (!index.isValid())
-      return QFileInfo();
+      return nullptr;
 
     auto item = fromIndex(index);
-    return item->info;
+    return item;
+
   }
 
   QModelIndex ImageFileSystemModel::index(int row, int column, const QModelIndex& parent) const
@@ -37,17 +26,17 @@ namespace realn {
       if (row != 0)
         return QModelIndex();
 
-      return createIndex(row, column, rootItem.get());
+      return createIndex(row, column, database->getRootItem().get());
     }
       
     auto parentItem = fromIndex(parent);
     auto rowIndex = static_cast<size_t>(row);
     
-    if (rowIndex >= parentItem->children.size()) {
+    if (rowIndex >= parentItem->getChildren().size()) {
       return QModelIndex();
     }
 
-    return createIndex(row, column, parentItem->children[rowIndex].get());
+    return createIndex(row, column, parentItem->getChildren()[rowIndex].get());
   }
 
   QModelIndex ImageFileSystemModel::parent(const QModelIndex& child) const
@@ -56,7 +45,7 @@ namespace realn {
       return QModelIndex();
 
     auto item = fromIndex(child);
-    auto parentLock = item->parent.lock();
+    auto parentLock = item->getParent();
     if (!parentLock)
       return QModelIndex();
 
@@ -65,13 +54,16 @@ namespace realn {
 
   int ImageFileSystemModel::rowCount(const QModelIndex& parent) const
   {
-    if (!parent.isValid())
-      return 1;
+    if (!parent.isValid()) {
+      if (database->getRootItem())
+        return 1;
+      return 0;
+    }
     auto parentItem = fromIndex(parent);
     if (!parentItem)
       return 0;
 
-    return static_cast<int>(parentItem->children.size());
+    return static_cast<int>(parentItem->getChildren().size());
   }
 
   int ImageFileSystemModel::columnCount(const QModelIndex& parent) const
@@ -83,10 +75,12 @@ namespace realn {
   {
     auto item = fromIndex(index);
 
+    QFileInfo info(item->getFilePath());
+
     if (index.column() == 0 && role == Qt::DecorationRole)
-      return iconProvider->icon(item->info);
+      return iconProvider->icon(info);
     if(index.column() == 0 && role == Qt::DisplayRole)
-      return item->info.fileName();
+      return info.fileName();
 
     return QVariant();
   }
@@ -99,44 +93,14 @@ namespace realn {
     return "Name";
   }
 
-  ImageFileSystemModel::ItemPtr ImageFileSystemModel::scanDir(QString path, ItemPtr parent)
-  {
-    auto item = std::make_shared<Item>();
+  void ImageFileSystemModel::reloadDatabase() {
+    beginResetModel();
 
-    item->parent = parent;
-    item->info = QFileInfo(path);
-
-    if (item->info.isDir()) {
-      item->type = Item::Type::Directory;
-
-      auto dir = QDir(path, "*", QDir::Type | QDir::IgnoreCase, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
-
-
-
-      int idx = 0;
-      for (auto& dirName : dir.entryList(getNameFilters())) {
-        auto subPath = dir.filePath(dirName);
-
-        auto child = scanDir(subPath, item);
-        idx++;
-        item->children.push_back(child);
-      }
-    }
-
-    return item;
+    endResetModel();
   }
 
-  QStringList ImageFileSystemModel::getNameFilters() const
+  MediaItem::ptr_t ImageFileSystemModel::fromIndex(const QModelIndex& index)
   {
-    auto result = QStringList();
-    for (auto& ext : supportedExts) {
-      result << ("*." + ext);
-    }
-    return result;
-  }
-
-  ImageFileSystemModel::ItemPtr ImageFileSystemModel::fromIndex(const QModelIndex& index)
-  {
-    return reinterpret_cast<Item*>(index.internalPointer())->ptr();
+    return reinterpret_cast<MediaItem*>(index.internalPointer())->getPtr();
   }
 }

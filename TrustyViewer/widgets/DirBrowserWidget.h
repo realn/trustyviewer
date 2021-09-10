@@ -5,19 +5,20 @@
 #include <QTreeView>
 #include <QLabel>
 
-#include "../extensions/StdImageExtPlugin.h"
 #include "../models/ImageFileSystemModel.h"
+#include "../MediaDatabase.h"
 
 namespace realn {
   class DirBrowserWidget : public QWidget {
     Q_OBJECT
 
   public:
-    DirBrowserWidget(std::shared_ptr<ExtPluginList> plugins);
+    DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase);
 
     QFileInfo getSelectedFileInfo() const;
 
   signals:
+    void rootChanged(QString newRoot);
     void selectionChanged();
 
   public slots:
@@ -30,6 +31,6 @@ namespace realn {
     QPointer<QTreeView> treeView;
 
     QPointer<ImageFileSystemModel> model;
-    std::shared_ptr<ExtPluginList> plugins;
+    std::shared_ptr<MediaDatabase> database;
   };
 }

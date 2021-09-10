@@ -91,6 +91,8 @@
     <ClCompile Include="extensions\StdImageExtPlugin.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="MediaDatabase.cpp" />
+    <ClCompile Include="MediaItem.cpp" />
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageView.cpp" />
@@ -105,6 +107,8 @@
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
+    <ClInclude Include="MediaItem.h" />
+    <QtMoc Include="MediaDatabase.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

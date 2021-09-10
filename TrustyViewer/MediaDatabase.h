@@ -1,0 +1,36 @@
+#pragma once
+
+#include <QObject>
+
+#include "extensions/ExtPlugin.h"
+#include "MediaItem.h"
+
+namespace realn {
+  class MediaDatabase : public QObject 
+  {
+    Q_OBJECT;
+  public:
+    MediaDatabase(std::shared_ptr<ExtPluginList> plugins);
+
+    MediaItem::ptr_t getRootItem() const;
+
+    void rebuid(const QString& newRootPath);
+
+  signals:
+    void rebuildingDatabase();
+    void databaseRebuild();
+
+  private:
+    MediaItem::ptr_t buildFromPath(const QString& path, MediaItem::ptr_t parent);
+    MediaItem::ptr_t buildDir(const QString& path, MediaItem::ptr_t parent);
+    MediaItem::ptr_t buildImage(const QString& path, MediaItem::ptr_t parent);
+    MediaItem::ptr_t buildVideo(const QString& path, MediaItem::ptr_t parent);
+
+    QStringList getNameFilters() const;
+
+    std::shared_ptr<ExtPluginList> plugins;
+    QString rootPath;
+    MediaItem::ptr_t rootItem;
+    MediaItem::itemvector_t mainList;
+  };
+}

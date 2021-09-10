@@ -1,0 +1,37 @@
+#pragma once
+
+#include <memory>
+#include <vector>
+
+#include <QString>
+
+namespace realn {
+  enum class MediaItemType {
+    Directory = 0,
+    Image = 1,
+    Video = 2,
+  };
+
+  class MediaItem : public std::enable_shared_from_this<MediaItem> {
+  public:
+    using ptr_t = std::shared_ptr<MediaItem>;
+    using itemvector_t = std::vector<ptr_t>;
+
+    MediaItem(ptr_t parent, const QString& filepath, MediaItemType type);
+
+    std::shared_ptr<MediaItem> getParent() const;
+    QString getFilePath() const { return filepath; }
+    MediaItemType getType() const { return type; }
+    const itemvector_t& getChildren() const { return children; }
+
+    void addChild(ptr_t child);
+
+    ptr_t getPtr() { return shared_from_this(); }
+
+  private:
+    std::weak_ptr<MediaItem> parent;
+    QString filepath;
+    MediaItemType type = MediaItemType::Image;
+    itemvector_t children;
+  };
+}

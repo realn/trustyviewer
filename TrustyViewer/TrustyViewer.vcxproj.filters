@@ -43,6 +43,12 @@
     <ClCompile Include="extensions\ExtPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MediaItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaDatabase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -54,9 +60,11 @@
     <QtMoc Include="MainWindow.h">
       <Filter>Source Files</Filter>
     </QtMoc>
+    <QtMoc Include="MediaDatabase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
+    <ClInclude Include="MediaItem.h" />
   </ItemGroup>
 </Project>

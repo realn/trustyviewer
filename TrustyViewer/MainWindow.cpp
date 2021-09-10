@@ -7,10 +7,10 @@
 #include "MainWindow.h"
 
 namespace realn {
-  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins) {
+  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase) {
 
     view = new ImageView(plugins);
-    dirBrowser = new DirBrowserWidget(plugins);
+    dirBrowser = new DirBrowserWidget(mediaDatabase);
 
     createUI();
   }

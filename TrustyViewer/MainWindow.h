@@ -9,7 +9,7 @@ namespace realn {
   class MainWindow : public QMainWindow {
     Q_OBJECT;
   public:
-    MainWindow(std::shared_ptr<ExtPluginList> plugins);
+    MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase);
 
   private slots:
     void setImageToImageView();
