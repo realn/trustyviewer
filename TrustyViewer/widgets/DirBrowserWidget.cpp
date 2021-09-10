@@ -21,7 +21,7 @@ namespace realn {
     treeView->setModel(model);
 
     connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::selectionChanged);
+    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::emitItemSelection);
 
     auto layout = new QVBoxLayout();
 
@@ -38,8 +38,6 @@ namespace realn {
 
     layout->addWidget(treeView);
 
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::selectionChanged);
-
     setLayout(layout);
   }
 
@@ -49,6 +47,12 @@ namespace realn {
       return;
 
     setupRoot(rootDir);
+  }
+
+  MediaItem::ptr_t DirBrowserWidget::getSelectedItem() const
+  {
+    auto index = treeView->selectionModel()->selectedIndexes().first();
+    return model->getItemForIndex(index);
   }
 
   QFileInfo DirBrowserWidget::getSelectedFileInfo() const
@@ -64,5 +68,10 @@ namespace realn {
     database->rebuid(rootDir);
 
     emit rootChanged(rootDir);
+  }
+
+  void DirBrowserWidget::emitItemSelection() {
+    emit selectionChanged();
+    emit selectedItemChanged(getSelectedItem());
   }
 }

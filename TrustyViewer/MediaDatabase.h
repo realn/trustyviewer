@@ -21,10 +21,10 @@ namespace realn {
     void databaseRebuild();
 
   private:
-    MediaItem::ptr_t buildFromPath(const QString& path, MediaItem::ptr_t parent);
-    MediaItem::ptr_t buildDir(const QString& path, MediaItem::ptr_t parent);
-    MediaItem::ptr_t buildImage(const QString& path, MediaItem::ptr_t parent);
-    MediaItem::ptr_t buildVideo(const QString& path, MediaItem::ptr_t parent);
+    MediaItem::ptr_t buildFromPath(const QString& path);
+    MediaItem::ptr_t buildDir(const QString& path);
+    MediaItem::ptr_t buildImage(const QString& path);
+    MediaItem::ptr_t buildVideo(const QString& path);
 
     QStringList getNameFilters() const;
 

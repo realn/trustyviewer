@@ -15,14 +15,19 @@ namespace realn {
   public:
     DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase);
 
+    MediaItem::ptr_t getSelectedItem() const;
     QFileInfo getSelectedFileInfo() const;
 
   signals:
     void rootChanged(QString newRoot);
     void selectionChanged();
+    void selectedItemChanged(MediaItem::ptr_t item);
 
   public slots:
     void pickNewRoot();
+    
+  private slots:
+    void emitItemSelection();
 
   private:
     void setupRoot(QString rootDir);

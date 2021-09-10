@@ -49,6 +49,12 @@
     <ClCompile Include="MediaDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\ThumbnailView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="models\ThumbnailModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -61,10 +67,13 @@
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="MediaDatabase.h" />
+    <QtMoc Include="widgets\ThumbnailView.h" />
+    <QtMoc Include="models\ThumbnailModel.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
 </Project>

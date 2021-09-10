@@ -94,8 +94,10 @@
     <ClCompile Include="MediaDatabase.cpp" />
     <ClCompile Include="MediaItem.cpp" />
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
+    <ClCompile Include="models\ThumbnailModel.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageView.cpp" />
+    <ClCompile Include="widgets\ThumbnailView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="models\ImageFileSystemModel.h" />
@@ -108,6 +110,9 @@
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
+    <ClInclude Include="Utils.h" />
+    <QtMoc Include="models\ThumbnailModel.h" />
+    <QtMoc Include="widgets\ThumbnailView.h" />
     <QtMoc Include="MediaDatabase.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

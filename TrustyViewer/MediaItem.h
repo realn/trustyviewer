@@ -17,7 +17,7 @@ namespace realn {
     using ptr_t = std::shared_ptr<MediaItem>;
     using itemvector_t = std::vector<ptr_t>;
 
-    MediaItem(ptr_t parent, const QString& filepath, MediaItemType type);
+    MediaItem(const QString& filepath, MediaItemType type);
 
     std::shared_ptr<MediaItem> getParent() const;
     QString getFilePath() const { return filepath; }
@@ -25,10 +25,15 @@ namespace realn {
     const itemvector_t& getChildren() const { return children; }
 
     void addChild(ptr_t child);
+    ptr_t getChild(size_t index) const;
 
     ptr_t getPtr() { return shared_from_this(); }
 
+    bool hasParent() const { return parent.lock() != nullptr; }
+
   private:
+    void setParent(ptr_t item);
+
     std::weak_ptr<MediaItem> parent;
     QString filepath;
     MediaItemType type = MediaItemType::Image;

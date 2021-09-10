@@ -2,8 +2,8 @@
 #include <QSplitter>
 #include <QTreeView>
 #include <QLabel>
-#include <QDockWidget>
 
+#include "Utils.h"
 #include "MainWindow.h"
 
 namespace realn {
@@ -11,6 +11,7 @@ namespace realn {
 
     view = new ImageView(plugins);
     dirBrowser = new DirBrowserWidget(mediaDatabase);
+    thumbnailView = new ThumbnailView();
 
     createUI();
   }
@@ -24,14 +25,26 @@ namespace realn {
 
   void MainWindow::createUI()
   {
-    auto dock = new QDockWidget("Explorer", this);
-    dock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetMovable);
-    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    dock->setWidget(dirBrowser);
+    addDock(dirBrowser, "Library Explorer", Qt::LeftDockWidgetArea, true);
+    addDock(thumbnailView, "Thumbnails", Qt::RightDockWidgetArea, true);
 
-    addDockWidget(Qt::LeftDockWidgetArea, dock);
     setCentralWidget(view);
 
-    connect(dirBrowser, &DirBrowserWidget::selectionChanged, this, &MainWindow::setImageToImageView);
+    cC(connect(dirBrowser, &DirBrowserWidget::selectionChanged, this, &MainWindow::setImageToImageView));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setSelectedItem));
+  }
+
+  void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible)
+  {
+    auto dock = new QDockWidget(name, this);
+
+    dock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetMovable);
+    dock->setAllowedAreas(Qt::DockWidgetArea::AllDockWidgetAreas);
+    dock->setWidget(widget);
+    dock->setVisible(visible);
+
+    docks.push_back(dock);
+
+    addDockWidget(dockArea, dock);
   }
 }
