@@ -18,6 +18,7 @@ namespace realn {
 
     virtual std::unique_ptr<QImage> loadImage(const QString& filepath) const = 0;
     virtual std::unique_ptr<QMovie> loadMovie(const QString& filepath) const = 0;
+    virtual std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const = 0;
   };
 
   class ExtPluginList {

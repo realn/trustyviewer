@@ -4,13 +4,19 @@
 #include "ThumbnailView.h"
 
 namespace realn {
-  ThumbnailView::ThumbnailView() {
+  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins) {
 
-    model = new ThumbnailModel();
+    auto thumbSize = QSize(100, 150);
+    auto gridSize = thumbSize + QSize(20, 20);
+
+    model = new ThumbnailModel(plugins, thumbSize);
 
     listView = new QListView();
     listView->setViewMode(QListView::ViewMode::IconMode);
     listView->setModel(model);
+    listView->setFlow(QListView::Flow::LeftToRight);
+    listView->setResizeMode(QListView::ResizeMode::Adjust);
+    listView->setGridSize(gridSize);
 
     auto layout = new QHBoxLayout();
     layout->addWidget(listView);

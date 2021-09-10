@@ -8,12 +8,12 @@ namespace realn {
     StdImageExtPlugin();
 
     // Inherited via ExtPlugin
-    virtual QStringList getSupportedExts() const override;
+    QStringList getSupportedExts() const override;
 
-    virtual bool isAnimated(const QString& ext) const override;
+    bool isAnimated(const QString& ext) const override;
 
-    virtual std::unique_ptr<QImage> loadImage(const QString& filepath) const override;
-
-    virtual std::unique_ptr<QMovie> loadMovie(const QString& filepath) const override;
+    std::unique_ptr<QImage> loadImage(const QString& filepath) const override;
+    std::unique_ptr<QMovie> loadMovie(const QString& filepath) const override;
+    std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const override;
   };
 }

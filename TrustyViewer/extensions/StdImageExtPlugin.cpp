@@ -1,4 +1,6 @@
 
+#include <QPixmap>
+
 #include "StdImageExtPlugin.h"
 
 namespace realn {
@@ -26,5 +28,14 @@ namespace realn {
   std::unique_ptr<QMovie> StdImageExtPlugin::loadMovie(const QString& filepath) const
   {
     return std::unique_ptr<QMovie>();
+  }
+
+  std::unique_ptr<QPixmap> StdImageExtPlugin::createThumbnail(const QString& filepath, QSize size) const
+  {
+    auto pix = QPixmap();
+    if (!pix.load(filepath))
+      return nullptr;
+
+    return std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation)));
   }
 }

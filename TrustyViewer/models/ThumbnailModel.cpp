@@ -1,12 +1,16 @@
 
-
+#include <QColor>
 #include <QFileInfo>
 
 #include "ThumbnailModel.h"
 
 namespace realn {
-  ThumbnailModel::ThumbnailModel()
+  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, QSize _thumbnailSize)
+    : plugins(_plugins)
+    , thumbnailSize(_thumbnailSize)
   {
+    defaultThumbnail = QPixmap(thumbnailSize);
+    defaultThumbnail.fill(QColor(Qt::lightGray));
   }
 
   void ThumbnailModel::setRootItem(MediaItem::ptr_t item)
@@ -15,6 +19,7 @@ namespace realn {
       return;
     beginResetModel();
     rootItem = item;
+    createThumbnails();
     endResetModel();
   }
 
@@ -60,8 +65,36 @@ namespace realn {
 
     if (role == Qt::DisplayRole)
       return info.fileName();
+    if (role == Qt::DecorationRole)
+      return getThumbnail(item->getFilePath());
 
     return QVariant();
+  }
+
+  void ThumbnailModel::createThumbnails()
+  {
+    thumbnails.clear();
+    for (auto& item : rootItem->getChildren()) {
+      if (item->isDirectory())
+        continue;
+
+      auto plugin = plugins->getPluginForExt(QFileInfo(item->getFilePath()).completeSuffix());
+      if (!plugin)
+        continue;
+
+      auto thumbnail = plugin->createThumbnail(item->getFilePath(), thumbnailSize);
+      if (!thumbnail)
+        continue;
+
+      thumbnails[item->getFilePath()] = std::move(thumbnail);
+    }
+  }
+
+  QPixmap ThumbnailModel::getThumbnail(const QString& filepath) const
+  {
+    if (thumbnails.count(filepath) == 0)
+      return defaultThumbnail;
+    return *thumbnails.at(filepath);
   }
 
   //QVariant ThumbnailModel::headerData(int section, Qt::Orientation orientation, int role) const

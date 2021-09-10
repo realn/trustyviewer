@@ -19,6 +19,8 @@ namespace realn {
 
     MediaItem(const QString& filepath, MediaItemType type);
 
+    bool isDirectory() const { return type == MediaItemType::Directory; }
+
     std::shared_ptr<MediaItem> getParent() const;
     QString getFilePath() const { return filepath; }
     MediaItemType getType() const { return type; }
