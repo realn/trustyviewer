@@ -15,6 +15,9 @@ namespace realn {
     ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, QSize _thumbnailSize);
 
     void setRootItem(MediaItem::ptr_t item);
+    MediaItem::ptr_t fromIndex(const QModelIndex& index) const;
+
+    QModelIndex getIndexForItem(MediaItem::ptr_t item) const;
 
     // Inherited via QAbstractItemModel
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;

@@ -25,6 +25,7 @@ namespace realn {
 
   public slots:
     void pickNewRoot();
+    void setSelectedItem(MediaItem::ptr_t item);
     
   private slots:
     void emitItemSelection();

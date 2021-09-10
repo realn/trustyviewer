@@ -17,19 +17,42 @@ namespace realn {
     listView->setFlow(QListView::Flow::LeftToRight);
     listView->setResizeMode(QListView::ResizeMode::Adjust);
     listView->setGridSize(gridSize);
+    connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged);
 
     auto layout = new QHBoxLayout();
     layout->addWidget(listView);
     setLayout(layout);
   }
 
+  MediaItem::ptr_t ThumbnailView::getSelectedItem() const
+  {
+    auto indices = listView->selectionModel()->selectedIndexes();
+    if (indices.empty())
+      return nullptr;
+    const auto& index = indices.first();
+    return model->fromIndex(index);
+  }
+
   void ThumbnailView::setSelectedItem(MediaItem::ptr_t item) {
-    if (!item->hasParent()) {
+    if (item == getSelectedItem())
+      return;
+
+    auto index = model->getIndexForItem(item);
+    listView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+  }
+
+  void ThumbnailView::setRootByItem(MediaItem::ptr_t item) {
+    if (!item->hasParent() || item->isDirectory()) {
       model->setRootItem(item);
       return;
     }
 
     auto parent = item->getParent();
     model->setRootItem(parent);
+  }
+
+  void ThumbnailView::emitSelectionChanged() {
+    auto item = getSelectedItem();
+    emit selectedItemChanged(item);
   }
 }

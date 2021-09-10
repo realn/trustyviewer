@@ -16,6 +16,7 @@ namespace realn {
     ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase);
 
     MediaItem::ptr_t getItemForIndex(const QModelIndex& index) const;
+    QModelIndex getIndexForItem(MediaItem::ptr_t item) const;
 
     // Inherited via QAbstractItemModel
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -30,6 +31,7 @@ namespace realn {
 
   private:
     static MediaItem::ptr_t fromIndex(const QModelIndex& index);
+    bool isItemOfRoot(MediaItem::ptr_t item) const;
 
     std::shared_ptr<MediaDatabase> database;
     std::unique_ptr<QFileIconProvider> iconProvider;

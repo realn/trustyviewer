@@ -33,6 +33,8 @@ namespace realn {
 
     bool hasParent() const { return parent.lock() != nullptr; }
 
+    size_t getIndexFromParent() const;
+
   private:
     void setParent(ptr_t item);
 

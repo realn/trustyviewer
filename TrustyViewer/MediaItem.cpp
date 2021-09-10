@@ -13,6 +13,13 @@ namespace realn {
     return parent.lock();
   }
 
+  size_t MediaItem::getIndexFromParent() const
+  {
+    auto& list = getParent()->getChildren();
+    auto it = std::find(list.begin(), list.end(), shared_from_this());
+    return static_cast<size_t>(it - list.begin());
+  }
+
   void MediaItem::setParent(ptr_t item)
   {
     parent = item;

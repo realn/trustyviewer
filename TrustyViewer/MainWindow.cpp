@@ -16,6 +16,17 @@ namespace realn {
     createUI();
   }
 
+  void MainWindow::setImageFromItem(MediaItem::ptr_t item) {
+
+    QFileInfo info(item->getFilePath());
+    if (info.isFile()) {
+      view->setImage(info);
+    }
+
+    dirBrowser->setSelectedItem(item);
+    thumbnailView->setSelectedItem(item);
+  }
+
   void MainWindow::setImageToImageView() {
     auto info = dirBrowser->getSelectedFileInfo();
     if (!info.isFile())
@@ -30,8 +41,9 @@ namespace realn {
 
     setCentralWidget(view);
 
-    cC(connect(dirBrowser, &DirBrowserWidget::selectionChanged, this, &MainWindow::setImageToImageView));
-    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setSelectedItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setRootByItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, this, &MainWindow::setImageFromItem));
+    cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, this, &MainWindow::setImageFromItem));
   }
 
   void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible)

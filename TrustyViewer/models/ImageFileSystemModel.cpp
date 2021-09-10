@@ -17,6 +17,18 @@ namespace realn {
 
   }
 
+  QModelIndex ImageFileSystemModel::getIndexForItem(MediaItem::ptr_t item) const
+  {
+    if(!isItemOfRoot(item))
+      return QModelIndex();
+
+    if (item == database->getRootItem())
+      return index(0, 0);
+
+    int row = static_cast<int>(item->getIndexFromParent());
+    return index(row, 0, getIndexForItem(item->getParent()));
+  }
+
   QModelIndex ImageFileSystemModel::index(int row, int column, const QModelIndex& parent) const
   {
     if (column >= columnCount())
@@ -102,5 +114,18 @@ namespace realn {
   MediaItem::ptr_t ImageFileSystemModel::fromIndex(const QModelIndex& index)
   {
     return reinterpret_cast<MediaItem*>(index.internalPointer())->getPtr();
+  }
+  
+  bool ImageFileSystemModel::isItemOfRoot(MediaItem::ptr_t item) const
+  {
+    auto check = item;
+    do {
+      if (check == database->getRootItem())
+        return true;
+
+      check = check->getParent();
+    } while (check);
+
+    return false;
   }
 }

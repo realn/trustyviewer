@@ -41,6 +41,16 @@ namespace realn {
     setLayout(layout);
   }
 
+  void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item)
+  {
+    if (item == getSelectedItem()) {
+      return;
+    }
+
+    auto index = model->getIndexForItem(item);
+    treeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+  }
+
   void DirBrowserWidget::pickNewRoot() {
     auto rootDir = QFileDialog::getExistingDirectory(this, "Choose new root", QString(), QFileDialog::ShowDirsOnly);
     if (rootDir.isEmpty())
@@ -51,7 +61,10 @@ namespace realn {
 
   MediaItem::ptr_t DirBrowserWidget::getSelectedItem() const
   {
-    auto index = treeView->selectionModel()->selectedIndexes().first();
+    auto indices = treeView->selectionModel()->selectedIndexes();
+    if (indices.empty())
+      return nullptr;
+    const auto& index = indices.first();
     return model->getItemForIndex(index);
   }
 

@@ -23,6 +23,31 @@ namespace realn {
     endResetModel();
   }
 
+  MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const
+  {
+    return reinterpret_cast<MediaItem*>(index.internalPointer())->getPtr();
+  }
+
+  QModelIndex ThumbnailModel::getIndexForItem(MediaItem::ptr_t item) const
+  {
+    if (!rootItem)
+      return QModelIndex();
+
+    if (rootItem == item) {
+      if (rootItem->getChildren().size() > 0)
+        return index(0, 0);
+      return QModelIndex();
+    }
+
+    auto& list = rootItem->getChildren();
+    auto it = std::find(list.begin(), list.end(), item);
+    if (it == list.end())
+      return QModelIndex();
+
+    auto rowIndex = it - list.begin();
+    return index(static_cast<int>(rowIndex), 0);
+  }
+
   QModelIndex ThumbnailModel::index(int row, int column, const QModelIndex& parent) const
   {
     if (parent.isValid() || !rootItem)
@@ -32,7 +57,7 @@ namespace realn {
     if (!item)
       return QModelIndex();
 
-    return createIndex(row, column);
+    return createIndex(row, column, item.get());
   }
 
   QModelIndex ThumbnailModel::parent(const QModelIndex& child) const

@@ -16,6 +16,7 @@ namespace realn {
     MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase);
 
   private slots:
+    void setImageFromItem(MediaItem::ptr_t item);
     void setImageToImageView();
 
   private:
