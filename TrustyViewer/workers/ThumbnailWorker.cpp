@@ -7,27 +7,26 @@ namespace realn {
   ThumbnailWorker::ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins)
     : plugins(_plugins)
   {
+    requests = std::make_shared<ThumbnailRequestList>();
+
     jobThread = std::thread(&ThumbnailWorker::Run, this);
   }
 
   ThumbnailWorker::~ThumbnailWorker()
   {
     canRun = false;
-    jobCondition.notify_one();
+    requests->wakeAll();
     jobThread.join();
   }
 
   void ThumbnailWorker::addThumbnailRequest(const QString& filePath)
   {
-    auto lock = std::unique_lock<std::mutex>(jobMutex);
-    requests.push_back(filePath);
-    jobCondition.notify_one();
+    requests->addRequest(filePath);
   }
 
   void ThumbnailWorker::clearRequests()
   {
-    auto lock = std::unique_lock<std::mutex>(jobMutex);
-    requests.clear();
+    requests->clearRequests();
   }
 
   bool ThumbnailWorker::hasDoneThumbnails() const
@@ -44,12 +43,6 @@ namespace realn {
     return result;
   }
 
-  QString ThumbnailWorker::popRequest()
-  {
-    auto filepath = requests.first();
-    requests.pop_front();
-    return filepath;
-  }
 
   void ThumbnailWorker::addCompleted(QString filePath, std::unique_ptr<QPixmap> thumbnail)
   {
@@ -61,15 +54,13 @@ namespace realn {
   void ThumbnailWorker::Run()
   {
     while (canRun) {
-      QString request;
-      {
-        auto lock = std::unique_lock<std::mutex>(jobMutex);
-        if (requests.empty()) {
-          jobCondition.wait(lock);
-          continue;
-        }
-        request = popRequest();
+      if (requests->isEmpty()) {
+        requests->waitForRequests();
+        continue;
       }
+      QString request = requests->popRequest();
+      if (request.isEmpty())
+        continue;
 
       QFileInfo info(request);
       auto plugin = plugins->getPluginForExt(info.completeSuffix());

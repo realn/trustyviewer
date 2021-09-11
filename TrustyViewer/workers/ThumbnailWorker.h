@@ -11,8 +11,10 @@
 #include <QPixmap>
 
 #include "../extensions/ExtPlugin.h"
+#include "ThumbnailRequestList.h"
 
 namespace realn {
+
   class ThumbnailWorker {
   public:
     class JobDone {
@@ -32,17 +34,14 @@ namespace realn {
     done_vec_t popDoneThumbnails();
 
   private:
-    QString popRequest();
     void addCompleted(QString filePath, std::unique_ptr<QPixmap> thumbnail);
     void Run();
 
+    std::shared_ptr<ThumbnailRequestList> requests;
     std::shared_ptr<ExtPluginList> plugins;
-    QStringList requests;
     std::vector<JobDone> completedJobs;
     std::thread jobThread;
-    std::mutex jobMutex;
     std::mutex doneMutex;
-    std::condition_variable jobCondition;
     std::atomic_bool hasDone = false;
     std::atomic_bool canRun = true;
   };

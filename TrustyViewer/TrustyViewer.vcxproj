@@ -99,6 +99,7 @@
     <ClCompile Include="widgets\ImageView.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
     <ClCompile Include="workers\ThreadWorker.cpp" />
+    <ClCompile Include="workers\ThumbnailRequestList.cpp" />
     <ClCompile Include="workers\ThumbnailWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +115,7 @@
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="workers\ThreadWorker.h" />
+    <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailWorker.h" />
     <QtMoc Include="models\ThumbnailModel.h" />
     <QtMoc Include="widgets\ThumbnailView.h" />
