@@ -6,6 +6,14 @@
 #include "ImageView.h"
 
 namespace realn {
+  namespace {
+    bool lequal(const QSize& left, const QSize& right) {
+      if (left.width() <= right.width() && left.height() <= right.height())
+        return true;
+      return false;
+    }
+  }
+
   ImageView::ImageView(std::shared_ptr<ExtPluginList> plugins)
     : plugins(plugins)
   {
@@ -24,31 +32,49 @@ namespace realn {
 
     setLayout(layout);
   }
-  void ImageView::setImage(QFileInfo fileInfo)
-  {
-    if (fileInfo.isDir())
+
+  void ImageView::setImageFromPath(const QString& filePath) {
+    QFileInfo fileInfo(filePath);
+    if (!fileInfo.exists() || fileInfo.isDir())
       return;
 
-    auto filepath = fileInfo.absoluteFilePath();
     auto fileext = fileInfo.completeSuffix();
 
     auto plugin = plugins->getPluginForExt(fileext);
     if (!plugin)
       return;
 
-    image = plugin->loadImage(filepath);
+    image = plugin->loadImage(filePath);
     shownImage = QPixmap::fromImage(*image);
-    ResetImage();
+    loadScaledImage();
+  }
+
+  void ImageView::setImageFromItem(MediaItem::ptr_t item)
+  {
+    if (!item)
+      return;
+    if (item->isDirectory())
+      return;
+
+    setImageFromPath(item->getFilePath());
   }
 
   void ImageView::resizeEvent(QResizeEvent* event)
   {
-    ResetImage();
+    rescaleImage();
     QWidget::resizeEvent(event);
   }
 
-  void ImageView::ResetImage()
+  void ImageView::loadScaledImage()
   {
     label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
+  }
+
+  void ImageView::rescaleImage()
+  {
+    const auto& pix = label->pixmap();
+    if (pix && lequal(pix->size(), label->size()))
+      return;
+    loadScaledImage();
   }
 }

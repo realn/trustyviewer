@@ -8,6 +8,7 @@
 #include <QMovie>
 
 #include "../extensions/ExtPlugin.h"
+#include "../MediaItem.h"
 
 namespace realn {
   class ImageView : public QWidget {
@@ -15,13 +16,15 @@ namespace realn {
   public:
     ImageView(std::shared_ptr<ExtPluginList> plugins);
 
-    void setImage(QFileInfo fileInfo);
+    void setImageFromPath(const QString& filePath);
+    void setImageFromItem(MediaItem::ptr_t item);
 
   protected:
     void resizeEvent(QResizeEvent* event) override;
 
   private:
-    void ResetImage();
+    void loadScaledImage();
+    void rescaleImage();
 
     QPointer<QLabel> label;
     std::unique_ptr<QImage> image;

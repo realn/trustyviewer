@@ -17,7 +17,6 @@ namespace realn {
 
   private slots:
     void setImageFromItem(MediaItem::ptr_t item);
-    void setImageToImageView();
 
   private:
     using dockptr_t = QPointer<QDockWidget>;

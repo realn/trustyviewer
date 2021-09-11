@@ -20,20 +20,9 @@ namespace realn {
     if (!item)
       return;
 
-    QFileInfo info(item->getFilePath());
-    if (info.isFile()) {
-      view->setImage(info);
-    }
-
+    view->setImageFromItem(item);
     dirBrowser->setSelectedItem(item);
     thumbnailView->setSelectedItem(item);
-  }
-
-  void MainWindow::setImageToImageView() {
-    auto info = dirBrowser->getSelectedFileInfo();
-    if (!info.isFile())
-      return;
-    view->setImage(info);
   }
 
   void MainWindow::createUI()
