@@ -55,6 +55,12 @@
     <ClCompile Include="models\ThumbnailModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="workers\ThreadWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workers\ThumbnailWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -75,5 +81,7 @@
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="workers\ThumbnailWorker.h" />
+    <ClInclude Include="workers\ThreadWorker.h" />
   </ItemGroup>
 </Project>

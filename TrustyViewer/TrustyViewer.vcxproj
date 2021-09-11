@@ -98,6 +98,8 @@
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageView.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
+    <ClCompile Include="workers\ThreadWorker.cpp" />
+    <ClCompile Include="workers\ThumbnailWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="models\ImageFileSystemModel.h" />
@@ -111,6 +113,8 @@
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="workers\ThreadWorker.h" />
+    <ClInclude Include="workers\ThumbnailWorker.h" />
     <QtMoc Include="models\ThumbnailModel.h" />
     <QtMoc Include="widgets\ThumbnailView.h" />
     <QtMoc Include="MediaDatabase.h" />

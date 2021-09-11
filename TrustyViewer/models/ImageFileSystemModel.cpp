@@ -113,7 +113,10 @@ namespace realn {
 
   MediaItem::ptr_t ImageFileSystemModel::fromIndex(const QModelIndex& index)
   {
-    return reinterpret_cast<MediaItem*>(index.internalPointer())->getPtr();
+    auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
+    if (!ptr)
+      return nullptr;
+    return ptr->getPtr();
   }
   
   bool ImageFileSystemModel::isItemOfRoot(MediaItem::ptr_t item) const

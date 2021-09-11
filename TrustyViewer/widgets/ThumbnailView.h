@@ -12,7 +12,7 @@ namespace realn {
   class ThumbnailView : public QWidget {
     Q_OBJECT;
   public:
-    ThumbnailView(std::shared_ptr<ExtPluginList> plugins);
+    ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker);
 
     MediaItem::ptr_t getSelectedItem() const;
 

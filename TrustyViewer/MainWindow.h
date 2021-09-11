@@ -13,7 +13,7 @@ namespace realn {
   class MainWindow : public QMainWindow {
     Q_OBJECT;
   public:
-    MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase);
+    MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker);
 
   private slots:
     void setImageFromItem(MediaItem::ptr_t item);

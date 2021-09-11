@@ -4,7 +4,8 @@
 
 #include <QApplication>
 
-#include "Extensions/ExtPlugin.h"
+#include "extensions/ExtPlugin.h"
+#include "workers/ThumbnailWorker.h"
 #include "MediaDatabase.h"
 
 namespace realn {
@@ -19,6 +20,7 @@ namespace realn {
   private:
     std::shared_ptr<MediaDatabase> database;
     std::shared_ptr<ExtPluginList> plugins;
+    std::shared_ptr<ThumbnailWorker> thumbnailWorker;
 
     std::unique_ptr<MainWindow> mainWindow;
   };

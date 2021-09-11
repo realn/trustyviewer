@@ -4,12 +4,12 @@
 #include "ThumbnailView.h"
 
 namespace realn {
-  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins) {
+  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker) {
 
     auto thumbSize = QSize(100, 150);
     auto gridSize = thumbSize + QSize(20, 20);
 
-    model = new ThumbnailModel(plugins, thumbSize);
+    model = new ThumbnailModel(plugins, worker, thumbSize);
 
     listView = new QListView();
     listView->setViewMode(QListView::ViewMode::IconMode);
@@ -42,6 +42,9 @@ namespace realn {
   }
 
   void ThumbnailView::setRootByItem(MediaItem::ptr_t item) {
+    if (!item)
+      return;
+
     if (!item->hasParent() || item->isDirectory()) {
       model->setRootItem(item);
       return;

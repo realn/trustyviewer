@@ -7,16 +7,18 @@
 #include "MainWindow.h"
 
 namespace realn {
-  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase) {
+  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker) {
 
     view = new ImageView(plugins);
     dirBrowser = new DirBrowserWidget(mediaDatabase);
-    thumbnailView = new ThumbnailView(plugins);
+    thumbnailView = new ThumbnailView(plugins, worker);
 
     createUI();
   }
 
   void MainWindow::setImageFromItem(MediaItem::ptr_t item) {
+    if (!item)
+      return;
 
     QFileInfo info(item->getFilePath());
     if (info.isFile()) {

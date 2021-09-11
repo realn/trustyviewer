@@ -15,7 +15,9 @@ namespace realn {
 
     database = std::make_shared<MediaDatabase>(plugins);
 
-    mainWindow = std::make_unique<MainWindow>(plugins, database);
+    thumbnailWorker = std::make_shared<ThumbnailWorker>(plugins);
+
+    mainWindow = std::make_unique<MainWindow>(plugins, database, thumbnailWorker);
     mainWindow->show();
   }
 

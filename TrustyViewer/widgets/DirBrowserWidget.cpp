@@ -43,7 +43,7 @@ namespace realn {
 
   void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item)
   {
-    if (item == getSelectedItem()) {
+    if (!item || item == getSelectedItem()) {
       return;
     }
 

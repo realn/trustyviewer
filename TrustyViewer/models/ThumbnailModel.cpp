@@ -1,12 +1,14 @@
 
+#include <QTimer>
 #include <QColor>
 #include <QFileInfo>
 
 #include "ThumbnailModel.h"
 
 namespace realn {
-  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, QSize _thumbnailSize)
+  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize)
     : plugins(_plugins)
+    , worker(_worker)
     , thumbnailSize(_thumbnailSize)
   {
     defaultThumbnail = QPixmap(thumbnailSize);
@@ -25,7 +27,10 @@ namespace realn {
 
   MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const
   {
-    return reinterpret_cast<MediaItem*>(index.internalPointer())->getPtr();
+    auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
+    if (!ptr)
+      return nullptr;
+    return ptr->getPtr();
   }
 
   QModelIndex ThumbnailModel::getIndexForItem(MediaItem::ptr_t item) const
@@ -98,21 +103,28 @@ namespace realn {
 
   void ThumbnailModel::createThumbnails()
   {
+    worker->clearRequests();
     thumbnails.clear();
     for (auto& item : rootItem->getChildren()) {
       if (item->isDirectory())
         continue;
 
-      auto plugin = plugins->getPluginForExt(QFileInfo(item->getFilePath()).completeSuffix());
-      if (!plugin)
-        continue;
-
-      auto thumbnail = plugin->createThumbnail(item->getFilePath(), thumbnailSize);
-      if (!thumbnail)
-        continue;
-
-      thumbnails[item->getFilePath()] = std::move(thumbnail);
+      worker->addThumbnailRequest(item->getFilePath());
     }
+    QTimer::singleShot(std::chrono::milliseconds(500), this, &ThumbnailModel::retrieveThumbnails);
+  }
+
+  void ThumbnailModel::retrieveThumbnails() {
+    if (worker->hasDoneThumbnails()) {
+      auto result = worker->popDoneThumbnails();
+
+      for (auto& item : result) {
+        thumbnails[item.filePath] = std::move(item.thumbnail);
+      }
+
+      emitThumbnailsDataChanged();
+    }
+    QTimer::singleShot(std::chrono::milliseconds(500), this, &ThumbnailModel::retrieveThumbnails);
   }
 
   QPixmap ThumbnailModel::getThumbnail(const QString& filepath) const
@@ -120,6 +132,14 @@ namespace realn {
     if (thumbnails.count(filepath) == 0)
       return defaultThumbnail;
     return *thumbnails.at(filepath);
+  }
+
+  void ThumbnailModel::emitThumbnailsDataChanged()
+  {
+    auto top = index(0, 0);
+    auto bottom = index(rowCount() - 1, 0);
+    QVector<int> roles = { Qt::DecorationRole };
+    emit dataChanged(top, bottom, roles);
   }
 
   //QVariant ThumbnailModel::headerData(int section, Qt::Orientation orientation, int role) const
