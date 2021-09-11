@@ -8,6 +8,7 @@ namespace realn {
     : plugins(_plugins)
   {
     requests = std::make_shared<ThumbnailRequestList>();
+    completed = std::make_shared<ThumbnailDoneList>();
 
     jobThread = std::thread(&ThumbnailWorker::Run, this);
   }
@@ -31,24 +32,12 @@ namespace realn {
 
   bool ThumbnailWorker::hasDoneThumbnails() const
   {
-    return hasDone;
+    return completed->hasDone();
   }
 
-  ThumbnailWorker::done_vec_t ThumbnailWorker::popDoneThumbnails()
+  ThumbnailDoneList::done_vec_t ThumbnailWorker::popDoneThumbnails()
   {
-    auto lock = std::unique_lock<std::mutex>(doneMutex);
-    auto result = done_vec_t();
-    std::swap(completedJobs, result);
-    hasDone = false;
-    return result;
-  }
-
-
-  void ThumbnailWorker::addCompleted(QString filePath, std::unique_ptr<QPixmap> thumbnail)
-  {
-    auto lock = std::unique_lock<std::mutex>(doneMutex);
-    completedJobs.push_back({filePath, std::move(thumbnail)});
-    hasDone = true;
+    return completed->popAllDone();
   }
 
   void ThumbnailWorker::Run()
@@ -71,7 +60,7 @@ namespace realn {
       if (!thumbnail)
         continue;
 
-      addCompleted(request, std::move(thumbnail));
+      completed->addDone(request, std::move(thumbnail));
     }
   }
 

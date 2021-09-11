@@ -64,6 +64,9 @@
     <ClCompile Include="workers\ThumbnailRequestList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="workers\ThumbnailDoneList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -87,5 +90,6 @@
     <ClInclude Include="workers\ThumbnailWorker.h" />
     <ClInclude Include="workers\ThreadWorker.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
+    <ClInclude Include="workers\ThumbnailDoneList.h" />
   </ItemGroup>
 </Project>
