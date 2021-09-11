@@ -14,7 +14,7 @@ namespace realn {
     }
   }
 
-  ImageView::ImageView(std::shared_ptr<ExtPluginList> plugins)
+  MediaContentWidget::MediaContentWidget(std::shared_ptr<ExtPluginList> plugins)
     : plugins(plugins)
   {
 
@@ -33,7 +33,7 @@ namespace realn {
     setLayout(layout);
   }
 
-  void ImageView::setImageFromPath(const QString& filePath) {
+  void MediaContentWidget::setImageFromPath(const QString& filePath) {
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || fileInfo.isDir())
       return;
@@ -49,7 +49,7 @@ namespace realn {
     loadScaledImage();
   }
 
-  void ImageView::setImageFromItem(MediaItem::ptr_t item)
+  void MediaContentWidget::setImageFromItem(MediaItem::ptr_t item)
   {
     if (!item)
       return;
@@ -59,18 +59,18 @@ namespace realn {
     setImageFromPath(item->getFilePath());
   }
 
-  void ImageView::resizeEvent(QResizeEvent* event)
+  void MediaContentWidget::resizeEvent(QResizeEvent* event)
   {
     rescaleImage();
     QWidget::resizeEvent(event);
   }
 
-  void ImageView::loadScaledImage()
+  void MediaContentWidget::loadScaledImage()
   {
     label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
   }
 
-  void ImageView::rescaleImage()
+  void MediaContentWidget::rescaleImage()
   {
     const auto& pix = label->pixmap();
     if (pix && lequal(pix->size(), label->size()))

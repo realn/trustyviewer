@@ -11,10 +11,10 @@
 #include "../MediaItem.h"
 
 namespace realn {
-  class ImageView : public QWidget {
+  class MediaContentWidget : public QWidget {
     Q_OBJECT;
   public:
-    ImageView(std::shared_ptr<ExtPluginList> plugins);
+    MediaContentWidget(std::shared_ptr<ExtPluginList> plugins);
 
     void setImageFromPath(const QString& filePath);
     void setImageFromItem(MediaItem::ptr_t item);
