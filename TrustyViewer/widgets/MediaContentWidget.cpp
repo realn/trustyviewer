@@ -22,13 +22,10 @@ namespace realn {
 
     auto layout = new QHBoxLayout();
 
-    label = new QLabel();
-    label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    label->setScaledContents(false);
-    label->setBackgroundRole(QPalette::Base);
-    label->setAlignment(Qt::AlignmentFlag::AlignCenter);
+    imageContent = new ImageMediaWidget();
+    imageContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-    layout->addWidget(label);
+    layout->addWidget(imageContent);
 
     setLayout(layout);
   }
@@ -44,9 +41,8 @@ namespace realn {
     if (!plugin)
       return;
 
-    image = plugin->loadImage(filePath);
-    shownImage = QPixmap::fromImage(*image);
-    loadScaledImage();
+    auto image = plugin->loadImage(filePath);
+    imageContent->setImage(std::move(image));
   }
 
   void MediaContentWidget::setImageFromItem(MediaItem::ptr_t item)
@@ -67,14 +63,14 @@ namespace realn {
 
   void MediaContentWidget::loadScaledImage()
   {
-    label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
+    //label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
   }
 
   void MediaContentWidget::rescaleImage()
   {
-    const auto& pix = label->pixmap();
-    if (pix && lequal(pix->size(), label->size()))
-      return;
-    loadScaledImage();
+    //const auto& pix = label->pixmap();
+    //if (pix && lequal(pix->size(), label->size()))
+    //  return;
+    //loadScaledImage();
   }
 }

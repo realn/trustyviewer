@@ -9,6 +9,7 @@
 
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
+#include "ImageMediaWidget.h"
 
 namespace realn {
   class MediaContentWidget : public QWidget {
@@ -26,11 +27,7 @@ namespace realn {
     void loadScaledImage();
     void rescaleImage();
 
-    QPointer<QLabel> label;
-    std::unique_ptr<QImage> image;
-    std::unique_ptr<QMovie> movie;
-
-    QPixmap shownImage;
+    QPointer<ImageMediaWidget> imageContent;
     
     std::shared_ptr<ExtPluginList> plugins;
   };

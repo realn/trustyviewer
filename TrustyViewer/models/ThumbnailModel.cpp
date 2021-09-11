@@ -117,7 +117,7 @@ namespace realn {
 
       worker->addThumbnailRequest(item->getFilePath());
     }
-    QTimer::singleShot(std::chrono::milliseconds(500), this, &ThumbnailModel::retrieveThumbnails);
+    QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }
 
   void ThumbnailModel::retrieveThumbnails() {
@@ -130,7 +130,7 @@ namespace realn {
 
       emitThumbnailsDataChanged();
     }
-    QTimer::singleShot(std::chrono::milliseconds(500), this, &ThumbnailModel::retrieveThumbnails);
+    QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }
 
   QPixmap ThumbnailModel::getThumbnail(const QString& filepath) const

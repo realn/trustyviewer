@@ -96,6 +96,7 @@
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
     <ClCompile Include="models\ThumbnailModel.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
+    <ClCompile Include="widgets\ImageMediaWidget.cpp" />
     <ClCompile Include="widgets\MediaContentWidget.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
+    <QtMoc Include="widgets\ImageMediaWidget.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />

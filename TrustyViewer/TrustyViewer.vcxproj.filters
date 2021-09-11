@@ -67,6 +67,9 @@
     <ClCompile Include="workers\ThumbnailThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\ImageMediaWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -81,6 +84,7 @@
     <QtMoc Include="MediaDatabase.h" />
     <QtMoc Include="widgets\ThumbnailView.h" />
     <QtMoc Include="models\ThumbnailModel.h" />
+    <QtMoc Include="widgets\ImageMediaWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
