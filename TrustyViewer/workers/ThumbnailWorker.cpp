@@ -5,19 +5,17 @@
 
 namespace realn {
   ThumbnailWorker::ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins)
-    : plugins(_plugins)
   {
     requests = std::make_shared<ThumbnailRequestList>();
     completed = std::make_shared<ThumbnailDoneList>();
 
-    jobThread = std::thread(&ThumbnailWorker::Run, this);
+    thread = std::make_unique<ThumbnailThread>(_plugins, requests, completed);
   }
 
   ThumbnailWorker::~ThumbnailWorker()
   {
-    canRun = false;
+    thread->stop();
     requests->wakeAll();
-    jobThread.join();
   }
 
   void ThumbnailWorker::addThumbnailRequest(const QString& filePath)
@@ -38,30 +36,6 @@ namespace realn {
   ThumbnailDoneList::done_vec_t ThumbnailWorker::popDoneThumbnails()
   {
     return completed->popAllDone();
-  }
-
-  void ThumbnailWorker::Run()
-  {
-    while (canRun) {
-      if (requests->isEmpty()) {
-        requests->waitForRequests();
-        continue;
-      }
-      QString request = requests->popRequest();
-      if (request.isEmpty())
-        continue;
-
-      QFileInfo info(request);
-      auto plugin = plugins->getPluginForExt(info.completeSuffix());
-      if (!plugin)
-        continue;
-
-      auto thumbnail = plugin->createThumbnail(request, QSize(100, 150));
-      if (!thumbnail)
-        continue;
-
-      completed->addDone(request, std::move(thumbnail));
-    }
   }
 
 

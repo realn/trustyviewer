@@ -101,6 +101,7 @@
     <ClCompile Include="workers\ThreadWorker.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
     <ClCompile Include="workers\ThumbnailRequestList.cpp" />
+    <ClCompile Include="workers\ThumbnailThread.cpp" />
     <ClCompile Include="workers\ThumbnailWorker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -118,6 +119,7 @@
     <ClInclude Include="workers\ThreadWorker.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
+    <ClInclude Include="workers\ThumbnailThread.h" />
     <ClInclude Include="workers\ThumbnailWorker.h" />
     <QtMoc Include="models\ThumbnailModel.h" />
     <QtMoc Include="widgets\ThumbnailView.h" />

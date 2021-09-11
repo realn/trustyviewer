@@ -13,6 +13,7 @@
 #include "../extensions/ExtPlugin.h"
 #include "ThumbnailRequestList.h"
 #include "ThumbnailDoneList.h"
+#include "ThumbnailThread.h"
 
 namespace realn {
 
@@ -29,12 +30,8 @@ namespace realn {
     ThumbnailDoneList::done_vec_t popDoneThumbnails();
 
   private:
-    void Run();
-
     std::shared_ptr<ThumbnailRequestList> requests;
     std::shared_ptr<ThumbnailDoneList> completed;
-    std::shared_ptr<ExtPluginList> plugins;
-    std::thread jobThread;
-    std::atomic_bool canRun = true;
+    std::unique_ptr<ThumbnailThread> thread;
   };
 }
