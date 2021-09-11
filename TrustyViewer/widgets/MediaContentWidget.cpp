@@ -3,7 +3,7 @@
 #include <QImage>
 #include <QEvent>
 
-#include "ImageView.h"
+#include "MediaContentWidget.h"
 
 namespace realn {
   namespace {

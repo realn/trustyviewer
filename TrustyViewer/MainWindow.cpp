@@ -9,7 +9,7 @@
 namespace realn {
   MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker) {
 
-    view = new ImageView(plugins);
+    view = new MediaContentWidget(plugins);
     dirBrowser = new DirBrowserWidget(mediaDatabase);
     thumbnailView = new ThumbnailView(plugins, worker);
 

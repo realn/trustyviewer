@@ -96,7 +96,7 @@
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
     <ClCompile Include="models\ThumbnailModel.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
-    <ClCompile Include="widgets\ImageView.cpp" />
+    <ClCompile Include="widgets\MediaContentWidget.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
     <ClCompile Include="workers\ThumbnailRequestList.cpp" />
@@ -106,7 +106,7 @@
   <ItemGroup>
     <QtMoc Include="models\ImageFileSystemModel.h" />
     <QtMoc Include="widgets\DirBrowserWidget.h" />
-    <QtMoc Include="widgets\ImageView.h" />
+    <QtMoc Include="widgets\MediaContentWidget.h" />
     <QtMoc Include="Application.h" />
     <QtMoc Include="MainWindow.h" />
   </ItemGroup>
