@@ -9,12 +9,16 @@ namespace realn {
     requests = std::make_shared<ThumbnailRequestList>();
     completed = std::make_shared<ThumbnailDoneList>();
 
-    thread = std::make_unique<ThumbnailThread>(_plugins, requests, completed);
+    for (auto i = 0; i < std::thread::hardware_concurrency() / 2; i++) {
+      threads.push_back(std::make_unique<ThumbnailThread>(_plugins, requests, completed));
+    }
   }
 
   ThumbnailWorker::~ThumbnailWorker()
   {
-    thread->stop();
+    for(auto& thread : threads) {
+      thread->stop();
+    }
     requests->wakeAll();
   }
 

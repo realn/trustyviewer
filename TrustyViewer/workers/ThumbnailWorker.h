@@ -5,6 +5,7 @@
 #include <shared_mutex>
 #include <condition_variable>
 #include <atomic>
+#include <vector>
 
 #include <QString>
 #include <QStringList>
@@ -30,8 +31,12 @@ namespace realn {
     ThumbnailDoneList::done_vec_t popDoneThumbnails();
 
   private:
+    using thread_ptr_t = std::unique_ptr<ThumbnailThread>;
+    using thread_vec_t = std::vector<thread_ptr_t>;
+
     std::shared_ptr<ThumbnailRequestList> requests;
     std::shared_ptr<ThumbnailDoneList> completed;
-    std::unique_ptr<ThumbnailThread> thread;
+
+    thread_vec_t threads;
   };
 }
