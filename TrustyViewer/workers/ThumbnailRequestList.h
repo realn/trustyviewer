@@ -16,15 +16,11 @@ namespace realn {
     QString popRequest();
     void clearRequests();
 
-    void waitForRequests();
     void wakeAll();
-
-    bool isEmpty() const { return empty; }
 
   private:
     QStringList requests;
     std::mutex mutex;
     std::condition_variable condition;
-    std::atomic_bool empty = true;
   };
 }

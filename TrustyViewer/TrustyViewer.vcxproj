@@ -98,7 +98,6 @@
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageView.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
-    <ClCompile Include="workers\ThreadWorker.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
     <ClCompile Include="workers\ThumbnailRequestList.cpp" />
     <ClCompile Include="workers\ThumbnailThread.cpp" />
@@ -116,7 +115,6 @@
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="workers\ThreadWorker.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />

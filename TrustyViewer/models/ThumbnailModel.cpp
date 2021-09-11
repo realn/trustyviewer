@@ -104,7 +104,13 @@ namespace realn {
   void ThumbnailModel::createThumbnails()
   {
     worker->clearRequests();
-    thumbnails.clear();
+
+    {
+      thumbnail_map_t temp;
+      std::swap(temp, thumbnails);
+      std::thread([](thumbnail_map_t&& memory) { memory.clear(); }, std::move(temp)).detach();
+    }
+
     for (auto& item : rootItem->getChildren()) {
       if (item->isDirectory())
         continue;

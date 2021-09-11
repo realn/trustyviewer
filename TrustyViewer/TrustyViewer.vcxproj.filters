@@ -55,9 +55,6 @@
     <ClCompile Include="models\ThumbnailModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="workers\ThreadWorker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="workers\ThumbnailWorker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,7 +88,6 @@
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="workers\ThumbnailWorker.h" />
-    <ClInclude Include="workers\ThreadWorker.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />

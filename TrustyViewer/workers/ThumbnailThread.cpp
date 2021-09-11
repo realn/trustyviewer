@@ -28,10 +28,6 @@ namespace realn {
   void ThumbnailThread::run()
   {
     while (canRun) {
-      if (requests->isEmpty()) {
-        requests->waitForRequests();
-        continue;
-      }
       QString request = requests->popRequest();
       if (request.isEmpty())
         continue;
