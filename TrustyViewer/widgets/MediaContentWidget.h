@@ -6,6 +6,8 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QMovie>
+#include <Qmovie>
+#include <QStackedWidget>
 
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
@@ -27,7 +29,11 @@ namespace realn {
     void loadScaledImage();
     void rescaleImage();
 
+    QPointer<QStackedWidget> stack;
     QPointer<ImageMediaWidget> imageContent;
+    QPointer<QLabel> animationPlayer;
+    std::unique_ptr<QMovie> movie;
+
     
     std::shared_ptr<ExtPluginList> plugins;
   };

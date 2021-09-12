@@ -70,6 +70,9 @@
     <ClCompile Include="widgets\ImageMediaWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Extensions\GifImageExtPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -95,5 +98,6 @@
     <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />
+    <ClInclude Include="extensions\GifImageExtPlugin.h" />
   </ItemGroup>
 </Project>

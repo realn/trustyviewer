@@ -20,13 +20,21 @@ namespace realn {
 
     setMinimumSize(640, 480);
 
-    auto layout = new QHBoxLayout();
-
     imageContent = new ImageMediaWidget();
     imageContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-    layout->addWidget(imageContent);
+    animationPlayer = new QLabel();
+    animationPlayer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    animationPlayer->setAlignment(Qt::AlignCenter);
 
+    stack = new QStackedWidget();
+    stack->addWidget(imageContent);
+    stack->addWidget(animationPlayer);
+
+    stack->setCurrentIndex(0);
+
+    auto layout = new QHBoxLayout();
+    layout->addWidget(stack);
     setLayout(layout);
   }
 
@@ -41,8 +49,18 @@ namespace realn {
     if (!plugin)
       return;
 
-    auto image = plugin->loadImage(filePath);
-    imageContent->setImage(std::move(image));
+    if (plugin->isAnimated(fileext)) {
+      stack->setCurrentIndex(1);
+      animationPlayer->setMovie(nullptr);
+      movie = plugin->loadMovie(filePath);
+      animationPlayer->setMovie(movie.get());
+      movie->start();
+    }
+    else {
+      stack->setCurrentIndex(0);
+      auto image = plugin->loadImage(filePath);
+      imageContent->setImage(std::move(image));
+    }
   }
 
   void MediaContentWidget::setImageFromItem(MediaItem::ptr_t item)

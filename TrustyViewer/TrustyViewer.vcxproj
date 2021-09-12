@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="extensions\ExtPlugin.cpp" />
+    <ClCompile Include="Extensions\GifImageExtPlugin.cpp" />
     <ClCompile Include="extensions\StdImageExtPlugin.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -113,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
+    <ClInclude Include="extensions\GifImageExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
