@@ -22,9 +22,8 @@ namespace realn {
 
   private:
     MediaItem::ptr_t buildFromPath(const QString& path);
+    MediaItem::ptr_t buildMediaItem(const QString& path, MediaItemType type);
     MediaItem::ptr_t buildDir(const QString& path);
-    MediaItem::ptr_t buildImage(const QString& path);
-    MediaItem::ptr_t buildVideo(const QString& path);
 
     QStringList getNameFilters() const;
 

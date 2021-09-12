@@ -38,10 +38,20 @@ namespace realn {
     if (!plugin)
       return nullptr;
 
-    if (plugin->isAnimated(info.completeSuffix()))
-      return buildVideo(path);
+    if (plugin->isVideo(info.completeSuffix()))
+      return buildMediaItem(path, MediaItemType::Video);
 
-    return buildImage(path);
+    if (plugin->isAnimated(info.completeSuffix()))
+      return buildMediaItem(path, MediaItemType::Animation);
+
+    return buildMediaItem(path, MediaItemType::Image);
+  }
+
+  MediaItem::ptr_t MediaDatabase::buildMediaItem(const QString& path, MediaItemType type)
+  {
+    auto result = std::make_shared<MediaItem>(path, type);
+    mainList.push_back(result);
+    return result;
   }
 
   MediaItem::ptr_t MediaDatabase::buildDir(const QString& path)
@@ -65,19 +75,6 @@ namespace realn {
     return result;
   }
 
-  MediaItem::ptr_t MediaDatabase::buildImage(const QString& path)
-  {
-    auto result = std::make_shared<MediaItem>(path, MediaItemType::Image);
-    mainList.push_back(result);
-    return result;
-  }
-
-  MediaItem::ptr_t MediaDatabase::buildVideo(const QString& path)
-  {
-    auto result = std::make_shared<MediaItem>(path, MediaItemType::Video);
-    mainList.push_back(result);
-    return result;
-  }
   QStringList MediaDatabase::getNameFilters() const
   {
     auto result = QStringList();

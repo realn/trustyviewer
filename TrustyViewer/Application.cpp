@@ -3,6 +3,7 @@
 
 #include "extensions/StdImageExtPlugin.h"
 #include "extensions/GifImageExtPlugin.h"
+#include "extensions/StdVideoExtPlugin.h"
 
 #include "Application.h"
 
@@ -12,8 +13,9 @@ namespace realn {
   {
 
     plugins = std::make_shared<ExtPluginList>();
-    plugins->addPlugin(std::make_shared<StdImageExtPlugin>());
-    plugins->addPlugin(std::make_shared<GifImageExtPlugin>());
+    plugins->addPlugin<StdImageExtPlugin>();
+    plugins->addPlugin<GifImageExtPlugin>();
+    plugins->addPlugin<StdVideoExtPlugin>();
 
     database = std::make_shared<MediaDatabase>(plugins);
 

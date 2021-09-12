@@ -6,8 +6,9 @@
 #include <QFileInfo>
 #include <QImage>
 #include <QMovie>
-#include <Qmovie>
 #include <QStackedWidget>
+#include <QtMultimedia/QMediaPlayer>
+#include <QtMultimediaWidgets/QVideoWidget>
 
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
@@ -32,9 +33,11 @@ namespace realn {
     QPointer<QStackedWidget> stack;
     QPointer<ImageMediaWidget> imageContent;
     QPointer<QLabel> animationPlayer;
-    std::unique_ptr<QMovie> movie;
+    QPointer<QVideoWidget> videoWidget;
 
-    
+    std::unique_ptr<QMediaPlayer> videoPlayer;
+    std::unique_ptr<QMovie> movie;
+    std::unique_ptr<QMediaContent> video;
     std::shared_ptr<ExtPluginList> plugins;
   };
 }

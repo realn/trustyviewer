@@ -9,7 +9,8 @@ namespace realn {
   enum class MediaItemType {
     Directory = 0,
     Image = 1,
-    Video = 2,
+    Animation = 2,
+    Video = 3,
   };
 
   class MediaItem : public std::enable_shared_from_this<MediaItem> {

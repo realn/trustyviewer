@@ -27,9 +27,14 @@ namespace realn {
     animationPlayer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     animationPlayer->setAlignment(Qt::AlignCenter);
 
+    videoPlayer = std::make_unique<QMediaPlayer>();
+    videoWidget = new QVideoWidget();
+    videoPlayer->setVideoOutput(videoWidget);
+
     stack = new QStackedWidget();
     stack->addWidget(imageContent);
     stack->addWidget(animationPlayer);
+    stack->addWidget(videoWidget);
 
     stack->setCurrentIndex(0);
 
@@ -49,10 +54,17 @@ namespace realn {
     if (!plugin)
       return;
 
-    if (plugin->isAnimated(fileext)) {
+    animationPlayer->setMovie(nullptr);
+    videoPlayer->stop();
+    if (plugin->isVideo(fileext)) {
+      stack->setCurrentIndex(2);
+      video = plugin->loadVideo(filePath);
+      videoPlayer->setMedia(*video);
+      videoPlayer->play();
+    }
+    else if (plugin->isAnimated(fileext)) {
       stack->setCurrentIndex(1);
-      animationPlayer->setMovie(nullptr);
-      movie = plugin->loadMovie(filePath);
+      movie = plugin->loadAnimation(filePath);
       animationPlayer->setMovie(movie.get());
       movie->start();
     }

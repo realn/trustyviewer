@@ -11,17 +11,12 @@ namespace realn {
     return QStringList() << "gif";
   }
 
-  bool GifImageExtPlugin::isAnimated(const QString& ext) const
-  {
-    return ext == "gif";
-  }
-
   std::unique_ptr<QImage> GifImageExtPlugin::loadImage(const QString& filepath) const
   {
     return std::make_unique<QImage>(filepath);
   }
 
-  std::unique_ptr<QMovie> GifImageExtPlugin::loadMovie(const QString& filepath) const
+  std::unique_ptr<QMovie> GifImageExtPlugin::loadAnimation(const QString& filepath) const
   {
     return std::make_unique<QMovie>(filepath);
   }

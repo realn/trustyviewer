@@ -73,6 +73,12 @@
     <ClCompile Include="Extensions\GifImageExtPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Extensions\StdVideoExtPlugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="extensions\DummyVideoSurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -88,6 +94,7 @@
     <QtMoc Include="widgets\ThumbnailView.h" />
     <QtMoc Include="models\ThumbnailModel.h" />
     <QtMoc Include="widgets\ImageMediaWidget.h" />
+    <QtMoc Include="extensions\DummyVideoSurface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
@@ -99,5 +106,6 @@
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />
     <ClInclude Include="extensions\GifImageExtPlugin.h" />
+    <ClInclude Include="extensions\StdVideoExtPlugin.h" />
   </ItemGroup>
 </Project>
