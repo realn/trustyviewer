@@ -82,6 +82,12 @@
     <ClCompile Include="widgets\AnimationMediaWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\BaseMediaContentPlayerWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\VideoMediaWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -99,6 +105,8 @@
     <QtMoc Include="widgets\ImageMediaWidget.h" />
     <QtMoc Include="extensions\DummyVideoSurface.h" />
     <QtMoc Include="widgets\AnimationMediaWidget.h" />
+    <QtMoc Include="widgets\BaseMediaContentPlayerWidget.h" />
+    <QtMoc Include="widgets\VideoMediaWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />

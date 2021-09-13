@@ -20,7 +20,7 @@ namespace realn {
     if (!item)
       return;
 
-    view->setMediaFromItem(item);
+    view->loadMedia(item);
     dirBrowser->setSelectedItem(item);
     thumbnailView->setSelectedItem(item);
   }

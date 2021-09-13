@@ -11,22 +11,28 @@ namespace realn {
     animationPlayer->setAlignment(Qt::AlignCenter);
 
     auto layout = new QHBoxLayout();
-
     layout->addWidget(animationPlayer);
-
     setLayout(layout);
   }
 
-  void AnimationMediaWidget::setMovie(std::unique_ptr<QMovie> value)
+  bool AnimationMediaWidget::loadMedia(MediaItem::ptr_t mediaItem, std::shared_ptr<ExtPlugin> plugin)
   {
-    movie = std::move(value);
+    if (!mediaItem || !plugin)
+      return false;
 
-    movie->stop();
+    auto newMovie = plugin->loadAnimation(mediaItem->getFilePath());
+    if (!newMovie)
+      return false;
+
+    movie = std::move(newMovie);
     animationPlayer->setMovie(movie.get());
+
     movie->start();
+
+    return true;
   }
 
-  void AnimationMediaWidget::clearMovie()
+  void AnimationMediaWidget::clearMedia()
   {
     if (movie)
       movie->stop();

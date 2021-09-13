@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <QWidget>
 #include <QLabel>
 #include <QPointer>
@@ -7,13 +9,11 @@
 #include <QImage>
 #include <QMovie>
 #include <QStackedWidget>
-#include <QtMultimedia/QMediaPlayer>
-#include <QtMultimediaWidgets/QVideoWidget>
 
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
-#include "ImageMediaWidget.h"
-#include "AnimationMediaWidget.h"
+
+#include "BaseMediaContentPlayerWidget.h"
 
 namespace realn {
   class MediaContentWidget : public QWidget {
@@ -21,17 +21,22 @@ namespace realn {
   public:
     MediaContentWidget(std::shared_ptr<ExtPluginList> plugins);
 
-    void setMediaFromPath(const QString& filePath);
-    void setMediaFromItem(MediaItem::ptr_t item);
+    bool loadMedia(MediaItem::ptr_t item);
 
   private:
-    QPointer<QStackedWidget> stack;
-    QPointer<ImageMediaWidget> imageContent;
-    QPointer<AnimationMediaWidget> animatedContent;
-    QPointer<QVideoWidget> videoWidget;
+    using mpwidget_ptr_t = QPointer<BaseMediaContentPlayerWidget>;
+    using mpwidget_vec_t = std::vector<mpwidget_ptr_t>;
+    
+    void addMediaWidget(mpwidget_ptr_t widget);
+    bool loadMediaPriv(int mediaTypeId, MediaItem::ptr_t item, std::shared_ptr<ExtPlugin> plugin);
+    static int getMediaTypeId(const QString& fileExt, std::shared_ptr<ExtPlugin> plugin);
 
-    std::unique_ptr<QMediaPlayer> videoPlayer;
-    std::unique_ptr<QMediaContent> video;
+    template<class _T, class = std::enable_if_t<std::is_base_of_v<BaseMediaContentPlayerWidget, _T>>>
+    void addMediaWidget() { addMediaWidget(new _T()); }
+
+    QPointer<QStackedWidget> stack;
+    mpwidget_vec_t mediaWidgets;
+
     std::shared_ptr<ExtPluginList> plugins;
   };
 }

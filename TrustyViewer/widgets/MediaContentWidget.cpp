@@ -1,85 +1,79 @@
 
+#include <QFileInfo>
 #include <QBoxLayout>
 #include <QImage>
 #include <QEvent>
 
+#include "ImageMediaWidget.h"
+#include "AnimationMediaWidget.h"
+#include "VideoMediaWidget.h"
+
 #include "MediaContentWidget.h"
 
 namespace realn {
-  namespace {
-    bool lequal(const QSize& left, const QSize& right) {
-      if (left.width() <= right.width() && left.height() <= right.height())
-        return true;
-      return false;
-    }
-  }
+  const int MEDIA_IMAGE = 0;
+  const int MEDIA_ANIM = 1;
+  const int MEDIA_VIDEO = 2;
 
   MediaContentWidget::MediaContentWidget(std::shared_ptr<ExtPluginList> plugins)
     : plugins(plugins)
   {
-
     setMinimumSize(640, 480);
-
-    imageContent = new ImageMediaWidget();
-    imageContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
-    animatedContent = new AnimationMediaWidget();
-    animatedContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
-    videoPlayer = std::make_unique<QMediaPlayer>();
-    videoWidget = new QVideoWidget();
-    videoPlayer->setVideoOutput(videoWidget);
-
     stack = new QStackedWidget();
-    stack->addWidget(imageContent);
-    stack->addWidget(animatedContent);
-    stack->addWidget(videoWidget);
 
-    stack->setCurrentIndex(0);
+    addMediaWidget<ImageMediaWidget>();
+    addMediaWidget<AnimationMediaWidget>();
+    //addMediaWidget<VideoMediaWidget>();
 
     auto layout = new QHBoxLayout();
     layout->addWidget(stack);
     setLayout(layout);
   }
 
-  void MediaContentWidget::setMediaFromPath(const QString& filePath) {
-    QFileInfo fileInfo(filePath);
+  bool MediaContentWidget::loadMedia(const MediaItem::ptr_t item) {
+    if (!item)
+      return false;
+
+    if (item->isDirectory())
+      return false;
+
+    QFileInfo fileInfo(item->getFilePath());
     if (!fileInfo.exists() || fileInfo.isDir())
-      return;
+      return false;
 
     auto fileext = fileInfo.completeSuffix();
 
     auto plugin = plugins->getPluginForExt(fileext);
     if (!plugin)
-      return;
+      return false;
 
-    animatedContent->clearMovie();
-    videoPlayer->stop();
-    if (plugin->isVideo(fileext)) {
-      stack->setCurrentIndex(2);
-      video = plugin->loadVideo(filePath);
-      videoPlayer->setMedia(*video);
-      videoPlayer->play();
-    }
-    else if (plugin->isAnimated(fileext)) {
-      stack->setCurrentIndex(1);
-      auto movie = plugin->loadAnimation(filePath);
-      animatedContent->setMovie(std::move(movie));
-    }
-    else {
-      stack->setCurrentIndex(0);
-      auto image = plugin->loadImage(filePath);
-      imageContent->setImage(std::move(image));
-    }
+    for (auto& widget : mediaWidgets)
+      widget->clearMedia();
+
+    auto typeId = getMediaTypeId(fileext, plugin);
+
+    return loadMediaPriv(typeId, item, plugin);
   }
 
-  void MediaContentWidget::setMediaFromItem(MediaItem::ptr_t item)
+  void MediaContentWidget::addMediaWidget(mpwidget_ptr_t widget)
   {
-    if (!item)
-      return;
-    if (item->isDirectory())
-      return;
+    widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    stack->addWidget(widget);
+    mediaWidgets.push_back(widget);
+  }
 
-    setMediaFromPath(item->getFilePath());
+  bool MediaContentWidget::loadMediaPriv(int mediaTypeId, MediaItem::ptr_t item, std::shared_ptr<ExtPlugin> plugin)
+  {
+    stack->setCurrentIndex(mediaTypeId);
+    return mediaWidgets[mediaTypeId]->loadMedia(item, plugin);
+  }
+
+  int MediaContentWidget::getMediaTypeId(const QString& fileExt, std::shared_ptr<ExtPlugin> plugin)
+  {
+    if (plugin->isVideo(fileExt))
+      return MEDIA_VIDEO;
+    if (plugin->isAnimated(fileExt))
+      return MEDIA_ANIM;
+    return MEDIA_IMAGE;
   }
 }

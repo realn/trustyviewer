@@ -3,13 +3,17 @@
 #include <QWidget>
 #include <QImage>
 
+#include "BaseMediaContentPlayerWidget.h"
+
 namespace realn {
-  class ImageMediaWidget : public QWidget {
+  class ImageMediaWidget : public BaseMediaContentPlayerWidget {
     Q_OBJECT;
   public:
     ImageMediaWidget();
 
-    void setImage(std::unique_ptr<QImage> value);
+    // Inherited via BaseMediaContentPlayerWidget
+    virtual bool loadMedia(MediaItem::ptr_t mediaItem, std::shared_ptr<ExtPlugin> plugin) override;
+    virtual void clearMedia() override;
 
   protected:
     void paintEvent(QPaintEvent* event) override;

@@ -1,26 +1,26 @@
 #pragma once
 
-#include <QWidget>
-#include <QLabel>
 #include <QPointer>
-#include <QMovie>
+#include <QtMultimedia/QMediaPlayer>
+#include <QtMultimediaWidgets/QVideoWidget>
 
 #include "BaseMediaContentPlayerWidget.h"
 
 namespace realn {
-  class AnimationMediaWidget : public BaseMediaContentPlayerWidget {
+  class VideoMediaWidget : public BaseMediaContentPlayerWidget {
     Q_OBJECT;
   public:
-    AnimationMediaWidget();
+    VideoMediaWidget();
 
     // Inherited via BaseMediaContentPlayerWidget
     virtual bool loadMedia(MediaItem::ptr_t mediaItem, std::shared_ptr<ExtPlugin> plugin) override;
     virtual void clearMedia() override;
 
   private:
-    QPointer<QLabel> animationPlayer;
+    QPointer<QVideoWidget> videoWidget;
 
-    std::unique_ptr<QMovie> movie;
+    std::unique_ptr<QMediaPlayer> videoPlayer;
+    std::unique_ptr<QMediaContent> video;
 
   };
 }

@@ -11,14 +11,26 @@ namespace realn {
     }
   }
 
-  ImageMediaWidget::ImageMediaWidget()
+  ImageMediaWidget::ImageMediaWidget() = default;
+
+  bool ImageMediaWidget::loadMedia(MediaItem::ptr_t mediaItem, std::shared_ptr<ExtPlugin> plugin)
   {
+    if (!mediaItem || !plugin)
+      return false;
+
+    auto newImage = plugin->loadImage(mediaItem->getFilePath());
+    if (!newImage)
+      return false;
+    
+    image = std::move(newImage);
+    repaint();
+
+    return true;
   }
 
-  void ImageMediaWidget::setImage(std::unique_ptr<QImage> value)
+  void ImageMediaWidget::clearMedia()
   {
-    image = std::move(value);
-    repaint();
+    image.reset();
   }
 
   void ImageMediaWidget::paintEvent(QPaintEvent* event)

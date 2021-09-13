@@ -104,10 +104,12 @@
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
     <ClCompile Include="models\ThumbnailModel.cpp" />
     <ClCompile Include="widgets\AnimationMediaWidget.cpp" />
+    <ClCompile Include="widgets\BaseMediaContentPlayerWidget.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageMediaWidget.cpp" />
     <ClCompile Include="widgets\MediaContentWidget.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
+    <ClCompile Include="widgets\VideoMediaWidget.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
     <ClCompile Include="workers\ThumbnailRequestList.cpp" />
     <ClCompile Include="workers\ThumbnailThread.cpp" />
@@ -121,6 +123,8 @@
     <QtMoc Include="MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="widgets\VideoMediaWidget.h" />
+    <QtMoc Include="widgets\BaseMediaContentPlayerWidget.h" />
     <QtMoc Include="widgets\AnimationMediaWidget.h" />
     <QtMoc Include="extensions\DummyVideoSurface.h" />
     <ClInclude Include="extensions\ExtPlugin.h" />
