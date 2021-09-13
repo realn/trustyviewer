@@ -15,7 +15,7 @@ namespace realn {
     plugins = std::make_shared<ExtPluginList>();
     plugins->addPlugin<StdImageExtPlugin>();
     plugins->addPlugin<GifImageExtPlugin>();
-    plugins->addPlugin<StdVideoExtPlugin>();
+    //plugins->addPlugin<StdVideoExtPlugin>();
 
     database = std::make_shared<MediaDatabase>(plugins);
 

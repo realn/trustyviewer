@@ -23,9 +23,8 @@ namespace realn {
     imageContent = new ImageMediaWidget();
     imageContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
-    animationPlayer = new QLabel();
-    animationPlayer->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    animationPlayer->setAlignment(Qt::AlignCenter);
+    animatedContent = new AnimationMediaWidget();
+    animatedContent->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 
     videoPlayer = std::make_unique<QMediaPlayer>();
     videoWidget = new QVideoWidget();
@@ -33,7 +32,7 @@ namespace realn {
 
     stack = new QStackedWidget();
     stack->addWidget(imageContent);
-    stack->addWidget(animationPlayer);
+    stack->addWidget(animatedContent);
     stack->addWidget(videoWidget);
 
     stack->setCurrentIndex(0);
@@ -43,7 +42,7 @@ namespace realn {
     setLayout(layout);
   }
 
-  void MediaContentWidget::setImageFromPath(const QString& filePath) {
+  void MediaContentWidget::setMediaFromPath(const QString& filePath) {
     QFileInfo fileInfo(filePath);
     if (!fileInfo.exists() || fileInfo.isDir())
       return;
@@ -54,7 +53,7 @@ namespace realn {
     if (!plugin)
       return;
 
-    animationPlayer->setMovie(nullptr);
+    animatedContent->clearMovie();
     videoPlayer->stop();
     if (plugin->isVideo(fileext)) {
       stack->setCurrentIndex(2);
@@ -64,9 +63,8 @@ namespace realn {
     }
     else if (plugin->isAnimated(fileext)) {
       stack->setCurrentIndex(1);
-      movie = plugin->loadAnimation(filePath);
-      animationPlayer->setMovie(movie.get());
-      movie->start();
+      auto movie = plugin->loadAnimation(filePath);
+      animatedContent->setMovie(std::move(movie));
     }
     else {
       stack->setCurrentIndex(0);
@@ -75,32 +73,13 @@ namespace realn {
     }
   }
 
-  void MediaContentWidget::setImageFromItem(MediaItem::ptr_t item)
+  void MediaContentWidget::setMediaFromItem(MediaItem::ptr_t item)
   {
     if (!item)
       return;
     if (item->isDirectory())
       return;
 
-    setImageFromPath(item->getFilePath());
-  }
-
-  void MediaContentWidget::resizeEvent(QResizeEvent* event)
-  {
-    rescaleImage();
-    QWidget::resizeEvent(event);
-  }
-
-  void MediaContentWidget::loadScaledImage()
-  {
-    //label->setPixmap(shownImage.scaled(label->size(), Qt::AspectRatioMode::KeepAspectRatio, Qt::TransformationMode::SmoothTransformation));
-  }
-
-  void MediaContentWidget::rescaleImage()
-  {
-    //const auto& pix = label->pixmap();
-    //if (pix && lequal(pix->size(), label->size()))
-    //  return;
-    //loadScaledImage();
+    setMediaFromPath(item->getFilePath());
   }
 }

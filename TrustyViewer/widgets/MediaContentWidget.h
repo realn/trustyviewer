@@ -13,6 +13,7 @@
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
 #include "ImageMediaWidget.h"
+#include "AnimationMediaWidget.h"
 
 namespace realn {
   class MediaContentWidget : public QWidget {
@@ -20,23 +21,16 @@ namespace realn {
   public:
     MediaContentWidget(std::shared_ptr<ExtPluginList> plugins);
 
-    void setImageFromPath(const QString& filePath);
-    void setImageFromItem(MediaItem::ptr_t item);
-
-  protected:
-    void resizeEvent(QResizeEvent* event) override;
+    void setMediaFromPath(const QString& filePath);
+    void setMediaFromItem(MediaItem::ptr_t item);
 
   private:
-    void loadScaledImage();
-    void rescaleImage();
-
     QPointer<QStackedWidget> stack;
     QPointer<ImageMediaWidget> imageContent;
-    QPointer<QLabel> animationPlayer;
+    QPointer<AnimationMediaWidget> animatedContent;
     QPointer<QVideoWidget> videoWidget;
 
     std::unique_ptr<QMediaPlayer> videoPlayer;
-    std::unique_ptr<QMovie> movie;
     std::unique_ptr<QMediaContent> video;
     std::shared_ptr<ExtPluginList> plugins;
   };

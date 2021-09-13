@@ -16,7 +16,7 @@ namespace realn {
     MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker);
 
   private slots:
-    void setImageFromItem(MediaItem::ptr_t item);
+    void setMediaFromItem(MediaItem::ptr_t item);
 
   private:
     using dockptr_t = QPointer<QDockWidget>;

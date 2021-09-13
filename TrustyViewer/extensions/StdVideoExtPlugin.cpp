@@ -9,6 +9,14 @@
 #include "StdVideoExtPlugin.h"
 
 namespace realn {
+  namespace {
+    template<class _Func>
+    void waitForSignal(const typename QtPrivate::FunctionPointer<_Func>::Object* sender, _Func signal) {
+      QEventLoop waitLoop;
+      waitLoop.connect(sender, signal, &waitLoop, &QEventLoop::quit);
+      waitLoop.exec();
+    }
+  }
 
   QStringList StdVideoExtPlugin::getSupportedExts() const
   {
@@ -27,7 +35,6 @@ namespace realn {
 
   std::unique_ptr<QPixmap> StdVideoExtPlugin::createThumbnail(const QString& filepath, QSize size) const
   {
-    QEventLoop waitLoop;
     auto surface = std::make_unique<DummyVideoSurface>();
     QPixmap pix;
     {
@@ -36,19 +43,19 @@ namespace realn {
 
       player.setVideoOutput(surface.get());
       player.setMedia(video);
+      player.setVolume(0);
 
       auto len = player.duration();
       auto pos = static_cast<qint64>(len * 0.2);
 
       player.setPosition(pos);
-
-      waitLoop.connect(surface.get(), &DummyVideoSurface::imagePresented, &waitLoop, &QEventLoop::quit);
-
       player.play();
+      waitForSignal(surface.get(), &DummyVideoSurface::imagePresented);
 
-      waitLoop.exec();
       pix = QPixmap::fromImage(surface->outputFrame);
       player.stop();
+      player.setMedia(QMediaContent());
+
     }
 
     return std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation)));

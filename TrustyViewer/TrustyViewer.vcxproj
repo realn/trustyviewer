@@ -103,6 +103,7 @@
     <ClCompile Include="MediaItem.cpp" />
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
     <ClCompile Include="models\ThumbnailModel.cpp" />
+    <ClCompile Include="widgets\AnimationMediaWidget.cpp" />
     <ClCompile Include="widgets\DirBrowserWidget.cpp" />
     <ClCompile Include="widgets\ImageMediaWidget.cpp" />
     <ClCompile Include="widgets\MediaContentWidget.cpp" />
@@ -120,6 +121,7 @@
     <QtMoc Include="MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="widgets\AnimationMediaWidget.h" />
     <QtMoc Include="extensions\DummyVideoSurface.h" />
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\GifImageExtPlugin.h" />
