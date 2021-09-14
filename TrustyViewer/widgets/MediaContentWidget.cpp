@@ -23,7 +23,7 @@ namespace realn {
 
     addMediaWidget<ImageMediaWidget>();
     addMediaWidget<AnimationMediaWidget>();
-    //addMediaWidget<VideoMediaWidget>();
+    addMediaWidget<VideoMediaWidget>();
 
     auto layout = new QHBoxLayout();
     layout->addWidget(stack);
@@ -31,6 +31,9 @@ namespace realn {
   }
 
   bool MediaContentWidget::loadMedia(const MediaItem::ptr_t item) {
+    if (loadedItem.lock() == item)
+      return true;
+
     if (!item)
       return false;
 
@@ -52,7 +55,11 @@ namespace realn {
 
     auto typeId = getMediaTypeId(fileext, plugin);
 
-    return loadMediaPriv(typeId, item, plugin);
+    if (!loadMediaPriv(typeId, item, plugin))
+      return false;
+
+    loadedItem = item;
+    return true;
   }
 
   void MediaContentWidget::addMediaWidget(mpwidget_ptr_t widget)

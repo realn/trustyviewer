@@ -11,6 +11,11 @@ namespace realn {
     return QStringList() << "gif";
   }
 
+  bool GifImageExtPlugin::isAnimated(const QString& ext) const
+  {
+    return getSupportedExts().contains(ext);
+  }
+
   std::unique_ptr<QImage> GifImageExtPlugin::loadImage(const QString& filepath) const
   {
     return std::make_unique<QImage>(filepath);

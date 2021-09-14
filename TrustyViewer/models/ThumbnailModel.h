@@ -37,7 +37,7 @@ namespace realn {
 
     void createThumbnails();
     QPixmap getThumbnail(const QString& filepath) const;
-    void emitThumbnailsDataChanged();
+    void emitThumbnailsDataChanged(QStringList items);
 
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<MediaItem> rootItem;

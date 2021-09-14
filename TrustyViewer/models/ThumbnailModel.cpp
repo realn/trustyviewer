@@ -3,6 +3,8 @@
 #include <QColor>
 #include <QFileInfo>
 
+#include "../Utils.h"
+
 #include "ThumbnailModel.h"
 
 namespace realn {
@@ -124,11 +126,13 @@ namespace realn {
     if (worker->hasDoneThumbnails()) {
       auto result = worker->popDoneThumbnails();
 
+      QStringList changed;
       for (auto& item : result) {
         thumbnails[item.filePath] = std::move(item.thumbnail);
+        changed << item.filePath;
       }
 
-      emitThumbnailsDataChanged();
+      emitThumbnailsDataChanged(changed);
     }
     QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }
@@ -140,18 +144,22 @@ namespace realn {
     return *thumbnails.at(filepath);
   }
 
-  void ThumbnailModel::emitThumbnailsDataChanged()
+  void ThumbnailModel::emitThumbnailsDataChanged(QStringList items)
   {
-    auto top = index(0, 0);
-    auto bottom = index(rowCount() - 1, 0);
+    if (items.empty())
+      return;
+    size_t first = find_index_if(rootItem->getChildren(), [&](const MediaItem::ptr_t& mitem) { return mitem->getFilePath() == items.front(); }, 0);
+    items.pop_front();
+    size_t last = first;
+    for (auto& item : items) {
+      auto idx = find_index_if(rootItem->getChildren(), [&](const MediaItem::ptr_t& mitem) { return mitem->getFilePath() == item; }, 0);
+      first = std::min(first, idx);
+      last = std::max(last, idx);
+    }
+    
+    auto top = index(static_cast<int>(first), 0);
+    auto bottom = index(static_cast<int>(last), 0);
     QVector<int> roles = { Qt::DecorationRole };
     emit dataChanged(top, bottom, roles);
   }
-
-  //QVariant ThumbnailModel::headerData(int section, Qt::Orientation orientation, int role) const
-  //{
-  //  if(section != 0 || orientation != Qt::Horizontal || role != Qt::DisplayRole)
-  //    return QVariant();
-  //  return "Name";
-  //}
 }

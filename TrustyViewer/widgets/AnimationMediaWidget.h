@@ -21,6 +21,5 @@ namespace realn {
     QPointer<QLabel> animationPlayer;
 
     std::unique_ptr<QMovie> movie;
-
   };
 }

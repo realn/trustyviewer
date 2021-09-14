@@ -38,5 +38,6 @@ namespace realn {
     mpwidget_vec_t mediaWidgets;
 
     std::shared_ptr<ExtPluginList> plugins;
+    std::weak_ptr<MediaItem> loadedItem;
   };
 }
