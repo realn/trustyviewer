@@ -1,12 +1,16 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QTimer>
 
 #include "MediaDatabase.h"
 
+using namespace std::chrono_literals;
+
 namespace realn {
-  MediaDatabase::MediaDatabase(std::shared_ptr<ExtPluginList> plugins)
-    : plugins(plugins)
+  MediaDatabase::MediaDatabase(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<MediaItemWorker> _worker)
+    : plugins(_plugins)
+    , worker(_worker)
   {
   }
 
@@ -21,66 +25,23 @@ namespace realn {
     rootPath = newRootPath;
     mainList.clear();
 
-    rootItem = buildFromPath(rootPath);
-    emit databaseRebuild();
+    rootItem = nullptr;
+    itemTaskId = worker->addItemScanTask(rootPath);
+
+    asyncWaitForCheck(500ms);
   }
 
-  MediaItem::ptr_t MediaDatabase::buildFromPath(const QString& path)
-  {
-    auto info = QFileInfo(path);
-    if (!info.exists())
-      return nullptr;
-
-    if (info.isDir())
-      return buildDir(path);
-
-    auto plugin = plugins->getPluginForExt(info.completeSuffix());
-    if (!plugin)
-      return nullptr;
-
-    if (plugin->isVideo(info.completeSuffix()))
-      return buildMediaItem(path, MediaItemType::Video);
-
-    if (plugin->isAnimated(info.completeSuffix()))
-      return buildMediaItem(path, MediaItemType::Animation);
-
-    return buildMediaItem(path, MediaItemType::Image);
-  }
-
-  MediaItem::ptr_t MediaDatabase::buildMediaItem(const QString& path, MediaItemType type)
-  {
-    auto result = std::make_shared<MediaItem>(path, type);
-    mainList.push_back(result);
-    return result;
-  }
-
-  MediaItem::ptr_t MediaDatabase::buildDir(const QString& path)
-  {
-    auto result = std::make_shared<MediaItem>(path, MediaItemType::Directory);
-
-    auto dir = QDir(path, "*", QDir::Type | QDir::IgnoreCase);
-
-    for (auto& item : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-      auto newItem = buildFromPath(dir.filePath(item));
-      if (newItem)
-        result->addChild(newItem);
+  void MediaDatabase::checkForData() {
+    if (worker->isTaskCompleted(itemTaskId)) {
+      rootItem = worker->popCompletedItem(itemTaskId);
+      emit databaseRebuild();
     }
-    
-    for (auto& item : dir.entryList(getNameFilters(), QDir::Files | QDir::NoDotAndDotDot)) {
-      auto newItem = buildFromPath(dir.filePath(item));
-      if (newItem)
-        result->addChild(newItem);
+    else {
+      asyncWaitForCheck(500ms);
     }
-
-    return result;
   }
 
-  QStringList MediaDatabase::getNameFilters() const
-  {
-    auto result = QStringList();
-    for (auto& ext : plugins->getSupportedExts()) {
-      result << ("*." + ext);
-    }
-    return result;
+  void MediaDatabase::asyncWaitForCheck(std::chrono::milliseconds value) {
+    QTimer::singleShot(value, this, &MediaDatabase::checkForData);
   }
 }

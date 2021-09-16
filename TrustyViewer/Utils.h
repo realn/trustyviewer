@@ -2,6 +2,10 @@
 
 #include <cassert>
 #include <vector>
+#include <queue>
+#include <list>
+#include <mutex>
+#include <condition_variable>
 
 #define cC(A) {bool ok = A; assert(ok && #A);}
 

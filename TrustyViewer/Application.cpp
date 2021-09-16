@@ -17,9 +17,10 @@ namespace realn {
     plugins->addPlugin<GifImageExtPlugin>();
     plugins->addPlugin<StdVideoExtPlugin>();
 
-    database = std::make_shared<MediaDatabase>(plugins);
-
     thumbnailWorker = std::make_shared<ThumbnailWorker>(plugins);
+    mediaItemWorker = std::make_shared<MediaItemWorker>(plugins);
+
+    database = std::make_shared<MediaDatabase>(plugins, mediaItemWorker);
 
     mainWindow = std::make_unique<MainWindow>(plugins, database, thumbnailWorker);
     mainWindow->show();

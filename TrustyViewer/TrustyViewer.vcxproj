@@ -110,6 +110,8 @@
     <ClCompile Include="widgets\MediaContentWidget.cpp" />
     <ClCompile Include="widgets\ThumbnailView.cpp" />
     <ClCompile Include="widgets\VideoMediaWidget.cpp" />
+    <ClCompile Include="workers\MediaItemWorker.cpp" />
+    <ClCompile Include="workers\MediaItemWorkerTaskList.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
     <ClCompile Include="workers\ThumbnailRequestList.cpp" />
     <ClCompile Include="workers\ThumbnailThread.cpp" />
@@ -134,6 +136,9 @@
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="widgets\ImageMediaWidget.h" />
+    <ClInclude Include="workers\MediaItemWorkerTaskList.h" />
+    <ClInclude Include="workers\MediaItemWorker.h" />
+    <ClInclude Include="workers\MediaItemWorkerTask.h" />
     <ClInclude Include="workers\ThumbnailDoneList.h" />
     <ClInclude Include="workers\ThumbnailRequestList.h" />
     <ClInclude Include="workers\ThumbnailThread.h" />

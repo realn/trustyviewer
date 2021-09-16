@@ -88,6 +88,12 @@
     <ClCompile Include="widgets\VideoMediaWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="workers\MediaItemWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="workers\MediaItemWorkerTaskList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -119,5 +125,8 @@
     <ClInclude Include="workers\ThumbnailThread.h" />
     <ClInclude Include="extensions\GifImageExtPlugin.h" />
     <ClInclude Include="extensions\StdVideoExtPlugin.h" />
+    <ClInclude Include="workers\MediaItemWorker.h" />
+    <ClInclude Include="workers\MediaItemWorkerTaskList.h" />
+    <ClInclude Include="workers\MediaItemWorkerTask.h" />
   </ItemGroup>
 </Project>

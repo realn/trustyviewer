@@ -3,6 +3,7 @@
 #include <QObject>
 
 #include "extensions/ExtPlugin.h"
+#include "workers/MediaItemWorker.h"
 #include "MediaItem.h"
 
 namespace realn {
@@ -10,7 +11,7 @@ namespace realn {
   {
     Q_OBJECT;
   public:
-    MediaDatabase(std::shared_ptr<ExtPluginList> plugins);
+    MediaDatabase(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<MediaItemWorker> _worker);
 
     MediaItem::ptr_t getRootItem() const;
 
@@ -20,16 +21,17 @@ namespace realn {
     void rebuildingDatabase();
     void databaseRebuild();
 
-  private:
-    MediaItem::ptr_t buildFromPath(const QString& path);
-    MediaItem::ptr_t buildMediaItem(const QString& path, MediaItemType type);
-    MediaItem::ptr_t buildDir(const QString& path);
+  private slots:
+    void checkForData();
 
-    QStringList getNameFilters() const;
+  private:
+    void asyncWaitForCheck(std::chrono::milliseconds value);
 
     std::shared_ptr<ExtPluginList> plugins;
+    std::shared_ptr<MediaItemWorker> worker;
     QString rootPath;
     MediaItem::ptr_t rootItem;
     MediaItem::itemvector_t mainList;
+    MediaItemWorker::task_id itemTaskId = 0;
   };
 }

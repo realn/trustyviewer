@@ -32,12 +32,13 @@ namespace realn {
 
     ptr_t getPtr() { return shared_from_this(); }
 
-    bool hasParent() const { return parent.lock() != nullptr; }
+    bool hasParent() const { return !parent.expired(); }
 
     size_t getIndexFromParent() const;
 
   private:
     void setParent(ptr_t item);
+    void removeChild(ptr_t item);
 
     std::weak_ptr<MediaItem> parent;
     QString filepath;

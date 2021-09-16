@@ -25,9 +25,17 @@ namespace realn {
     parent = item;
   }
 
+  void MediaItem::removeChild(ptr_t item)
+  {
+    auto it = std::find(children.begin(), children.end(), item);
+    if(it != children.end())
+      children.erase(it);
+  }
+
   void MediaItem::addChild(ptr_t child)
   {
-    assert(!child->hasParent());
+    if (child->hasParent())
+      child->getParent()->removeChild(child);
     child->setParent(shared_from_this());
     children.push_back(child);
   }
