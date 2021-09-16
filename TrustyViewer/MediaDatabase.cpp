@@ -34,6 +34,11 @@ namespace realn {
   void MediaDatabase::checkForData() {
     if (worker->isTaskCompleted(itemTaskId)) {
       rootItem = worker->popCompletedItem(itemTaskId);
+      rootItem->sortChildren([](MediaItem::ptr_t& itemA, MediaItem::ptr_t& itemB) {
+        if (itemA->getType() == itemB->getType())
+          return QString::localeAwareCompare(itemA->getFilePath(), itemB->getFilePath()) < 0;
+        return itemA->getType() < itemB->getType();
+        });
       emit databaseRebuild();
     }
     else {

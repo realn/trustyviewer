@@ -36,6 +36,13 @@ namespace realn {
 
     size_t getIndexFromParent() const;
 
+    template<class _Comp>
+    void sortChildren(_Comp comp) {
+      std::sort(children.begin(), children.end(), comp);
+      for (auto& child : children)
+        child->sortChildren(comp);
+    }
+
   private:
     void setParent(ptr_t item);
     void removeChild(ptr_t item);
