@@ -31,12 +31,12 @@ namespace realn {
 
   bool MediaItemWorker::isTaskCompleted(task_id taskId) const
   {
-    return completed.contains_if([&](const task_ptr_t& task) { return task->id == taskId; });
+    return completed.contains(taskId);
   }
 
   MediaItem::ptr_t MediaItemWorker::popCompletedItem(task_id taskId)
   {
-    auto item = completed.pop_if([&](task_ptr_t& task) {return task->id == taskId; });
+    auto item = completed.popById(taskId);
     assert(item);
     return item->item;
   }
@@ -60,7 +60,7 @@ namespace realn {
   void MediaItemWorker::runTask(task_ptr_t task)
   {
     if (task->state == task_t::TaskState::Waiting) {
-      auto doneTasks = popDoneTasks(task->waitingTaskIds);
+      auto doneTasks = completed.popByIdList(task->waitingTaskIds);
       for (auto& doneTask : doneTasks) {
         if (!doneTask->item)
           continue;
@@ -86,25 +86,6 @@ namespace realn {
     tasks.push_back(task);
 
     return resultId;
-  }
-
-  std::vector<MediaItemWorker::task_ptr_t> MediaItemWorker::popDoneTasks(task_id_vec_t& taskIds)
-  {
-    auto result = std::vector<task_ptr_t>();
-    auto it = taskIds.begin();
-    while (it != taskIds.end())
-    {
-      auto taskId = *it;
-      auto task = completed.pop_if([&](task_ptr_t& item) { return item->id == taskId; });
-      if (!task) {
-        it++;
-        continue;
-      }
-
-      result.push_back(task);
-      it = taskIds.erase(it);
-    }
-    return result;
   }
 
   MediaItem::ptr_t MediaItemWorker::buildFromPath(const QString& path, task_id_vec_t& waitingTasks)

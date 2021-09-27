@@ -1,4 +1,6 @@
 
+#include <thread>
+
 #include <QUrl>
 #include <QtMultimedia/QAbstractVideoSurface>
 #include <QtMultimedia/QMediaPlayer>
@@ -17,6 +19,13 @@ namespace realn {
       waitLoop.exec();
     }
   }
+
+  StdVideoExtPlugin::StdVideoExtPlugin()
+  {
+    player = std::make_unique<QMediaPlayer>();
+  }
+
+  StdVideoExtPlugin::~StdVideoExtPlugin() = default;
 
   QStringList StdVideoExtPlugin::getSupportedExts() const
   {
@@ -38,24 +47,23 @@ namespace realn {
     auto surface = std::make_unique<DummyVideoSurface>();
     QPixmap pix;
     {
+      auto lock = std::unique_lock<std::mutex>(mutex);
       auto video = QMediaContent(QUrl(filepath));
-      QMediaPlayer player;
 
-      player.setVideoOutput(surface.get());
-      player.setMedia(video);
-      player.setVolume(0);
+      player->setVideoOutput(surface.get());
+      player->setMedia(video);
+      player->setVolume(0);
 
-      auto len = player.duration();
+      auto len = player->duration();
       auto pos = static_cast<qint64>(len * 0.2);
 
-      player.setPosition(pos);
-      player.play();
+      player->setPosition(pos);
+      player->play();
       waitForSignal(surface.get(), &DummyVideoSurface::imagePresented);
 
       pix = QPixmap::fromImage(surface->outputFrame);
-      player.stop();
-      player.setMedia(QMediaContent());
-
+      player->stop();
+      player->setMedia(QMediaContent());
     }
 
     return std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation)));

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <thread>
 #include <condition_variable>
 #include <mutex>
@@ -13,35 +14,19 @@ namespace realn {
     using task_t = MediaItemWorkerTask;
     using task_ptr_t = task_t::ptr_t;
     using task_id = task_t::task_id;
+    using task_vec_t = std::vector<task_ptr_t>;
+    using task_id_vec_t = std::vector<task_id>;
 
     void push_back(task_ptr_t task);
     task_ptr_t pop_front();
 
-    template<class _Pred>
-    task_ptr_t find_if(_Pred pred) {
-      auto lock = lock_t(mutex);
-      auto it = std::find_if(list.begin(), list.end(), pred);
-      if (it == list.end())
-        return nullptr;
-      return *it;
-    }
+    task_ptr_t find(task_id taskId) const;
 
-    template<class _Pred>
-    task_ptr_t pop_if(_Pred pred) {
-      auto lock = lock_t(mutex);
-      auto it = std::find_if(list.begin(), list.end(), pred);
-      if (it == list.end())
-        return nullptr;
-      auto result = *it;
-      list.erase(it);
-      return result;
-    }
+    task_ptr_t popById(task_id taskId);
 
-    template<class _Pred>
-    bool contains_if(_Pred pred) const {
-      auto lock = lock_t(mutex);
-      return std::find_if(list.begin(), list.end(), pred) != list.end();
-    }
+    task_vec_t popByIdList(task_id_vec_t& idList);
+
+    bool contains(task_id taskId) const;
 
     void wakeAll() {
       cond.notify_all();
@@ -51,6 +36,8 @@ namespace realn {
     using list_t = std::list<task_ptr_t>;
     using mutex_t = std::mutex;
     using lock_t = std::unique_lock<mutex_t>;
+
+    list_t::iterator findById(task_id taskId);
 
     list_t list;
     mutable mutex_t mutex;

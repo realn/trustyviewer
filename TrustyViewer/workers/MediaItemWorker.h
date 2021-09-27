@@ -39,7 +39,6 @@ namespace realn{
 
     void runTask(task_ptr_t task);
     task_id addTask(const QString& filePath);
-    std::vector<task_t::ptr_t> popDoneTasks(task_id_vec_t& taskIds);
 
     MediaItem::ptr_t buildFromPath(const QString& path, task_id_vec_t& waitingTasks);
     MediaItem::ptr_t buildMediaItem(const QString& path, MediaItemType type);
