@@ -10,6 +10,15 @@
 namespace realn {
   class ExtPlugin {
   public:
+    enum class Errors {
+      NoError = 0,
+      FailedToLoad,
+      PluginBusy
+    };
+
+    using pixmapptr_t = std::unique_ptr<QPixmap>;
+    struct result_t;
+
     virtual ~ExtPlugin() = default;
 
     bool isExtSupported(const QString& ext) const { return getSupportedExts().contains(ext.toLower()); }
@@ -22,7 +31,12 @@ namespace realn {
     virtual std::unique_ptr<QMovie> loadAnimation(const QString& filepath) const { return nullptr; }
     virtual std::unique_ptr<QMediaContent> loadVideo(const QString& filepath) const { return nullptr; }
 
-    virtual std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const = 0;
+    virtual result_t createThumbnail(const QString& filepath, QSize size) const = 0;
+
+    struct result_t {
+      pixmapptr_t thumbnail;
+      Errors error = Errors::NoError;
+    };
   };
 
   class ExtPluginList {

@@ -14,7 +14,7 @@ namespace realn {
 
     std::unique_ptr<QMovie> loadAnimation(const QString& filepath) const override;
 
-    std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const override;
+    result_t createThumbnail(const QString& filepath, QSize size) const override;
 
   };
 }

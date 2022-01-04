@@ -19,12 +19,12 @@ namespace realn {
     return result;
   }
 
-  std::unique_ptr<QPixmap> StdImageExtPlugin::createThumbnail(const QString& filepath, QSize size) const
+  StdImageExtPlugin::result_t StdImageExtPlugin::createThumbnail(const QString& filepath, QSize size) const
   {
     auto pix = QPixmap();
     if (!pix.load(filepath))
-      return nullptr;
+      return result_t{ nullptr, Errors::FailedToLoad };
 
-    return std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation)));
+    return result_t{ std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation))), Errors::NoError };
   }
 }

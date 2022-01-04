@@ -9,6 +9,6 @@ namespace realn {
     QStringList getSupportedExts() const override;
 
     std::unique_ptr<QImage> loadImage(const QString& filepath) const override;
-    std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const override;
+    result_t createThumbnail(const QString& filepath, QSize size) const override;
   };
 }

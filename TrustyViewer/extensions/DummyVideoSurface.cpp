@@ -8,6 +8,7 @@ namespace realn {
   {
     return QList<QVideoFrame::PixelFormat>() << QVideoFrame::PixelFormat::Format_ARGB32;
   }
+
   bool DummyVideoSurface::present(const QVideoFrame& frame)
   {
     outputFrame = frame.image();

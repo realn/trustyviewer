@@ -2,12 +2,19 @@
 #include <QTimer>
 #include <QColor>
 #include <QFileInfo>
+#include <QPainter>
 
 #include "../Utils.h"
 
 #include "ThumbnailModel.h"
 
 namespace realn {
+  namespace {
+    QPoint toPoint(const QSize& size) {
+      return QPoint(size.width(), size.height());
+    }
+  }
+
   ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize)
     : plugins(_plugins)
     , worker(_worker)
@@ -128,7 +135,7 @@ namespace realn {
 
       QStringList changed;
       for (auto& item : result) {
-        thumbnails[item.filePath] = std::move(item.thumbnail);
+        thumbnails[item.filePath] = createCorrectThumbnail(*item.thumbnail);
         changed << item.filePath;
       }
 
@@ -161,5 +168,18 @@ namespace realn {
     auto bottom = index(static_cast<int>(last), 0);
     QVector<int> roles = { Qt::DecorationRole };
     emit dataChanged(top, bottom, roles);
+  }
+
+  ThumbnailModel::pixmap_ptr_t ThumbnailModel::createCorrectThumbnail(const QPixmap& pixmap) const {
+    auto thumbnail = QPixmap(defaultThumbnail.size());
+    thumbnail.fill(QColor::fromRgb(50, 50, 50));
+
+    auto pos = (toPoint(thumbnail.size()) - toPoint(pixmap.size())) / 2;
+    {
+      QPainter pnt(&thumbnail);
+      pnt.drawPixmap(pos, pixmap);
+    }
+    
+    return std::make_unique<QPixmap>(std::move(thumbnail));
   }
 }

@@ -22,7 +22,6 @@ namespace realn {
 
   StdVideoExtPlugin::StdVideoExtPlugin()
   {
-    player = std::make_unique<QMediaPlayer>();
   }
 
   StdVideoExtPlugin::~StdVideoExtPlugin() = default;
@@ -42,15 +41,21 @@ namespace realn {
     return std::make_unique<QMediaContent>(QUrl(filepath));
   }
 
-  std::unique_ptr<QPixmap> StdVideoExtPlugin::createThumbnail(const QString& filepath, QSize size) const
+  StdVideoExtPlugin::result_t StdVideoExtPlugin::createThumbnail(const QString& filepath, QSize size) const
   {
-    auto surface = std::make_unique<DummyVideoSurface>();
     QPixmap pix;
+    auto surface = std::make_unique<DummyVideoSurface>();
     {
-      auto lock = std::unique_lock<std::mutex>(mutex);
+      //auto lock = std::unique_lock<std::mutex>(mutex, std::try_to_lock);
+      //if (!lock.owns_lock()) {
+      //  return result_t{ nullptr, Errors::PluginBusy };
+      //}
       auto video = QMediaContent(QUrl(filepath));
 
+      auto player = std::make_unique<QMediaPlayer>();
       player->setVideoOutput(surface.get());
+
+      player->setMuted(true);
       player->setMedia(video);
       player->setVolume(0);
 
@@ -60,12 +65,11 @@ namespace realn {
       player->setPosition(pos);
       player->play();
       waitForSignal(surface.get(), &DummyVideoSurface::imagePresented);
+      player->pause();
 
       pix = QPixmap::fromImage(surface->outputFrame);
-      player->stop();
-      player->setMedia(QMediaContent());
     }
 
-    return std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation)));
+    return { std::make_unique<QPixmap>(std::move(pix.scaled(size, Qt::KeepAspectRatio, Qt::FastTransformation))), Errors::NoError };
   }
 }

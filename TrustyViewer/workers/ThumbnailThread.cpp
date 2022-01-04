@@ -37,11 +37,15 @@ namespace realn {
       if (!plugin)
         continue;
 
-      auto thumbnail = plugin->createThumbnail(request, QSize(100, 150));
-      if (!thumbnail)
+      auto thumbnailResult = plugin->createThumbnail(request, QSize(100, 150));
+      if (thumbnailResult.error == ExtPlugin::Errors::PluginBusy) {
+        requests->addRequest(request);
+        continue;
+      }
+      else if (thumbnailResult.error != ExtPlugin::Errors::NoError)
         continue;
 
-      completed->addDone(request, std::move(thumbnail));
+      completed->addDone(request, std::move(thumbnailResult.thumbnail));
     }
   }
 }

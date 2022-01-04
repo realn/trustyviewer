@@ -6,6 +6,7 @@
 #include "ExtPlugin.h"
 
 class QMediaPlayer;
+class DummyVideoSurface;
 
 namespace realn {
   class StdVideoExtPlugin : public ExtPlugin {
@@ -20,10 +21,11 @@ namespace realn {
 
     std::unique_ptr<QMediaContent> loadVideo(const QString& filepath) const override;
 
-    std::unique_ptr<QPixmap> createThumbnail(const QString& filepath, QSize size) const override;
+    result_t createThumbnail(const QString& filepath, QSize size) const override;
 
   private:
-    std::unique_ptr<QMediaPlayer> player;
+    //std::unique_ptr<QMediaPlayer> player;
+    //std::unique_ptr<DummyVideoSurface> surface;
     mutable std::mutex mutex;
   };
 }
