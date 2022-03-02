@@ -94,6 +94,9 @@
     <ClCompile Include="workers\MediaItemWorkerTaskList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\VideoButtonsWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -113,6 +116,7 @@
     <QtMoc Include="widgets\AnimationMediaWidget.h" />
     <QtMoc Include="widgets\BaseMediaContentPlayerWidget.h" />
     <QtMoc Include="widgets\VideoMediaWidget.h" />
+    <QtMoc Include="widgets\VideoButtonsWidget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />

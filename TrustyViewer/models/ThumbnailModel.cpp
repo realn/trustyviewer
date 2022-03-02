@@ -172,7 +172,7 @@ namespace realn {
 
   ThumbnailModel::pixmap_ptr_t ThumbnailModel::createCorrectThumbnail(const QPixmap& pixmap) const {
     auto thumbnail = QPixmap(defaultThumbnail.size());
-    thumbnail.fill(QColor::fromRgb(50, 50, 50));
+    thumbnail.fill(QColor::fromRgb(230, 230, 230));
 
     auto pos = (toPoint(thumbnail.size()) - toPoint(pixmap.size())) / 2;
     {
