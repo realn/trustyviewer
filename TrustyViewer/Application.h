@@ -11,6 +11,7 @@
 
 namespace realn {
   class MainWindow;
+  class TestWindow;
 
   class Application : public QApplication {
     Q_OBJECT
@@ -26,5 +27,6 @@ namespace realn {
     std::shared_ptr<MediaItemWorker> mediaItemWorker;
 
     std::unique_ptr<MainWindow> mainWindow;
+    std::unique_ptr<TestWindow> testWindow;
   };
 }

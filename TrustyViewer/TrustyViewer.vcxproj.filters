@@ -97,6 +97,9 @@
     <ClCompile Include="widgets\VideoButtonsWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\TestWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -117,6 +120,7 @@
     <QtMoc Include="widgets\BaseMediaContentPlayerWidget.h" />
     <QtMoc Include="widgets\VideoMediaWidget.h" />
     <QtMoc Include="widgets\VideoButtonsWidget.h" />
+    <QtMoc Include="Windows\TestWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />

@@ -34,6 +34,7 @@ namespace realn {
     void onSliderPositionPressed();
     void onSliderPositionReleased();
     void updateSliderPosition();
+    void onVolumePositionChanged();
 
   private:
     qint64 getSliderPositionForPlayer() const;

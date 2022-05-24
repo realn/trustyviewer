@@ -20,6 +20,9 @@ namespace realn {
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &VideoMediaWidget::onSliderPositionPressed);
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &VideoMediaWidget::onSliderPositionReleased);
     connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &VideoMediaWidget::updateSliderPosition);
+    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::playpause);
+    connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &VideoMediaWidget::stop);
+    connect(videoButtonsWidget, &VideoButtonsWidget::volumeSliderPositionChanged, this, &VideoMediaWidget::onVolumePositionChanged);
 
     auto layout = new QVBoxLayout();
     layout->addWidget(videoWidget);
@@ -41,8 +44,10 @@ namespace realn {
     videoPlayer->setMedia(*video);
 
     videoButtonsWidget->setVideoPosition(0.0f);
+    videoButtonsWidget->setVolume(videoPlayer->volume());
 
     videoPlayer->play();
+    
 
     return true;
   }
@@ -92,6 +97,10 @@ namespace realn {
   void VideoMediaWidget::updateSliderPosition() {
     if (video)
       videoButtonsWidget->setVideoPosition(getPlayerPositionForSlider());
+  }
+
+  void VideoMediaWidget::onVolumePositionChanged() {
+    videoPlayer->setVolume(videoButtonsWidget->getVolume());
   }
 
   qint64 VideoMediaWidget::getSliderPositionForPlayer() const {
