@@ -13,6 +13,7 @@ namespace realn {
 
     videoButtonsWidget = new VideoButtonsWidget();
     videoButtonsWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
+    videoButtonsWidget->setVolumeControlVisibility(false);
 
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionChanged, this, &AnimationMediaWidget::onSliderPositionChanged);
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &AnimationMediaWidget::onSliderPositionPressed);
@@ -95,7 +96,13 @@ namespace realn {
   }
 
   void AnimationMediaWidget::updateSliderPosition() {
+    if (!movie)
+      return;
+
     videoButtonsWidget->setVideoPosition(getAnimationPositionForSlider());
+
+    auto text = QString::number(movie->currentFrameNumber() + 1) + "/" + QString::number(movie->frameCount());
+    videoButtonsWidget->setProgressLabel(text);
   }
 
   void AnimationMediaWidget::onTimerTimeout() {

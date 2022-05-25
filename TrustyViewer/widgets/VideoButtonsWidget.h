@@ -36,6 +36,10 @@ namespace realn {
 
     void forcePlay();
 
+    void setProgressLabel(const QString& text);
+
+    void setVolumeControlVisibility(bool value);
+
   signals:
     void playClicked();
     void stopClicked();
@@ -75,6 +79,7 @@ namespace realn {
     QPointer<QSlider> sliderWidget;
     QPointer<QSlider> volumeWidget;
     QPointer<QLabel> volumeLabelWidget;
+    QPointer<QLabel> progressLabelWidget;
     std::unique_ptr<QTimer> timer;
     VideoState state = VideoState::STOPPED;
   };

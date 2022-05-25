@@ -89,9 +89,13 @@ namespace realn {
     timer->setSingleShot(false);
     connect(timer.get(), &QTimer::timeout, this, &VideoButtonsWidget::onTimerTimeout);
 
+    progressLabelWidget = new QLabel();
+    progressLabelWidget->setAlignment(Qt::AlignCenter);
+
     auto layout = new QHBoxLayout();
     layout->addWidget(playButton);
     layout->addWidget(stopButton);
+    layout->addWidget(progressLabelWidget);
     layout->addWidget(sliderWidget);
     layout->addWidget(volumeLabelWidget);
     layout->addWidget(volumeButton);
@@ -140,6 +144,16 @@ namespace realn {
   void VideoButtonsWidget::forcePlay() {
     stopButton->click();
     playButton->click();
+  }
+
+  void VideoButtonsWidget::setProgressLabel(const QString& text) {
+    progressLabelWidget->setText(text);
+  }
+
+  void VideoButtonsWidget::setVolumeControlVisibility(bool value) {
+    volumeButton->setVisible(value);
+    muteButton->setVisible(value);
+    volumeLabelWidget->setVisible(value);
   }
 
   void VideoButtonsWidget::finishVideo() {

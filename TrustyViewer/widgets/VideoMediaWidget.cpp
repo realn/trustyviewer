@@ -1,11 +1,17 @@
 
 #include <QPushButton>
 #include <QBoxLayout>
+#include <QTime>
 
 #include "VideoButtonsWidget.h"
 #include "VideoMediaWidget.h"
 
 namespace realn {
+  QString formatTime(qint64 durationMs) {
+    auto time = QTime::fromMSecsSinceStartOfDay(durationMs);
+    return time.toString(Qt::TextDate);
+  }
+
   VideoMediaWidget::VideoMediaWidget() {
     videoPlayer = std::make_unique<QMediaPlayer>();
     videoWidget = new QVideoWidget();
@@ -89,8 +95,15 @@ namespace realn {
   }
 
   void VideoMediaWidget::updateSliderPosition() {
-    if (video)
+    if (video) {
       videoButtonsWidget->setVideoPosition(getPlayerPositionForSlider());
+
+      auto maxDuration = videoPlayer->duration();
+      auto position = videoPlayer->position();
+
+      auto text = formatTime(position) + "/" + formatTime(maxDuration);
+      videoButtonsWidget->setProgressLabel(text);
+    }
   }
 
   void VideoMediaWidget::onVolumePositionChanged() {
