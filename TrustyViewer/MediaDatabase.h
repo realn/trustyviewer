@@ -31,7 +31,7 @@ namespace realn {
     std::shared_ptr<MediaItemWorker> worker;
     QString rootPath;
     MediaItem::ptr_t rootItem;
-    MediaItem::itemvector_t mainList;
+    //MediaItem::itemvector_t mainList;
     MediaItemWorker::task_id itemTaskId = 0;
   };
 }

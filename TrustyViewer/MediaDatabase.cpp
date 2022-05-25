@@ -22,11 +22,8 @@ namespace realn {
   void MediaDatabase::rebuid(const QString& newRootPath)
   {
     emit rebuildingDatabase();
-    rootPath = newRootPath;
-    mainList.clear();
 
-    rootItem = nullptr;
-    itemTaskId = worker->addItemScanTask(rootPath);
+    itemTaskId = worker->addItemScanTask(newRootPath);
 
     asyncWaitForCheck(500ms);
   }
@@ -39,6 +36,8 @@ namespace realn {
           return QString::localeAwareCompare(itemA->getFilePath(), itemB->getFilePath()) < 0;
         return itemA->getType() < itemB->getType();
         });
+
+      rootPath = rootItem->getFilePath();
       emit databaseRebuild();
     }
     else {

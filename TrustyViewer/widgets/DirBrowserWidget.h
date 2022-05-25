@@ -29,6 +29,8 @@ namespace realn {
     
   private slots:
     void emitItemSelection();
+    void disableTreeView();
+    void enableTreeView();
 
   private:
     void setupRoot(QString rootDir);

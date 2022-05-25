@@ -20,7 +20,9 @@ namespace realn {
     treeView = new QTreeView();
     treeView->setModel(model);
 
+    connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
     connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
+    connect(database.get(), &MediaDatabase::databaseRebuild, this, &DirBrowserWidget::enableTreeView);
     connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::emitItemSelection);
 
     auto layout = new QVBoxLayout();
@@ -49,6 +51,14 @@ namespace realn {
 
     auto index = model->getIndexForItem(item);
     treeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+  }
+
+  void DirBrowserWidget::disableTreeView() {
+    treeView->setEnabled(false);
+  }
+
+  void DirBrowserWidget::enableTreeView() {
+    treeView->setEnabled(true);
   }
 
   void DirBrowserWidget::pickNewRoot() {

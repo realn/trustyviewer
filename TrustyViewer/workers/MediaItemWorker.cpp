@@ -26,6 +26,7 @@ namespace realn {
 
   MediaItemWorker::task_id MediaItemWorker::addItemScanTask(const QString& itemPath)
   {
+    assert(!itemPath.isEmpty());
     return addTask(itemPath);
   }
 
