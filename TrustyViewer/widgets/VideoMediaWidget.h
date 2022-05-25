@@ -25,7 +25,6 @@ namespace realn {
     void play();
     void pause();
     void stop();
-    void playpause();
     void toggleRepeat();
 
   private slots:

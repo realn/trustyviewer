@@ -3,6 +3,9 @@
 #include <QSlider>
 #include <QTimer>
 #include <QPushButton>
+#include <QWidget>
+#include <QFrame>
+#include <QLabel>
 
 #include "VideoButtonsWidget.h"
 
@@ -26,12 +29,12 @@ namespace realn {
     playButton->setMinimumSize(24, 24);
     playButton->setBaseSize(24, 24);
     playButton->setFixedSize(24, 24);
+    playButton->setCheckable(true);
 
     connect(playButton, &QPushButton::clicked, this, &VideoButtonsWidget::onPlayButtonPressed);
 
     stopButton = new QPushButton("S");
     stopButton->setContentsMargins(0, 0, 0, 0);
-    stopButton->setMinimumSize(10, 10);
     stopButton->setMinimumSize(24, 24);
     stopButton->setBaseSize(24, 24);
     stopButton->setFixedSize(24, 24);
@@ -47,6 +50,15 @@ namespace realn {
 
     connect(volumeButton, &QPushButton::clicked, this, &VideoButtonsWidget::onVolumeButtonPressed);
 
+    muteButton = new QPushButton("M");
+    muteButton->setContentsMargins(0, 0, 0, 0);
+    muteButton->setMinimumSize(24, 24);
+    muteButton->setBaseSize(24, 24);
+    muteButton->setFixedSize(24, 24);
+    muteButton->setCheckable(true);
+
+    connect(muteButton, &QPushButton::clicked, this, &VideoButtonsWidget::onMuteButtonPressed);
+
     sliderWidget = new QSlider(Qt::Horizontal, this);
     sliderWidget->setRange(0, MAX_SLIDER_POS);
 
@@ -55,10 +67,17 @@ namespace realn {
     connect(sliderWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onSliderValueChanged);
 
     volumeWidget = new QSlider(Qt::Vertical, this);
-    volumeWidget->setFixedSize(24, 200);
+    //volumeWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     volumeWidget->setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
+    volumeWidget->setFixedSize(24, 200);
+    volumeWidget->setRange(0, MAX_VOLUME_SLIDER_POS);
+    volumeWidget->setValue(MAX_VOLUME_SLIDER_POS);
+    volumeWidget->setContentsMargins(0, 0, 0, 0);
 
     connect(volumeWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onVolumeSliderValueChanged);
+
+    volumeLabelWidget = new QLabel(this);
+    volumeLabelWidget->setText("100%");
 
     timer = std::make_unique<QTimer>();
     timer->setInterval(std::chrono::milliseconds(50));
@@ -69,13 +88,17 @@ namespace realn {
     layout->addWidget(playButton);
     layout->addWidget(stopButton);
     layout->addWidget(sliderWidget);
+    layout->addWidget(volumeLabelWidget);
     layout->addWidget(volumeButton);
+    layout->addWidget(muteButton);
     setLayout(layout);
 
     timer->start();
   }
 
-  VideoButtonsWidget::~VideoButtonsWidget() = default;
+  VideoButtonsWidget::~VideoButtonsWidget() {
+    volumeWidget->hide();
+  }
 
   float VideoButtonsWidget::getVideoPosition() const {
     return toVideoPos(sliderWidget->value());
@@ -87,15 +110,22 @@ namespace realn {
   }
 
   int VideoButtonsWidget::getVolume() const {
-    return volumeWidget->value();;
+    if (muteButton->isChecked())
+      return 0;
+    return volumeWidget->value();
   }
 
   void VideoButtonsWidget::setVolume(int value) {
     volumeWidget->setValue(value);
+    updateVolumeLabel();
   }
 
   bool VideoButtonsWidget::isSliderPressed() const {
     return sliderWidget->isSliderDown();
+  }
+
+  VideoState VideoButtonsWidget::getState() const {
+    return state;
   }
 
   void VideoButtonsWidget::onSliderPressed() {
@@ -116,10 +146,22 @@ namespace realn {
   }
 
   void VideoButtonsWidget::onPlayButtonPressed() {
-    emit playClicked();
+    if (state == VideoState::STOPPED) {
+      playButton->setChecked(false);
+    }
+    if (playButton->isChecked()) {
+      state = VideoState::PAUSED;
+      emit pauseClicked();
+    }
+    else {
+      state = VideoState::PLAYING;
+      emit playClicked();
+    }
   }
 
   void VideoButtonsWidget::onStopButtonPressed() {
+    playButton->setChecked(false);
+    state = VideoState::STOPPED;
     emit stopClicked();
   }
 
@@ -134,9 +176,36 @@ namespace realn {
     point.ry() -= volumeWidget->height();
     volumeWidget->setGeometry(QRect(point, volumeWidget->size()));
     volumeWidget->show();
+    volumeWidget->updateGeometry();
   }
 
   void VideoButtonsWidget::onVolumeSliderValueChanged() {
     emit volumeSliderPositionChanged();
+    updateVolumeLabel();
+  }
+
+  void VideoButtonsWidget::onMuteButtonPressed() {
+    emit volumeSliderPositionChanged();
+    updateVolumeLabel();
+  }
+
+  void VideoButtonsWidget::closeEvent(QCloseEvent* evt) {
+    volumeWidget->hide();
+    QWidget::closeEvent(evt);
+  }
+
+  void VideoButtonsWidget::hideEvent(QHideEvent* evt) {
+    volumeWidget->hide();
+    QWidget::hideEvent(evt);
+  }
+
+  void VideoButtonsWidget::updateVolumeLabel() {
+    if (muteButton->isChecked()) {
+      volumeLabelWidget->setText("MUTE");
+      return;
+    }
+
+    int volume = volumeWidget->value();
+    volumeLabelWidget->setText(QString::number(volume) + "%");
   }
 }

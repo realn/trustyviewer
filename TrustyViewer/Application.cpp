@@ -26,8 +26,8 @@ namespace realn {
     mainWindow = std::make_unique<MainWindow>(plugins, database, thumbnailWorker);
     mainWindow->show();
 
-    testWindow = std::make_unique<TestWindow>();
-    testWindow->show();
+    //testWindow = std::make_unique<TestWindow>();
+    //testWindow->show();
   }
 
   Application::~Application() = default;

@@ -20,7 +20,8 @@ namespace realn {
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &VideoMediaWidget::onSliderPositionPressed);
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &VideoMediaWidget::onSliderPositionReleased);
     connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &VideoMediaWidget::updateSliderPosition);
-    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::playpause);
+    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::play);
+    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::pause);
     connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &VideoMediaWidget::stop);
     connect(videoButtonsWidget, &VideoButtonsWidget::volumeSliderPositionChanged, this, &VideoMediaWidget::onVolumePositionChanged);
 
@@ -69,15 +70,6 @@ namespace realn {
     videoPlayer->stop();
   }
 
-  void VideoMediaWidget::playpause() {
-    if (videoPlayer->state() != QMediaPlayer::State::PlayingState) {
-      play();
-    }
-    else {
-      pause();
-    }
-  }
-
   void VideoMediaWidget::toggleRepeat() {
   }
 
@@ -87,7 +79,8 @@ namespace realn {
 
   void VideoMediaWidget::onSliderPositionReleased() {
     videoPlayer->setPosition(getSliderPositionForPlayer());
-    videoPlayer->play();
+    if(videoButtonsWidget->getState() == VideoState::PLAYING)
+      videoPlayer->play();
   }
 
   void VideoMediaWidget::onSliderPositionChanged() {
