@@ -46,6 +46,9 @@ namespace realn {
     void videoPositionTimeout();
     void volumeSliderPositionChanged();
 
+  public slots:
+    void finishVideo();
+
   private slots:
     void onSliderPressed();
     void onSliderReleased();

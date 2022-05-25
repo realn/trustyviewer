@@ -138,6 +138,12 @@ namespace realn {
   }
 
   void VideoButtonsWidget::forcePlay() {
+    stopButton->click();
+    playButton->click();
+  }
+
+  void VideoButtonsWidget::finishVideo() {
+    state = VideoState::STOPPED;
   }
 
   void VideoButtonsWidget::onSliderPressed() {

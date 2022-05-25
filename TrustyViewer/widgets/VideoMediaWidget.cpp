@@ -14,6 +14,7 @@ namespace realn {
 
     connect(videoPlayer.get(), &QMediaPlayer::positionChanged, this, &VideoMediaWidget::onVideoPositionChanged);
     connect(videoPlayer.get(), SIGNAL("error(Error)"), this, SLOT("onMediaError(Error)"));
+    connect(videoPlayer.get(), &QMediaPlayer::stateChanged, this, &VideoMediaWidget::onVideoStateChanged);
 
     videoButtonsWidget = new VideoButtonsWidget();
 
@@ -47,7 +48,8 @@ namespace realn {
 
     videoButtonsWidget->setVideoPosition(0.0f);
     videoButtonsWidget->setVolume(videoPlayer->volume());
-    //videoButtonsWidget->playClicked();    
+    
+    videoButtonsWidget->forcePlay();
 
     return true;
   }
@@ -93,6 +95,11 @@ namespace realn {
 
   void VideoMediaWidget::onVolumePositionChanged() {
     videoPlayer->setVolume(videoButtonsWidget->getVolume());
+  }
+
+  void VideoMediaWidget::onVideoStateChanged(QMediaPlayer::State state) {
+    if(state == QMediaPlayer::State::StoppedState)
+      videoButtonsWidget->finishVideo();
   }
 
   void VideoMediaWidget::onMediaError(QMediaPlayer::Error err) {
