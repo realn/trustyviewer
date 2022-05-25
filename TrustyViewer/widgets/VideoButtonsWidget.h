@@ -31,7 +31,10 @@ namespace realn {
 
     bool isSliderPressed() const;
 
+    void resetState();
     VideoState getState() const;
+
+    void forcePlay();
 
   signals:
     void playClicked();
@@ -60,6 +63,7 @@ namespace realn {
 
   private:
     void updateVolumeLabel();
+    void updateStates();
 
     QPointer<QPushButton> playButton;
     QPointer<QPushButton> stopButton;

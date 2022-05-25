@@ -34,6 +34,7 @@ namespace realn {
     void onSliderPositionReleased();
     void updateSliderPosition();
     void onVolumePositionChanged();
+    void onMediaError(QMediaPlayer::Error);
 
   private:
     qint64 getSliderPositionForPlayer() const;

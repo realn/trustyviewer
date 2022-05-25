@@ -22,6 +22,11 @@ namespace realn {
     return static_cast<float>(sliderPos) / MAX_SLIDER_POS;
   }
 
+  const auto VIDEO_STATE_MAP = std::map<VideoState, VideoState>{
+    { VideoState::PLAYING, VideoState::PAUSED},
+    { VideoState::PAUSED, VideoState::PLAYING},
+    { VideoState::STOPPED, VideoState::PLAYING }
+  };
 
   VideoButtonsWidget::VideoButtonsWidget() {
     playButton = new QPushButton("P");
@@ -124,8 +129,15 @@ namespace realn {
     return sliderWidget->isSliderDown();
   }
 
+  void VideoButtonsWidget::resetState() {
+    state = VideoState::STOPPED;
+  }
+
   VideoState VideoButtonsWidget::getState() const {
     return state;
+  }
+
+  void VideoButtonsWidget::forcePlay() {
   }
 
   void VideoButtonsWidget::onSliderPressed() {
@@ -146,21 +158,11 @@ namespace realn {
   }
 
   void VideoButtonsWidget::onPlayButtonPressed() {
-    if (state == VideoState::STOPPED) {
-      playButton->setChecked(false);
-    }
-    if (playButton->isChecked()) {
-      state = VideoState::PAUSED;
-      emit pauseClicked();
-    }
-    else {
-      state = VideoState::PLAYING;
-      emit playClicked();
-    }
+    state = VIDEO_STATE_MAP.at(state);
+    updateStates();
   }
 
   void VideoButtonsWidget::onStopButtonPressed() {
-    playButton->setChecked(false);
     state = VideoState::STOPPED;
     emit stopClicked();
   }
@@ -207,5 +209,25 @@ namespace realn {
 
     int volume = volumeWidget->value();
     volumeLabelWidget->setText(QString::number(volume) + "%");
+  }
+
+  void VideoButtonsWidget::updateStates() {
+    switch (state) {
+    case realn::VideoState::PLAYING:
+      playButton->setChecked(false);
+      emit playClicked();
+      break;
+
+    case realn::VideoState::PAUSED:
+      playButton->setChecked(true);
+      emit pauseClicked();
+      break;
+
+    case realn::VideoState::STOPPED:
+      playButton->setChecked(false);
+      emit stopClicked();
+      setVideoPosition(0.0f);
+      break;
+    }
   }
 }

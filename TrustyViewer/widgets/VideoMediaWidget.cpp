@@ -13,6 +13,7 @@ namespace realn {
     videoWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     connect(videoPlayer.get(), &QMediaPlayer::positionChanged, this, &VideoMediaWidget::onVideoPositionChanged);
+    connect(videoPlayer.get(), SIGNAL("error(Error)"), this, SLOT("onMediaError(Error)"));
 
     videoButtonsWidget = new VideoButtonsWidget();
 
@@ -21,7 +22,7 @@ namespace realn {
     connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &VideoMediaWidget::onSliderPositionReleased);
     connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &VideoMediaWidget::updateSliderPosition);
     connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::play);
-    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::pause);
+    connect(videoButtonsWidget, &VideoButtonsWidget::pauseClicked, this, &VideoMediaWidget::pause);
     connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &VideoMediaWidget::stop);
     connect(videoButtonsWidget, &VideoButtonsWidget::volumeSliderPositionChanged, this, &VideoMediaWidget::onVolumePositionChanged);
 
@@ -46,9 +47,7 @@ namespace realn {
 
     videoButtonsWidget->setVideoPosition(0.0f);
     videoButtonsWidget->setVolume(videoPlayer->volume());
-
-    videoPlayer->play();
-    
+    //videoButtonsWidget->playClicked();    
 
     return true;
   }
@@ -94,6 +93,10 @@ namespace realn {
 
   void VideoMediaWidget::onVolumePositionChanged() {
     videoPlayer->setVolume(videoButtonsWidget->getVolume());
+  }
+
+  void VideoMediaWidget::onMediaError(QMediaPlayer::Error err) {
+    assert(err == QMediaPlayer::Error::NoError);
   }
 
   qint64 VideoMediaWidget::getSliderPositionForPlayer() const {
