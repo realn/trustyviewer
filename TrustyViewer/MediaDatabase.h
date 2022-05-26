@@ -20,6 +20,12 @@ namespace realn {
   signals:
     void rebuildingDatabase();
     void databaseRebuild();
+    void itemWillBeRemoved(MediaItem::ptr_t item);
+    void itemRemoved(MediaItem::ptr_t item);
+
+  public slots:
+    void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void deleteItem(MediaItem::ptr_t item);
 
   private slots:
     void checkForData();

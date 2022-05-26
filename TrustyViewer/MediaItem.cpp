@@ -46,4 +46,18 @@ namespace realn {
       return nullptr;
     return children[index];
   }
+
+  bool MediaItem::hasChildren() const {
+    return !children.empty();
+  }
+
+  void MediaItem::makeOrphan() {
+    auto parent = getParent();
+    if (parent) {
+      setParent(nullptr);
+
+      auto item = shared_from_this();
+      parent->removeChild(item);
+    }
+  }
 }

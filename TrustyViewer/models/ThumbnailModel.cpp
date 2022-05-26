@@ -18,14 +18,12 @@ namespace realn {
   ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize)
     : plugins(_plugins)
     , worker(_worker)
-    , thumbnailSize(_thumbnailSize)
-  {
+    , thumbnailSize(_thumbnailSize) {
     defaultThumbnail = QPixmap(thumbnailSize);
     defaultThumbnail.fill(QColor(Qt::lightGray));
   }
 
-  void ThumbnailModel::setRootItem(MediaItem::ptr_t item)
-  {
+  void ThumbnailModel::setRootItem(MediaItem::ptr_t item) {
     if (rootItem == item)
       return;
     beginResetModel();
@@ -34,16 +32,19 @@ namespace realn {
     endResetModel();
   }
 
-  MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const
-  {
+  MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
     auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
     if (!ptr)
       return nullptr;
     return ptr->getPtr();
   }
 
-  QModelIndex ThumbnailModel::getIndexForItem(MediaItem::ptr_t item) const
-  {
+  void ThumbnailModel::refreshModel() {
+    beginResetModel();
+    endResetModel();
+  }
+
+  QModelIndex ThumbnailModel::getIndexForItem(MediaItem::ptr_t item) const {
     if (!rootItem)
       return QModelIndex();
 
@@ -62,8 +63,7 @@ namespace realn {
     return index(static_cast<int>(rowIndex), 0);
   }
 
-  QModelIndex ThumbnailModel::index(int row, int column, const QModelIndex& parent) const
-  {
+  QModelIndex ThumbnailModel::index(int row, int column, const QModelIndex& parent) const {
     if (parent.isValid() || !rootItem)
       return QModelIndex();
 
@@ -74,25 +74,21 @@ namespace realn {
     return createIndex(row, column, item.get());
   }
 
-  QModelIndex ThumbnailModel::parent(const QModelIndex& child) const
-  {
+  QModelIndex ThumbnailModel::parent(const QModelIndex& child) const {
     return QModelIndex();
   }
 
-  int ThumbnailModel::rowCount(const QModelIndex& parent) const
-  {
+  int ThumbnailModel::rowCount(const QModelIndex& parent) const {
     if (!rootItem || parent.isValid())
       return 0;
     return static_cast<int>(rootItem->getChildren().size());
   }
 
-  int ThumbnailModel::columnCount(const QModelIndex& parent) const
-  {
+  int ThumbnailModel::columnCount(const QModelIndex& parent) const {
     return parent.isValid() ? 0 : 1;
   }
 
-  QVariant ThumbnailModel::data(const QModelIndex& index, int role) const
-  {
+  QVariant ThumbnailModel::data(const QModelIndex& index, int role) const {
     if (!rootItem)
       return QVariant();
 
@@ -110,8 +106,18 @@ namespace realn {
     return QVariant();
   }
 
-  void ThumbnailModel::createThumbnails()
-  {
+  void ThumbnailModel::beginRemoveItem(MediaItem::ptr_t item) {
+    auto modelIdx = getIndexForItem(item);
+    auto modelParent = parent(modelIdx);
+
+    beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row());
+  }
+
+  void ThumbnailModel::endRemoveItem() {
+    endRemoveRows();
+  }
+
+  void ThumbnailModel::createThumbnails() {
     worker->clearRequests();
 
     {
@@ -144,15 +150,13 @@ namespace realn {
     QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }
 
-  QPixmap ThumbnailModel::getThumbnail(const QString& filepath) const
-  {
+  QPixmap ThumbnailModel::getThumbnail(const QString& filepath) const {
     if (thumbnails.count(filepath) == 0)
       return defaultThumbnail;
     return *thumbnails.at(filepath);
   }
 
-  void ThumbnailModel::emitThumbnailsDataChanged(QStringList items)
-  {
+  void ThumbnailModel::emitThumbnailsDataChanged(QStringList items) {
     if (items.empty())
       return;
     size_t first = find_index_if(rootItem->getChildren(), [&](const MediaItem::ptr_t& mitem) { return mitem->getFilePath() == items.front(); }, 0);
@@ -163,7 +167,7 @@ namespace realn {
       first = std::min(first, idx);
       last = std::max(last, idx);
     }
-    
+
     auto top = index(static_cast<int>(first), 0);
     auto bottom = index(static_cast<int>(last), 0);
     QVector<int> roles = { Qt::DecorationRole };
@@ -179,7 +183,7 @@ namespace realn {
       QPainter pnt(&thumbnail);
       pnt.drawPixmap(pos, pixmap);
     }
-    
+
     return std::make_unique<QPixmap>(std::move(thumbnail));
   }
 }

@@ -16,12 +16,17 @@ namespace realn {
 
     MediaItem::ptr_t getSelectedItem() const;
 
+    QPointer<ThumbnailModel> getThumbnailModel() const;
+
   signals:
     void selectedItemChanged(MediaItem::ptr_t item);
+    void selectionCleared();
 
   public slots:
     void setSelectedItem(MediaItem::ptr_t item);
+    void clearSelection();
     void setRootByItem(MediaItem::ptr_t item);
+    void refresh();
 
   private slots:
     void emitSelectionChanged();

@@ -50,8 +50,7 @@ namespace realn {
     if (!plugin)
       return false;
 
-    for (auto& widget : mediaWidgets)
-      widget->clearMedia();
+    clearMedia();
 
     auto typeId = getMediaTypeId(fileext, plugin);
 
@@ -60,6 +59,12 @@ namespace realn {
 
     loadedItem = item;
     return true;
+  }
+
+  void MediaContentWidget::clearMedia() {
+    for (auto& widget : mediaWidgets)
+      widget->clearMedia();
+    loadedItem.reset();
   }
 
   void MediaContentWidget::addMediaWidget(mpwidget_ptr_t widget)

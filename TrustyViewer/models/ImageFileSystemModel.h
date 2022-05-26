@@ -16,6 +16,7 @@ namespace realn {
     ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase);
 
     MediaItem::ptr_t getItemForIndex(const QModelIndex& index) const;
+    MediaItem::itemvector_t getItemsForIndices(const QModelIndexList& indices) const;
     QModelIndex getIndexForItem(MediaItem::ptr_t item) const;
 
     // Inherited via QAbstractItemModel
@@ -28,6 +29,8 @@ namespace realn {
 
   public slots:
     void reloadDatabase();
+    void beginRemoveItem(MediaItem::ptr_t item);
+    void endRemoveItem();
 
   private:
     static MediaItem::ptr_t fromIndex(const QModelIndex& index);

@@ -13,12 +13,20 @@ namespace realn {
     dirBrowser = new DirBrowserWidget(mediaDatabase);
     thumbnailView = new ThumbnailView(plugins, worker);
 
+    cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginRemoveItem));
+    cC(connect(mediaDatabase.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
+
     createUI();
   }
 
+  void MainWindow::clearMedia() {
+    view->clearMedia();
+  }
+
   void MainWindow::setMediaFromItem(MediaItem::ptr_t item) {
-    if (!item)
+    if (!item) {
       return;
+    }
 
     view->loadMedia(item);
     dirBrowser->setSelectedItem(item);
@@ -34,7 +42,10 @@ namespace realn {
 
     cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setRootByItem));
     cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, this, &MainWindow::setMediaFromItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectionCleared, this, &MainWindow::clearMedia));
+
     cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, this, &MainWindow::setMediaFromItem));
+    cC(connect(thumbnailView, &ThumbnailView::selectionCleared, this, &MainWindow::clearMedia));
   }
 
   void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible)

@@ -22,6 +22,7 @@ namespace realn {
     MediaContentWidget(std::shared_ptr<ExtPluginList> plugins);
 
     bool loadMedia(MediaItem::ptr_t item);
+    void clearMedia();
 
   private:
     using mpwidget_ptr_t = QPointer<BaseMediaContentPlayerWidget>;

@@ -33,6 +33,10 @@ namespace realn {
     return model->fromIndex(index);
   }
 
+  QPointer<ThumbnailModel> ThumbnailView::getThumbnailModel() const {
+    return model;
+  }
+
   void ThumbnailView::setSelectedItem(MediaItem::ptr_t item) {
     if (item == getSelectedItem())
       return;
@@ -41,9 +45,15 @@ namespace realn {
     listView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
   }
 
+  void ThumbnailView::clearSelection() {
+    listView->selectionModel()->clearSelection();
+    emit selectionCleared();
+  }
+
   void ThumbnailView::setRootByItem(MediaItem::ptr_t item) {
-    if (!item)
+    if (!item) {
       return;
+    }
 
     if (!item->hasParent() || item->isDirectory()) {
       model->setRootItem(item);
@@ -52,6 +62,10 @@ namespace realn {
 
     auto parent = item->getParent();
     model->setRootItem(parent);
+  }
+
+  void ThumbnailView::refresh() {
+    model->refreshModel();
   }
 
   void ThumbnailView::emitSelectionChanged() {

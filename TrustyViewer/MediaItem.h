@@ -29,6 +29,9 @@ namespace realn {
 
     void addChild(ptr_t child);
     ptr_t getChild(size_t index) const;
+    bool hasChildren() const;
+
+    void makeOrphan();
 
     ptr_t getPtr() { return shared_from_this(); }
 
