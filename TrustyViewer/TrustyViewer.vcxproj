@@ -98,7 +98,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="MediaDatabase.cpp" />
     <ClCompile Include="MediaItem.cpp" />
     <ClCompile Include="models\ImageFileSystemModel.cpp" />
@@ -124,7 +124,7 @@
     <QtMoc Include="widgets\DirBrowserWidget.h" />
     <QtMoc Include="widgets\MediaContentWidget.h" />
     <QtMoc Include="Application.h" />
-    <QtMoc Include="MainWindow.h" />
+    <QtMoc Include="Windows\MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="widgets\VideoMediaWidget.h" />

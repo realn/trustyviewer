@@ -5,9 +5,9 @@
 #include <QMainWindow>
 #include <QDockWidget>
 
-#include "widgets/MediaContentWidget.h"
-#include "widgets/DirBrowserWidget.h"
-#include "widgets/ThumbnailView.h"
+#include "../widgets/MediaContentWidget.h"
+#include "../widgets/DirBrowserWidget.h"
+#include "../widgets/ThumbnailView.h"
 
 namespace realn {
   class MainWindow : public QMainWindow {

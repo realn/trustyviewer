@@ -25,7 +25,7 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
+    <ClCompile Include="Windows\MainWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widgets\MediaContentWidget.cpp">
@@ -108,7 +108,7 @@
     <QtMoc Include="widgets\MediaContentWidget.h" />
     <QtMoc Include="widgets\DirBrowserWidget.h" />
     <QtMoc Include="models\ImageFileSystemModel.h" />
-    <QtMoc Include="MainWindow.h">
+    <QtMoc Include="Windows\MainWindow.h">
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="MediaDatabase.h" />

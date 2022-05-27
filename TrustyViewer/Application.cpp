@@ -1,5 +1,5 @@
 
-#include "MainWindow.h"
+#include "Windows/MainWindow.h"
 #include "Windows/TestWindow.h"
 
 #include "extensions/StdImageExtPlugin.h"
