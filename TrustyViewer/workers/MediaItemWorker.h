@@ -29,6 +29,9 @@ namespace realn{
 
     MediaItem::ptr_t popCompletedItem(task_id taskId);
 
+    void clearStats();
+    std::pair<int, int> getStats() const;
+
   private:
     using task_ptr_t = task_t::ptr_t;
     using task_id_vec_t = task_t::task_id_vec_t;
@@ -52,5 +55,8 @@ namespace realn{
     task_id lastId = 0;
     thread_vec_t threads;
     std::atomic_bool runThreads = true;
+
+    std::atomic_int statsDone;
+    std::atomic_int statsTotal;
   };
 }

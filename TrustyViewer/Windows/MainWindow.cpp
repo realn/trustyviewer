@@ -2,6 +2,7 @@
 #include <QSplitter>
 #include <QTreeView>
 #include <QLabel>
+#include <QStatusBar>
 
 #include "../Utils.h"
 #include "MainWindow.h"
@@ -17,12 +18,27 @@ namespace realn {
     cC(connect(mediaDatabase.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
     cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginMoveItem));
     cC(connect(mediaDatabase.get(), &MediaDatabase::itemMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endMoveItem));
+    cC(connect(mediaDatabase.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
+    cC(connect(mediaDatabase.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));
 
     createUI();
   }
 
   void MainWindow::clearMedia() {
     view->clearMedia();
+  }
+
+  void MainWindow::showDatabaseRebuildProgress(int done, int total) {
+    auto msg = QString("Scanning items: %1/%2").arg(done).arg(total);
+    statusBar->showMessage(msg);
+  }
+
+  void MainWindow::showDatabaseRebuildDone() {
+    statusBar->showMessage("Done scanning.", 5000);
+  }
+
+  void MainWindow::showStatusMessage(QString msg) {
+    statusBar->showMessage(msg);
   }
 
   void MainWindow::setMediaFromItem(MediaItem::ptr_t item) {
@@ -48,6 +64,9 @@ namespace realn {
 
     cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, this, &MainWindow::setMediaFromItem));
     cC(connect(thumbnailView, &ThumbnailView::selectionCleared, this, &MainWindow::clearMedia));
+
+    statusBar = new QStatusBar();
+    setStatusBar(statusBar);
   }
 
   void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible)

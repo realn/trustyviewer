@@ -24,6 +24,7 @@ namespace realn {
     void itemRemoved(MediaItem::ptr_t item);
     void itemWillBeMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void itemMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void rebuildProgressUpdated(int doneTasks, int totalTasks);
 
   public slots:
     void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
@@ -39,7 +40,6 @@ namespace realn {
     std::shared_ptr<MediaItemWorker> worker;
     QString rootPath;
     MediaItem::ptr_t rootItem;
-    //MediaItem::itemvector_t mainList;
     MediaItemWorker::task_id itemTaskId = 0;
   };
 }

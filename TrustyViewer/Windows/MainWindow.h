@@ -9,6 +9,8 @@
 #include "../widgets/DirBrowserWidget.h"
 #include "../widgets/ThumbnailView.h"
 
+class QStatusBar;
+
 namespace realn {
   class MainWindow : public QMainWindow {
     Q_OBJECT;
@@ -18,6 +20,9 @@ namespace realn {
   private slots:
     void setMediaFromItem(MediaItem::ptr_t item);
     void clearMedia();
+    void showDatabaseRebuildProgress(int done, int total);
+    void showDatabaseRebuildDone();
+    void showStatusMessage(QString msg);
 
   private:
     using dockptr_t = QPointer<QDockWidget>;
@@ -28,6 +33,7 @@ namespace realn {
     QPointer<MediaContentWidget> view;
     QPointer<DirBrowserWidget> dirBrowser;
     QPointer<ThumbnailView> thumbnailView;
+    QPointer<QStatusBar> statusBar;
     std::vector<dockptr_t> docks;
   };
 }

@@ -25,20 +25,23 @@ namespace realn {
 
     itemTaskId = worker->addItemScanTask(newRootPath);
 
-    asyncWaitForCheck(500ms);
+    asyncWaitForCheck(100ms);
   }
 
   void MediaDatabase::checkForData() {
-    if (worker->isTaskCompleted(itemTaskId)) {
-      rootItem = worker->popCompletedItem(itemTaskId);
-      rootItem->sortChildren(MediaItem::AscTypeNameSorter);
+    auto [done, total] = worker->getStats();
+    emit rebuildProgressUpdated(done, total);
 
-      rootPath = rootItem->getFilePath();
-      emit databaseRebuild();
+    if (!worker->isTaskCompleted(itemTaskId)) {
+      asyncWaitForCheck(100ms);
+      return;
     }
-    else {
-      asyncWaitForCheck(500ms);
-    }
+
+    rootItem = worker->popCompletedItem(itemTaskId);
+    rootItem->sortChildren(MediaItem::AscTypeNameSorter);
+
+    rootPath = rootItem->getFilePath();
+    emit databaseRebuild();
   }
 
   void MediaDatabase::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
