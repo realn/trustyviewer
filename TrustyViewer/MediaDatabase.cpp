@@ -31,11 +31,7 @@ namespace realn {
   void MediaDatabase::checkForData() {
     if (worker->isTaskCompleted(itemTaskId)) {
       rootItem = worker->popCompletedItem(itemTaskId);
-      rootItem->sortChildren([](MediaItem::ptr_t& itemA, MediaItem::ptr_t& itemB) {
-        if (itemA->getType() == itemB->getType())
-          return QString::localeAwareCompare(itemA->getFilePath(), itemB->getFilePath()) < 0;
-        return itemA->getType() < itemB->getType();
-                             });
+      rootItem->sortChildren(MediaItem::AscTypeNameSorter);
 
       rootPath = rootItem->getFilePath();
       emit databaseRebuild();
@@ -46,7 +42,42 @@ namespace realn {
   }
 
   void MediaDatabase::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    if (item->getParent() == newParent)
+      return;
+    if (newParent->hasInPathToRoot(item))
+      return;
 
+    if (item->isDirectory()) {
+      auto oldDir = QDir(item->getFilePath());
+      auto newDir = QDir(newParent->getFilePath());
+
+      auto newPath = newDir.filePath(oldDir.dirName());
+
+      if (oldDir.rename(item->getFilePath(), newPath)) {
+        item->replaceFilePath(newPath);
+      }
+      else
+        return;
+    }
+    else {
+      auto oldFile = QFileInfo(item->getFilePath());
+      auto newDir = QDir(newParent->getFilePath());
+
+      auto newFilePath = newDir.filePath(oldFile.fileName());
+
+      if (QFile::rename(item->getFilePath(), newFilePath)) {
+        item->replaceFilePath(newFilePath);
+      }
+      else
+        return;
+    }
+
+    emit itemWillBeMoved(item, newParent);
+
+    newParent->addChild(item);
+    newParent->sortChildren(MediaItem::AscTypeNameSorter);
+
+    emit itemMoved(item, newParent);
   }
 
   void MediaDatabase::deleteItem(MediaItem::ptr_t item) {

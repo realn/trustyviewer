@@ -117,6 +117,17 @@ namespace realn {
     endRemoveRows();
   }
 
+  void ThumbnailModel::beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    if (newParent == rootItem)
+      return;
+
+    beginRemoveItem(item);
+  }
+
+  void ThumbnailModel::endMoveItem() {
+    endRemoveItem();
+  }
+
   void ThumbnailModel::createThumbnails() {
     worker->clearRequests();
 

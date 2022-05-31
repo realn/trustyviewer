@@ -15,6 +15,8 @@ namespace realn {
 
     cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginRemoveItem));
     cC(connect(mediaDatabase.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
+    cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginMoveItem));
+    cC(connect(mediaDatabase.get(), &MediaDatabase::itemMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endMoveItem));
 
     createUI();
   }

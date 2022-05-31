@@ -26,6 +26,7 @@ namespace realn {
     void selectionChanged();
     void selectedItemChanged(MediaItem::ptr_t item);
     void deleteItemRequested(MediaItem::ptr_t item);
+    void moveItemRequested(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void selectionCleared();
 
   public slots:
@@ -39,6 +40,7 @@ namespace realn {
     void disableTreeView();
     void enableTreeView();
     void tryDeleteItem();
+    void tryMoveItem();
 
   private:
     void createUI();

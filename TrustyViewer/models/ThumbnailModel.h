@@ -32,6 +32,8 @@ namespace realn {
     void refreshModel();
     void beginRemoveItem(MediaItem::ptr_t item);
     void endRemoveItem();
+    void beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void endMoveItem();
 
   private slots:
     void retrieveThumbnails();

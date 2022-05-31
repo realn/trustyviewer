@@ -8,6 +8,7 @@
 
 #include "DirBrowserWidget.h"
 #include "../models/ImageFileSystemModel.h"
+#include "../Windows/MoveWindow.h"
 
 namespace realn {
   DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase) 
@@ -29,6 +30,8 @@ namespace realn {
     connect(database.get(), &MediaDatabase::databaseRebuild, this, &DirBrowserWidget::enableTreeView);
     connect(database.get(), &MediaDatabase::itemWillBeRemoved, model, &ImageFileSystemModel::beginRemoveItem);
     connect(database.get(), &MediaDatabase::itemRemoved, model, &ImageFileSystemModel::endRemoveItem);
+    connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::beginMoveItem);
+    connect(database.get(), &MediaDatabase::itemMoved, model, &ImageFileSystemModel::endMoveItem);
 
     connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::setupNewSelection);
 
@@ -72,6 +75,21 @@ namespace realn {
       emit deleteItemRequested(item);
       database->deleteItem(item);
     }
+  }
+
+  void DirBrowserWidget::tryMoveItem() {
+    auto item = getSelectedItem();
+    if (item == nullptr)
+      return;
+
+    QPointer<MoveWindow> dialog = new MoveWindow(database, this);
+    if (dialog->showDialog() == QDialog::Accepted) {
+      clearSelection();
+
+      emit moveItemRequested(item, dialog->getNewParent());
+      database->moveItem(item, dialog->getNewParent());
+    }
+    dialog->deleteLater();
   }
 
   void DirBrowserWidget::pickNewRoot() {
@@ -126,6 +144,7 @@ namespace realn {
 
   void DirBrowserWidget::createTreeViewActions() {
     actionMove = new QAction("Move");
+    connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::tryMoveItem);
 
     actionDelete = new QAction("Delete");
     connect(actionDelete, &QAction::triggered, this, &DirBrowserWidget::tryDeleteItem);

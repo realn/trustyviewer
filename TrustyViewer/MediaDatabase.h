@@ -22,6 +22,8 @@ namespace realn {
     void databaseRebuild();
     void itemWillBeRemoved(MediaItem::ptr_t item);
     void itemRemoved(MediaItem::ptr_t item);
+    void itemWillBeMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void itemMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
 
   public slots:
     void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);

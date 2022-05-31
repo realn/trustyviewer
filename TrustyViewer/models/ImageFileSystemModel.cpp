@@ -2,8 +2,8 @@
 #include "ImageFileSystemModel.h"
 
 namespace realn {
-  ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase)
-    : database(mediaDatabase) {
+  ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, MediaItemFilter itemFilter)
+    : database(mediaDatabase), filter(itemFilter) {
     iconProvider = std::make_unique<QFileIconProvider>();
   }
 
@@ -34,7 +34,7 @@ namespace realn {
     if (item == database->getRootItem())
       return index(0, 0);
 
-    int row = static_cast<int>(item->getIndexFromParent());
+    int row = getIndexFromParent(item);
     return index(row, 0, getIndexForItem(item->getParent()));
   }
 
@@ -43,20 +43,16 @@ namespace realn {
       return QModelIndex();
 
     if (!parent.isValid()) {
-      if (row != 0)
-        return QModelIndex();
-
       return createIndex(row, column, database->getRootItem().get());
     }
 
     auto parentItem = fromIndex(parent);
-    auto rowIndex = static_cast<size_t>(row);
 
-    if (rowIndex >= parentItem->getChildren().size()) {
+    if (row >= getChildrenCount(parentItem)) {
       return QModelIndex();
     }
 
-    return createIndex(row, column, parentItem->getChildren()[rowIndex].get());
+    return createIndex(row, column, getChild(row, parentItem).get());
   }
 
   QModelIndex ImageFileSystemModel::parent(const QModelIndex& child) const {
@@ -81,7 +77,7 @@ namespace realn {
     if (!parentItem)
       return 0;
 
-    return static_cast<int>(parentItem->getChildren().size());
+    return getChildrenCount(parentItem);
   }
 
   int ImageFileSystemModel::columnCount(const QModelIndex& parent) const {
@@ -109,7 +105,6 @@ namespace realn {
   }
 
   void ImageFileSystemModel::beginRemoveItem(MediaItem::ptr_t item) {
-    auto idx = item->getIndexFromParent();
     auto modelIdx = getIndexForItem(item);
     auto modelParent = parent(modelIdx);
 
@@ -118,6 +113,32 @@ namespace realn {
 
   void ImageFileSystemModel::endRemoveItem() {
     endRemoveRows();
+  }
+
+  void ImageFileSystemModel::beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    auto modelIdx = getIndexForItem(item);
+    auto modelParent = parent(modelIdx);
+    auto modelNewParent = getIndexForItem(newParent);
+
+    auto newRowIdx = 0;
+    {
+      auto tempList = newParent->getChildren();
+      tempList.push_back(item);
+      std::sort(tempList.begin(), tempList.end(), MediaItem::AscTypeNameSorter);
+      auto it = std::find(tempList.begin(), tempList.end(), item);
+
+      newRowIdx = static_cast<int>(it - tempList.begin());
+    }
+
+    if (modelParent == modelNewParent)
+      return;
+
+    beginMoveRows(modelParent, modelIdx.row(), modelIdx.row(), modelNewParent, newRowIdx + 1);
+    
+  }
+
+  void ImageFileSystemModel::endMoveItem() {
+    endMoveRows();
   }
 
   void ImageFileSystemModel::reloadDatabase() {
@@ -141,6 +162,65 @@ namespace realn {
 
       check = check->getParent();
     } while (check);
+
+    return false;
+  }
+
+  MediaItem::ptr_t ImageFileSystemModel::getChild(int rowIndex, MediaItem::ptr_t parentItem) const {
+    assert(rowIndex >= 0);
+
+    auto list = parentItem->getChildren();
+    for (auto& item : list) {
+      if (!itemFulfillsCondition(item))
+        continue;
+
+      if (rowIndex > 0) {
+        rowIndex--;
+        continue;
+      }
+
+      return item;
+    }
+
+    throw std::runtime_error("Failed to find child for row index.");
+  }
+
+  int ImageFileSystemModel::getChildrenCount(MediaItem::ptr_t item) const {
+    auto list = item->getChildren();
+
+    auto result = std::count_if(list.begin(), list.end(), [this](MediaItem::ptr_t listItem) {
+      return itemFulfillsCondition(listItem);
+                                });
+
+    return static_cast<int>(result);
+  }
+
+  int ImageFileSystemModel::getIndexFromParent(MediaItem::ptr_t item) const {
+    auto parent = item->getParent();
+    assert(parent);
+
+    int index = 0;
+    for (auto& listItem : parent->getChildren()) {
+      if (!itemFulfillsCondition(listItem))
+        continue;
+      if (item != listItem) {
+        index++;
+        continue;
+      }
+
+      return index;
+    }
+
+    throw std::runtime_error("Failed to find item index of parent.");
+  }
+
+  bool ImageFileSystemModel::itemFulfillsCondition(MediaItem::ptr_t item) const {
+    if (filter == MediaItemFilter::NoFilter)
+      return true;
+
+    if (filter == MediaItemFilter::OnlyDirectories) {
+      return item->getType() == MediaItemType::Directory;
+    }
 
     return false;
   }

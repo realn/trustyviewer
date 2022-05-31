@@ -10,10 +10,15 @@
 #include "../MediaDatabase.h"
 
 namespace realn {
+  enum class MediaItemFilter {
+    NoFilter = 0,
+    OnlyDirectories
+  };
+
   class ImageFileSystemModel : public QAbstractItemModel {
     Q_OBJECT;
   public:
-    ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase);
+    ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, MediaItemFilter filter = MediaItemFilter::NoFilter);
 
     MediaItem::ptr_t getItemForIndex(const QModelIndex& index) const;
     MediaItem::itemvector_t getItemsForIndices(const QModelIndexList& indices) const;
@@ -31,12 +36,19 @@ namespace realn {
     void reloadDatabase();
     void beginRemoveItem(MediaItem::ptr_t item);
     void endRemoveItem();
+    void beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void endMoveItem();
 
   private:
     static MediaItem::ptr_t fromIndex(const QModelIndex& index);
     bool isItemOfRoot(MediaItem::ptr_t item) const;
+    int getChildrenCount(MediaItem::ptr_t item) const;
+    MediaItem::ptr_t getChild(int rowIndex, MediaItem::ptr_t parentItem) const;
+    int getIndexFromParent(MediaItem::ptr_t item) const;
+    bool itemFulfillsCondition(MediaItem::ptr_t item) const;
 
     std::shared_ptr<MediaDatabase> database;
     std::unique_ptr<QFileIconProvider> iconProvider;
+    MediaItemFilter filter;
   };
 }
