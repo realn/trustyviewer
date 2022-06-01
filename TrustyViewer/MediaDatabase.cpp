@@ -114,6 +114,22 @@ namespace realn {
     }
   }
 
+  void MediaDatabase::makeFolderItem(QString newName, MediaItem::ptr_t parent) {
+    assert(!newName.isEmpty());
+    assert(parent && parent->isDirectory());
+
+    auto dirPath = parent->getFilePath();
+    QDir dir(dirPath);
+    if (dir.mkdir(newName) && dir.cd(newName)) {
+      auto item = std::make_shared<MediaItem>(dir.path(), MediaItemType::Directory);
+
+      emit itemWillBeAdded(item, parent);
+      parent->addChild(item);
+      parent->sortChildren(MediaItem::AscTypeNameSorter);
+      emit itemAdded(item, parent);
+    }
+  }
+
   void MediaDatabase::asyncWaitForCheck(std::chrono::milliseconds value) {
     QTimer::singleShot(value, this, &MediaDatabase::checkForData);
   }

@@ -32,6 +32,10 @@ namespace realn {
     endResetModel();
   }
 
+  MediaItem::ptr_t ThumbnailModel::getRootItem() const {
+    return rootItem;
+  }
+
   MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
     auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
     if (!ptr)
@@ -107,14 +111,22 @@ namespace realn {
   }
 
   void ThumbnailModel::beginRemoveItem(MediaItem::ptr_t item) {
+    if (item == rootItem) {
+      setRootItem(nullptr);
+      return;
+    }
+
+    if (item->getParent() != rootItem)
+      return;
+
     auto modelIdx = getIndexForItem(item);
     auto modelParent = parent(modelIdx);
 
-    beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row());
+    guardRemove.begin([&]() { beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row()); });
   }
 
   void ThumbnailModel::endRemoveItem() {
-    endRemoveRows();
+    guardRemove.end([&]() { endRemoveRows(); });
   }
 
   void ThumbnailModel::beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
@@ -137,11 +149,13 @@ namespace realn {
       std::thread([](thumbnail_map_t&& memory) { memory.clear(); }, std::move(temp)).detach();
     }
 
-    for (auto& item : rootItem->getChildren()) {
-      if (item->isDirectory())
-        continue;
+    if (rootItem) {
+      for (auto& item : rootItem->getChildren()) {
+        if (item->isDirectory())
+          continue;
 
-      worker->addThumbnailRequest(item->getFilePath());
+        worker->addThumbnailRequest(item->getFilePath());
+      }
     }
     QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }

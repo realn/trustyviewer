@@ -24,11 +24,14 @@ namespace realn {
     void itemRemoved(MediaItem::ptr_t item);
     void itemWillBeMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void itemMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void itemWillBeAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
+    void itemAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
     void rebuildProgressUpdated(int doneTasks, int totalTasks);
 
   public slots:
     void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void deleteItem(MediaItem::ptr_t item);
+    void makeFolderItem(QString newName, MediaItem::ptr_t parent);
 
   private slots:
     void checkForData();

@@ -23,17 +23,22 @@ namespace realn {
     void showDatabaseRebuildProgress(int done, int total);
     void showDatabaseRebuildDone();
     void showStatusMessage(QString msg);
+    void tryNewFolder(MediaItem::ptr_t parent);
+    void tryMoveItem(MediaItem::ptr_t item);
+    void tryDeleteItem(MediaItem::ptr_t item);
 
   private:
     using dockptr_t = QPointer<QDockWidget>;
 
     void createUI();
     void addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible);
+    void clearSelections();
 
     QPointer<MediaContentWidget> view;
     QPointer<DirBrowserWidget> dirBrowser;
     QPointer<ThumbnailView> thumbnailView;
     QPointer<QStatusBar> statusBar;
+    std::shared_ptr<MediaDatabase> database;
     std::vector<dockptr_t> docks;
   };
 }

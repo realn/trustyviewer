@@ -141,6 +141,21 @@ namespace realn {
     endMoveRows();
   }
 
+  void ImageFileSystemModel::beginAddItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent) {
+    auto list = parent->getChildren();
+    list.push_back(newItem);
+    sort_cont(list, MediaItem::AscTypeNameSorter);
+    auto idx = find(list, newItem);
+
+    auto modelParent = getIndexForItem(parent);
+
+    beginInsertRows(modelParent, idx, idx);
+  }
+
+  void ImageFileSystemModel::endAddItem() {
+    endInsertRows();
+  }
+
   void ImageFileSystemModel::reloadDatabase() {
     beginResetModel();
 

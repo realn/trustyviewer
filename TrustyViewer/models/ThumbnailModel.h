@@ -5,6 +5,7 @@
 #include <QPixmap>
 #include <QAbstractItemModel>
 
+#include "../Utils.h"
 #include "../MediaItem.h"
 #include "../extensions/ExtPlugin.h"
 #include "../workers/ThumbnailWorker.h"
@@ -16,6 +17,8 @@ namespace realn {
     ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize);
 
     void setRootItem(MediaItem::ptr_t item);
+    MediaItem::ptr_t getRootItem() const;
+
     MediaItem::ptr_t fromIndex(const QModelIndex& index) const;
 
     QModelIndex getIndexForItem(MediaItem::ptr_t item) const;
@@ -53,5 +56,7 @@ namespace realn {
     thumbnail_map_t thumbnails;
     QSize thumbnailSize;
     QPixmap defaultThumbnail;
+
+    pair_call_guard guardRemove;
   };
 }

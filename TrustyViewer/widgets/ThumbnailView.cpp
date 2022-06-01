@@ -41,6 +41,17 @@ namespace realn {
     if (item == getSelectedItem())
       return;
 
+    if (item == nullptr) {
+      listView->selectionModel()->clearSelection();
+      return;
+    }
+
+    if (item->getParent() != model->getRootItem()) {
+      model->setRootItem(item);
+      listView->selectionModel()->clearSelection();
+      return;
+    }
+
     auto index = model->getIndexForItem(item);
     listView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
   }
@@ -62,6 +73,8 @@ namespace realn {
 
     auto parent = item->getParent();
     model->setRootItem(parent);
+
+    clearSelection();
   }
 
   void ThumbnailView::refresh() {

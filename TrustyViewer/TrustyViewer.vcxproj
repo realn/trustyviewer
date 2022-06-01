@@ -103,6 +103,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="MediaDatabase.cpp" />
     <ClCompile Include="MediaItem.cpp" />
@@ -118,6 +119,7 @@
     <ClCompile Include="widgets\VideoMediaWidget.cpp" />
     <ClCompile Include="Windows\MoveWindow.cpp" />
     <ClCompile Include="Windows\TestWindow.cpp" />
+    <ClCompile Include="Windows\TextPromptDialog.cpp" />
     <ClCompile Include="workers\MediaItemWorker.cpp" />
     <ClCompile Include="workers\MediaItemWorkerTaskList.cpp" />
     <ClCompile Include="workers\ThumbnailDoneList.cpp" />
@@ -147,6 +149,7 @@
     <QtMoc Include="widgets\VideoButtonsWidget.h" />
     <QtMoc Include="Windows\TestWindow.h" />
     <QtMoc Include="Windows\MoveWindow.h" />
+    <QtMoc Include="Windows\TextPromptDialog.h" />
     <ClInclude Include="workers\MediaItemWorkerTaskList.h" />
     <ClInclude Include="workers\MediaItemWorker.h" />
     <ClInclude Include="workers\MediaItemWorkerTask.h" />

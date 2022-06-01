@@ -3,23 +3,19 @@
 #include <QTreeView>
 #include <QLabel>
 #include <QStatusBar>
+#include <QMessageBox>
 
 #include "../Utils.h"
+#include "MoveWindow.h"
+#include "TextPromptDialog.h"
 #include "MainWindow.h"
 
 namespace realn {
-  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker) {
-
+  MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker)
+    : database(mediaDatabase) {
     view = new MediaContentWidget(plugins);
     dirBrowser = new DirBrowserWidget(mediaDatabase);
     thumbnailView = new ThumbnailView(plugins, worker);
-
-    cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginRemoveItem));
-    cC(connect(mediaDatabase.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
-    cC(connect(mediaDatabase.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginMoveItem));
-    cC(connect(mediaDatabase.get(), &MediaDatabase::itemMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endMoveItem));
-    cC(connect(mediaDatabase.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
-    cC(connect(mediaDatabase.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));
 
     createUI();
   }
@@ -41,36 +37,79 @@ namespace realn {
     statusBar->showMessage(msg);
   }
 
+  void MainWindow::tryNewFolder(MediaItem::ptr_t parent) {
+    if (!parent->isDirectory())
+      return;
+
+    auto dialog = qt_make_unique<TextPromptDialog>(QString("Enter name for new folder."), this);
+    if (dialog->showDialog()) {
+      database->makeFolderItem(dialog->getText(), parent);
+    }
+  }
+
+  void MainWindow::tryMoveItem(MediaItem::ptr_t item) {
+    auto dialog = qt_make_unique<MoveWindow>(database, this);
+    if (dialog->showDialog() == QDialog::Accepted) {
+      clearSelections();
+      clearMedia();
+
+      database->moveItem(item, dialog->getNewParent());
+    }
+  }
+
+  void MainWindow::tryDeleteItem(MediaItem::ptr_t item) {
+    auto text = QString("Delete item %1?").arg(item->getFilePath());
+    auto result = QMessageBox::question(this, "Delete item?", text, QMessageBox::Yes, QMessageBox::No);
+    if (result == QMessageBox::Yes) {
+      clearSelections();
+      clearMedia();
+
+      database->deleteItem(item);
+    }
+  }
+
   void MainWindow::setMediaFromItem(MediaItem::ptr_t item) {
     if (!item) {
       return;
     }
 
     view->loadMedia(item);
-    dirBrowser->setSelectedItem(item);
-    thumbnailView->setSelectedItem(item);
+    //dirBrowser->setSelectedItem(item);
+    //thumbnailView->setSelectedItem(item);
   }
 
-  void MainWindow::createUI()
-  {
+  void MainWindow::createUI() {
     addDock(dirBrowser, "Library Explorer", Qt::LeftDockWidgetArea, true);
     addDock(thumbnailView, "Thumbnails", Qt::RightDockWidgetArea, true);
 
     setCentralWidget(view);
 
     cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setRootByItem));
+
     cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, this, &MainWindow::setMediaFromItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setSelectedItem));
     cC(connect(dirBrowser, &DirBrowserWidget::selectionCleared, this, &MainWindow::clearMedia));
+    cC(connect(dirBrowser, &DirBrowserWidget::moveItemRequested, this, &MainWindow::tryMoveItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::deleteItemRequested, this, &MainWindow::tryDeleteItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::newFolderItemRequested, this, &MainWindow::tryNewFolder));
 
     cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, this, &MainWindow::setMediaFromItem));
+    cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, dirBrowser, &DirBrowserWidget::setSelectedItem));
     cC(connect(thumbnailView, &ThumbnailView::selectionCleared, this, &MainWindow::clearMedia));
+
+    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginRemoveItem));
+    cC(connect(database.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginMoveItem));
+    cC(connect(database.get(), &MediaDatabase::itemMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endMoveItem));
+
+    cC(connect(database.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
+    cC(connect(database.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));
 
     statusBar = new QStatusBar();
     setStatusBar(statusBar);
   }
 
-  void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible)
-  {
+  void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible) {
     auto dock = new QDockWidget(name, this);
 
     dock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetMovable);
@@ -81,5 +120,10 @@ namespace realn {
     docks.push_back(dock);
 
     addDockWidget(dockArea, dock);
+  }
+
+  void MainWindow::clearSelections() {
+    dirBrowser->clearSelection();
+    thumbnailView->clearSelection();
   }
 }

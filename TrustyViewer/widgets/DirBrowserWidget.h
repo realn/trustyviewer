@@ -9,6 +9,7 @@
 #include "../MediaDatabase.h"
 
 class QAction;
+class QContextMenuEvent;
 
 namespace realn {
   class DirBrowserWidget : public QWidget {
@@ -26,7 +27,8 @@ namespace realn {
     void selectionChanged();
     void selectedItemChanged(MediaItem::ptr_t item);
     void deleteItemRequested(MediaItem::ptr_t item);
-    void moveItemRequested(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void moveItemRequested(MediaItem::ptr_t item);
+    void newFolderItemRequested(MediaItem::ptr_t parent);
     void selectionCleared();
 
   public slots:
@@ -39,19 +41,22 @@ namespace realn {
     void emitItemSelection();
     void disableTreeView();
     void enableTreeView();
-    void tryDeleteItem();
-    void tryMoveItem();
+    void onDeleteItem();
+    void onMoveItem();
+    void onNewFolderItem();
 
   private:
     void createUI();
     void createTreeViewActions();
     void setupRoot(QString rootDir);
+    void contextMenuEvent(QContextMenuEvent* event) override;
 
     QPointer<QLabel> rootLabel;
     QPointer<QTreeView> treeView;
     QPointer<ImageFileSystemModel> model;
     QPointer<QAction> actionMove;
     QPointer<QAction> actionDelete;
+    QPointer<QAction> actionNewFolder;
     std::shared_ptr<MediaDatabase> database;
   };
 }

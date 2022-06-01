@@ -5,15 +5,16 @@
 #include <QFileDialog>
 #include <QFileSystemModel>
 #include <QMessageBox>
+#include <QMenu>
+#include <QContextMenuEvent>
 
 #include "DirBrowserWidget.h"
 #include "../models/ImageFileSystemModel.h"
 #include "../Windows/MoveWindow.h"
 
 namespace realn {
-  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase) 
-    : database(mediaDatabase)
-  {
+  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase)
+    : database(mediaDatabase) {
     setMinimumWidth(200);
 
     model = new ImageFileSystemModel(database);
@@ -22,7 +23,7 @@ namespace realn {
 
     treeView = new QTreeView();
     treeView->setModel(model);
-    treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::ActionsContextMenu);
+    treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
     treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
 
     connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
@@ -32,6 +33,8 @@ namespace realn {
     connect(database.get(), &MediaDatabase::itemRemoved, model, &ImageFileSystemModel::endRemoveItem);
     connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::beginMoveItem);
     connect(database.get(), &MediaDatabase::itemMoved, model, &ImageFileSystemModel::endMoveItem);
+    connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::beginAddItem);
+    connect(database.get(), &MediaDatabase::itemAdded, model, &ImageFileSystemModel::endAddItem);
 
     connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::setupNewSelection);
 
@@ -39,14 +42,15 @@ namespace realn {
     createTreeViewActions();
   }
 
-  void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item)
-  {
+  void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item) {
     if (!item || item == getSelectedItem()) {
       return;
     }
 
+    setUpdatesEnabled(false);
     auto index = model->getIndexForItem(item);
     treeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+    setUpdatesEnabled(true);
   }
 
   void DirBrowserWidget::clearSelection() {
@@ -62,34 +66,30 @@ namespace realn {
     treeView->setEnabled(true);
   }
 
-  void DirBrowserWidget::tryDeleteItem() {
+  void DirBrowserWidget::onDeleteItem() {
     auto item = getSelectedItem();
     if (item == nullptr)
       return;
 
-    auto text = QString("Delete item %1?").arg(item->getFilePath());
-    auto result = QMessageBox::question(this, "Delete item?", text, QMessageBox::Yes, QMessageBox::No);
-    if (result == QMessageBox::Yes) {
-      clearSelection();
-
-      emit deleteItemRequested(item);
-      database->deleteItem(item);
-    }
+    emit deleteItemRequested(item);
   }
 
-  void DirBrowserWidget::tryMoveItem() {
+  void DirBrowserWidget::onMoveItem() {
     auto item = getSelectedItem();
     if (item == nullptr)
       return;
 
-    QPointer<MoveWindow> dialog = new MoveWindow(database, this);
-    if (dialog->showDialog() == QDialog::Accepted) {
-      clearSelection();
+    emit moveItemRequested(item);
+  }
 
-      emit moveItemRequested(item, dialog->getNewParent());
-      database->moveItem(item, dialog->getNewParent());
-    }
-    dialog->deleteLater();
+  void DirBrowserWidget::onNewFolderItem() {
+    auto item = getSelectedItem();
+    if (item == nullptr)
+      return;
+    if (!item->isDirectory())
+      return;
+
+    emit newFolderItemRequested(item);
   }
 
   void DirBrowserWidget::pickNewRoot() {
@@ -100,8 +100,7 @@ namespace realn {
     setupRoot(rootDir);
   }
 
-  MediaItem::ptr_t DirBrowserWidget::getSelectedItem() const
-  {
+  MediaItem::ptr_t DirBrowserWidget::getSelectedItem() const {
     auto indices = treeView->selectionModel()->selectedIndexes();
     if (indices.empty())
       return nullptr;
@@ -117,8 +116,7 @@ namespace realn {
     return model->getItemsForIndices(indices);
   }
 
-  QFileInfo DirBrowserWidget::getSelectedFileInfo() const
-  {
+  QFileInfo DirBrowserWidget::getSelectedFileInfo() const {
     auto index = treeView->selectionModel()->selectedIndexes().first();
     return QFileInfo(model->getItemForIndex(index)->getFilePath());
   }
@@ -144,17 +142,16 @@ namespace realn {
 
   void DirBrowserWidget::createTreeViewActions() {
     actionMove = new QAction("Move");
-    connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::tryMoveItem);
+    connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::onMoveItem);
 
     actionDelete = new QAction("Delete");
-    connect(actionDelete, &QAction::triggered, this, &DirBrowserWidget::tryDeleteItem);
-    
-    treeView->addAction(actionMove);
-    treeView->addAction(actionDelete);
+    connect(actionDelete, &QAction::triggered, this, &DirBrowserWidget::onDeleteItem);
+
+    actionNewFolder = new QAction("New folder");
+    connect(actionNewFolder, &QAction::triggered, this, &DirBrowserWidget::onNewFolderItem);
   }
 
-  void DirBrowserWidget::setupRoot(QString rootDir)
-  {
+  void DirBrowserWidget::setupRoot(QString rootDir) {
     rootLabel->setText(rootDir);
 
     database->rebuid(rootDir);
@@ -162,14 +159,24 @@ namespace realn {
     emit rootChanged(rootDir);
   }
 
-  void DirBrowserWidget::setupNewSelection() {
+  void DirBrowserWidget::contextMenuEvent(QContextMenuEvent* event) {
     auto item = getSelectedItem();
-    
-    auto enabled = item != nullptr;
+    if (item == nullptr)
+      return;
 
-    actionMove->setEnabled(enabled);
-    actionDelete->setEnabled(enabled);
+    actionMove->setEnabled(true);
+    actionDelete->setEnabled(true);
 
+    QMenu menu(this);
+    if (item->isDirectory())
+      menu.addAction(actionNewFolder);
+    menu.addAction(actionMove);
+    menu.addAction(actionDelete);
+
+    menu.exec(event->globalPos());
+  }
+
+  void DirBrowserWidget::setupNewSelection() {
     emitItemSelection();
   }
 

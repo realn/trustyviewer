@@ -103,6 +103,12 @@
     <ClCompile Include="Windows\MoveWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Windows\TextPromptDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -125,6 +131,7 @@
     <QtMoc Include="widgets\VideoButtonsWidget.h" />
     <QtMoc Include="Windows\TestWindow.h" />
     <QtMoc Include="Windows\MoveWindow.h" />
+    <QtMoc Include="Windows\TextPromptDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />

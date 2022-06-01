@@ -38,6 +38,8 @@ namespace realn {
     void endRemoveItem();
     void beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void endMoveItem();
+    void beginAddItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
+    void endAddItem();
 
   private:
     static MediaItem::ptr_t fromIndex(const QModelIndex& index);
