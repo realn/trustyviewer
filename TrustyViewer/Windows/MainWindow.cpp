@@ -97,10 +97,8 @@ namespace realn {
     cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, dirBrowser, &DirBrowserWidget::setSelectedItem));
     cC(connect(thumbnailView, &ThumbnailView::selectionCleared, this, &MainWindow::clearMedia));
 
-    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginRemoveItem));
-    cC(connect(database.get(), &MediaDatabase::itemRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endRemoveItem));
-    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::beginMoveItem));
-    cC(connect(database.get(), &MediaDatabase::itemMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::endMoveItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::removeItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::moveItem));
 
     cC(connect(database.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
     cC(connect(database.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));

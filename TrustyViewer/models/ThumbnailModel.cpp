@@ -133,7 +133,7 @@ namespace realn {
     return QVariant();
   }
 
-  void ThumbnailModel::beginRemoveItem(MediaItem::ptr_t item) {
+  void ThumbnailModel::removeItem(MediaItem::ptr_t item) {
     if (item == rootItem) {
       setRootItem(nullptr);
       return;
@@ -145,22 +145,24 @@ namespace realn {
     auto modelIdx = getIndexForItem(item);
     auto modelParent = parent(modelIdx);
 
-    guardRemove.begin([&]() { beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row()); });
+    beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row());
+
+    auto idx = static_cast<size_t>(modelIdx.row());
+    {
+      ThumbnailModelItem::ptr_t temp;
+      std::swap(temp, items[idx]);
+      std::thread([](ThumbnailModelItem::ptr_t memory) { memory.reset(); }, std::move(temp)).detach();
+    }
+    items.erase(items.begin() + idx);
+
+    endRemoveRows();
   }
 
-  void ThumbnailModel::endRemoveItem() {
-    guardRemove.end([&]() { endRemoveRows(); });
-  }
-
-  void ThumbnailModel::beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+  void ThumbnailModel::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
     if (newParent == rootItem)
       return;
 
-    beginRemoveItem(item);
-  }
-
-  void ThumbnailModel::endMoveItem() {
-    endRemoveItem();
+    removeItem(item);
   }
 
   void ThumbnailModel::createThumbnails() {
