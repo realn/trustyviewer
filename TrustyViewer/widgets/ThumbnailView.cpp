@@ -41,6 +41,7 @@ namespace realn {
     if (item == getSelectedItem())
       return;
 
+    auto block = QSignalBlocker(*this);
     if (item == nullptr) {
       listView->selectionModel()->clearSelection();
       return;

@@ -47,10 +47,9 @@ namespace realn {
       return;
     }
 
-    setUpdatesEnabled(false);
+    auto block = QSignalBlocker(*this);
     auto index = model->getIndexForItem(item);
     treeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
-    setUpdatesEnabled(true);
   }
 
   void DirBrowserWidget::clearSelection() {
