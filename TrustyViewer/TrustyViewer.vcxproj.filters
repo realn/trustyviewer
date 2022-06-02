@@ -112,6 +112,9 @@
     <ClCompile Include="models\IFSModelItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="models\ThumbnailModelItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -151,5 +154,6 @@
     <ClInclude Include="workers\MediaItemWorkerTaskList.h" />
     <ClInclude Include="workers\MediaItemWorkerTask.h" />
     <ClInclude Include="models\IFSModelItem.h" />
+    <ClInclude Include="models\ThumbnailModelItem.h" />
   </ItemGroup>
 </Project>

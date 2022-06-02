@@ -5,6 +5,7 @@
 #include <QPixmap>
 #include <QAbstractItemModel>
 
+#include "ThumbnailModelItem.h"
 #include "../Utils.h"
 #include "../MediaItem.h"
 #include "../extensions/ExtPlugin.h"
@@ -19,8 +20,7 @@ namespace realn {
     void setRootItem(MediaItem::ptr_t item);
     MediaItem::ptr_t getRootItem() const;
 
-    MediaItem::ptr_t fromIndex(const QModelIndex& index) const;
-
+    MediaItem::ptr_t getMediaItemForIndex(QModelIndex index) const;
     QModelIndex getIndexForItem(MediaItem::ptr_t item) const;
 
     // Inherited via QAbstractItemModel
@@ -44,15 +44,20 @@ namespace realn {
   private:
     using pixmap_ptr_t = std::unique_ptr<QPixmap>;
     using thumbnail_map_t = std::unordered_map<QString, pixmap_ptr_t>;
+    using items_t = std::vector<ThumbnailModelItem::ptr_t>;
 
+    ThumbnailModelItem::ptr_t fromIndex(const QModelIndex& index) const;
     void createThumbnails();
     QPixmap getThumbnail(const QString& filepath) const;
     void emitThumbnailsDataChanged(QStringList items);
     pixmap_ptr_t createCorrectThumbnail(const QPixmap& pixmap) const;
 
     std::shared_ptr<ExtPluginList> plugins;
-    std::shared_ptr<MediaItem> rootItem;
     std::shared_ptr<ThumbnailWorker> worker;
+
+    MediaItem::ptr_t rootItem;
+    items_t items;
+
     thumbnail_map_t thumbnails;
     QSize thumbnailSize;
     QPixmap defaultThumbnail;

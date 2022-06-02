@@ -30,7 +30,7 @@ namespace realn {
     if (indices.empty())
       return nullptr;
     const auto& index = indices.first();
-    return model->fromIndex(index);
+    return model->getMediaItemForIndex(index);
   }
 
   QPointer<ThumbnailModel> ThumbnailView::getThumbnailModel() const {

@@ -28,6 +28,22 @@ namespace realn {
       return;
     beginResetModel();
     rootItem = item;
+
+    {
+      items_t temp;
+      std::swap(temp, items);
+      std::thread([](items_t&& memory) { memory.clear(); }, std::move(temp)).detach();
+    }
+
+    if (rootItem) {
+      for (auto& dbItem : rootItem->getChildren()) {
+        auto modelItem = std::make_shared<ThumbnailModelItem>(dbItem);
+        items.push_back(modelItem);
+      }
+    }
+
+    std::sort(items.begin(), items.end(), ThumbnailModelItem::AscTypeNameSorter);
+
     createThumbnails();
     endResetModel();
   }
@@ -36,8 +52,8 @@ namespace realn {
     return rootItem;
   }
 
-  MediaItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
-    auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
+  ThumbnailModelItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
+    auto ptr = reinterpret_cast<ThumbnailModelItem*>(index.internalPointer());
     if (!ptr)
       return nullptr;
     return ptr->getPtr();
@@ -48,22 +64,26 @@ namespace realn {
     endResetModel();
   }
 
+  MediaItem::ptr_t ThumbnailModel::getMediaItemForIndex(QModelIndex index) const {
+    auto item = fromIndex(index);
+    if (item)
+      return item->getMediaItem();
+    return nullptr;
+  }
+
   QModelIndex ThumbnailModel::getIndexForItem(MediaItem::ptr_t item) const {
     if (!rootItem)
       return QModelIndex();
 
     if (rootItem == item) {
-      if (rootItem->getChildren().size() > 0)
-        return index(0, 0);
       return QModelIndex();
     }
 
-    auto& list = rootItem->getChildren();
-    auto it = std::find(list.begin(), list.end(), item);
-    if (it == list.end())
+    auto it = find_if(items, [&](ThumbnailModelItem::ptr_t modelItem) {return modelItem->getMediaItem() == item; });
+    if (it == items.end())
       return QModelIndex();
 
-    auto rowIndex = it - list.begin();
+    auto rowIndex = it - items.begin();
     return index(static_cast<int>(rowIndex), 0);
   }
 
@@ -71,11 +91,11 @@ namespace realn {
     if (parent.isValid() || !rootItem)
       return QModelIndex();
 
-    auto item = rootItem->getChild(static_cast<size_t>(row));
-    if (!item)
+    auto modelIdx = static_cast<size_t>(row);
+    if (modelIdx >= items.size())
       return QModelIndex();
 
-    return createIndex(row, column, item.get());
+    return createIndex(row, column, items[modelIdx].get());
   }
 
   QModelIndex ThumbnailModel::parent(const QModelIndex& child) const {
@@ -85,7 +105,7 @@ namespace realn {
   int ThumbnailModel::rowCount(const QModelIndex& parent) const {
     if (!rootItem || parent.isValid())
       return 0;
-    return static_cast<int>(rootItem->getChildren().size());
+    return static_cast<int>(items.size());
   }
 
   int ThumbnailModel::columnCount(const QModelIndex& parent) const {
@@ -96,16 +116,19 @@ namespace realn {
     if (!rootItem)
       return QVariant();
 
-    auto item = rootItem->getChild(static_cast<size_t>(index.row()));
-    if (!item)
+    auto modelIdx = static_cast<size_t>(index.row());
+    if (modelIdx >= items.size())
       return QVariant();
 
-    QFileInfo info(item->getFilePath());
+    auto item = items[modelIdx];
 
     if (role == Qt::DisplayRole)
-      return info.fileName();
-    if (role == Qt::DecorationRole)
-      return getThumbnail(item->getFilePath());
+      return item->getName();
+    if (role == Qt::DecorationRole) {
+      if (!item->hasThumbnail())
+        return defaultThumbnail;
+      return item->getThumbnail();
+    }
 
     return QVariant();
   }
@@ -143,20 +166,16 @@ namespace realn {
   void ThumbnailModel::createThumbnails() {
     worker->clearRequests();
 
-    {
-      thumbnail_map_t temp;
-      std::swap(temp, thumbnails);
-      std::thread([](thumbnail_map_t&& memory) { memory.clear(); }, std::move(temp)).detach();
-    }
-
     if (rootItem) {
-      for (auto& item : rootItem->getChildren()) {
+      for (auto& item : items) {
         if (item->isDirectory())
           continue;
-
-        worker->addThumbnailRequest(item->getFilePath());
+        if (item->hasThumbnail())
+          continue;
+        worker->addThumbnailRequest(item->getFilepath());
       }
     }
+
     QTimer::singleShot(std::chrono::milliseconds(1000), this, &ThumbnailModel::retrieveThumbnails);
   }
 
@@ -165,9 +184,16 @@ namespace realn {
       auto result = worker->popDoneThumbnails();
 
       QStringList changed;
-      for (auto& item : result) {
-        thumbnails[item.filePath] = createCorrectThumbnail(*item.thumbnail);
-        changed << item.filePath;
+      for (auto& item : items) {
+        if (item->isDirectory() || item->hasThumbnail())
+          continue;
+
+        auto it = find_if(result, [&](auto& resItem) { return resItem.filePath == item->getFilepath(); });
+        if (it == result.end())
+          continue;
+
+        item->setThumbnail(createCorrectThumbnail(*it->thumbnail));
+        changed << it->filePath;
       }
 
       emitThumbnailsDataChanged(changed);
@@ -181,14 +207,14 @@ namespace realn {
     return *thumbnails.at(filepath);
   }
 
-  void ThumbnailModel::emitThumbnailsDataChanged(QStringList items) {
-    if (items.empty())
+  void ThumbnailModel::emitThumbnailsDataChanged(QStringList changedItems) {
+    if (changedItems.empty())
       return;
-    size_t first = find_index_if(rootItem->getChildren(), [&](const MediaItem::ptr_t& mitem) { return mitem->getFilePath() == items.front(); }, 0);
-    items.pop_front();
+    size_t first = find_index_if(items, [&](const ThumbnailModelItem::ptr_t& mitem) { return mitem->getFilepath() == changedItems.front(); }, 0);
+    changedItems.pop_front();
     size_t last = first;
-    for (auto& item : items) {
-      auto idx = find_index_if(rootItem->getChildren(), [&](const MediaItem::ptr_t& mitem) { return mitem->getFilePath() == item; }, 0);
+    for (auto& item : changedItems) {
+      auto idx = find_index_if(items, [&](const ThumbnailModelItem::ptr_t& mitem) { return mitem->getFilepath() == item; }, 0);
       first = std::min(first, idx);
       last = std::max(last, idx);
     }

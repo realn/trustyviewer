@@ -104,6 +104,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="models\IFSModelItem.cpp" />
+    <ClCompile Include="models\ThumbnailModelItem.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="MediaDatabase.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="extensions\StdVideoExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
     <ClInclude Include="models\IFSModelItem.h" />
+    <ClInclude Include="models\ThumbnailModelItem.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="widgets\ImageMediaWidget.h" />
     <QtMoc Include="widgets\VideoButtonsWidget.h" />
