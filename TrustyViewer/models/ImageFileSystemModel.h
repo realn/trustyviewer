@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileIconProvider>
 
+#include "IFSModelItem.h"
 #include "../MediaDatabase.h"
 
 namespace realn {
@@ -42,12 +43,17 @@ namespace realn {
     void endAddItem();
 
   private:
-    static MediaItem::ptr_t fromIndex(const QModelIndex& index);
-    bool isItemOfRoot(MediaItem::ptr_t item) const;
-    int getChildrenCount(MediaItem::ptr_t item) const;
-    MediaItem::ptr_t getChild(int rowIndex, MediaItem::ptr_t parentItem) const;
-    int getIndexFromParent(MediaItem::ptr_t item) const;
-    bool itemFulfillsCondition(MediaItem::ptr_t item) const;
+    static IFSModelItem::ptr_t fromIndex(const QModelIndex& index);
+    bool isItemOfRoot(IFSModelItem::ptr_t item) const;
+    int getChildrenCount(IFSModelItem::ptr_t item) const;
+    IFSModelItem::ptr_t getChild(int rowIndex, IFSModelItem::ptr_t parentItem) const;
+    int getIndexFromParent(IFSModelItem::ptr_t item) const;
+    bool itemFulfillsCondition(IFSModelItem::ptr_t item) const;
+
+    IFSModelItem::ptr_t findItemForMediaItem(MediaItem::ptr_t dbItem, IFSModelItem::ptr_t parentItem = nullptr) const;
+    void syncChildren(IFSModelItem::ptr_t parentItem, MediaItem::ptr_t dbParentItem);
+
+    IFSModelItem::ptr_t root;
 
     std::shared_ptr<MediaDatabase> database;
     std::unique_ptr<QFileIconProvider> iconProvider;

@@ -12,8 +12,9 @@ namespace realn {
       return nullptr;
 
     auto item = fromIndex(index);
-    return item;
-
+    if(item)
+      return item->getMediaItem();
+    return nullptr;
   }
 
   MediaItem::itemvector_t ImageFileSystemModel::getItemsForIndices(const QModelIndexList& indices) const {
@@ -22,19 +23,23 @@ namespace realn {
       auto item = fromIndex(index);
       if (!item)
         continue;
-      result.push_back(item);
+      result.push_back(item->getMediaItem());
     }
     return result;
   }
 
   QModelIndex ImageFileSystemModel::getIndexForItem(MediaItem::ptr_t item) const {
-    if (!isItemOfRoot(item))
+    if (!root)
       return QModelIndex();
 
-    if (item == database->getRootItem())
+    if (item == root->getMediaItem())
       return index(0, 0);
 
-    int row = getIndexFromParent(item);
+    auto modelItem = findItemForMediaItem(item);
+    if (!modelItem)
+      return QModelIndex();
+
+    int row = getIndexFromParent(modelItem);
     return index(row, 0, getIndexForItem(item->getParent()));
   }
 
@@ -43,7 +48,7 @@ namespace realn {
       return QModelIndex();
 
     if (!parent.isValid()) {
-      return createIndex(row, column, database->getRootItem().get());
+      return createIndex(row, column, root.get());
     }
 
     auto parentItem = fromIndex(parent);
@@ -87,12 +92,10 @@ namespace realn {
   QVariant ImageFileSystemModel::data(const QModelIndex& index, int role) const {
     auto item = fromIndex(index);
 
-    QFileInfo info(item->getFilePath());
-
     if (index.column() == 0 && role == Qt::DecorationRole)
-      return iconProvider->icon(info);
+      return item->getIcon();
     if (index.column() == 0 && role == Qt::DisplayRole)
-      return info.fileName();
+      return item->getName();
 
     return QVariant();
   }
@@ -145,7 +148,7 @@ namespace realn {
     auto list = parent->getChildren();
     list.push_back(newItem);
     sort_cont(list, MediaItem::AscTypeNameSorter);
-    auto idx = find(list, newItem);
+    auto idx = find_index(list, newItem);
 
     auto modelParent = getIndexForItem(parent);
 
@@ -159,20 +162,27 @@ namespace realn {
   void ImageFileSystemModel::reloadDatabase() {
     beginResetModel();
 
+    root.reset();
+
+    auto dbRoot = database->getRootItem();
+    root = std::make_shared<IFSModelItem>(dbRoot, *iconProvider);
+
+    syncChildren(root, dbRoot);
+
     endResetModel();
   }
 
-  MediaItem::ptr_t ImageFileSystemModel::fromIndex(const QModelIndex& index) {
-    auto ptr = reinterpret_cast<MediaItem*>(index.internalPointer());
+  IFSModelItem::ptr_t ImageFileSystemModel::fromIndex(const QModelIndex& index) {
+    auto ptr = reinterpret_cast<IFSModelItem*>(index.internalPointer());
     if (!ptr)
       return nullptr;
     return ptr->getPtr();
   }
 
-  bool ImageFileSystemModel::isItemOfRoot(MediaItem::ptr_t item) const {
+  bool ImageFileSystemModel::isItemOfRoot(IFSModelItem::ptr_t item) const {
     auto check = item;
     do {
-      if (check == database->getRootItem())
+      if (check == root)
         return true;
 
       check = check->getParent();
@@ -181,7 +191,7 @@ namespace realn {
     return false;
   }
 
-  MediaItem::ptr_t ImageFileSystemModel::getChild(int rowIndex, MediaItem::ptr_t parentItem) const {
+  IFSModelItem::ptr_t ImageFileSystemModel::getChild(int rowIndex, IFSModelItem::ptr_t parentItem) const {
     assert(rowIndex >= 0);
 
     auto list = parentItem->getChildren();
@@ -200,17 +210,17 @@ namespace realn {
     throw std::runtime_error("Failed to find child for row index.");
   }
 
-  int ImageFileSystemModel::getChildrenCount(MediaItem::ptr_t item) const {
+  int ImageFileSystemModel::getChildrenCount(IFSModelItem::ptr_t item) const {
     auto list = item->getChildren();
 
-    auto result = std::count_if(list.begin(), list.end(), [this](MediaItem::ptr_t listItem) {
+    auto result = std::count_if(list.begin(), list.end(), [this](auto& listItem) {
       return itemFulfillsCondition(listItem);
                                 });
 
     return static_cast<int>(result);
   }
 
-  int ImageFileSystemModel::getIndexFromParent(MediaItem::ptr_t item) const {
+  int ImageFileSystemModel::getIndexFromParent(IFSModelItem::ptr_t item) const {
     auto parent = item->getParent();
     assert(parent);
 
@@ -229,7 +239,7 @@ namespace realn {
     throw std::runtime_error("Failed to find item index of parent.");
   }
 
-  bool ImageFileSystemModel::itemFulfillsCondition(MediaItem::ptr_t item) const {
+  bool ImageFileSystemModel::itemFulfillsCondition(IFSModelItem::ptr_t item) const {
     if (filter == MediaItemFilter::NoFilter)
       return true;
 
@@ -238,5 +248,41 @@ namespace realn {
     }
 
     return false;
+  }
+
+  IFSModelItem::ptr_t ImageFileSystemModel::findItemForMediaItem(MediaItem::ptr_t dbItem, IFSModelItem::ptr_t parentItem) const {
+    if (!parentItem) {
+      if (root->getMediaItem() == dbItem)
+        return root;
+      return findItemForMediaItem(dbItem, root);
+    }
+
+    {
+      auto item = find_value_if(parentItem->getChildren(), IFSModelItem::itemNull, [&](IFSModelItem::ptr_t item) {return item->getMediaItem() == dbItem; });
+      if (item)
+        return item;
+    }
+
+    for (auto& item : parentItem->getChildren()) {
+      auto found = findItemForMediaItem(dbItem, item);
+      if (found)
+        return found;
+    }
+
+    return IFSModelItem::itemNull;
+  }
+
+  void ImageFileSystemModel::syncChildren(IFSModelItem::ptr_t parentItem, MediaItem::ptr_t dbParentItem) {
+    if (!dbParentItem->hasChildren())
+      return;
+
+    for (auto& dbItem : dbParentItem->getChildren()) {
+      auto item = std::make_shared<IFSModelItem>(dbItem, *iconProvider);
+
+      parentItem->addChild(item);
+      syncChildren(item, dbItem);
+    }
+
+    parentItem->sortChildren(IFSModelItem::AscTypeNameSorter);
   }
 }

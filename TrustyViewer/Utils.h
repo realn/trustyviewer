@@ -15,13 +15,26 @@
 
 namespace realn {
   template<class _Cont, class _Type>
-  size_t find(const _Cont& cont, const _Type& val) {
+  auto find(const _Cont& cont, const _Type& val) {
+    return std::find(std::begin(cont), std::end(cont), val);
+  }
+
+  template<class _Cont, class _Type>
+  size_t find_index(const _Cont& cont, const _Type& val) {
     return std::find(std::begin(cont), std::end(cont), val) - std::begin(cont);
   }
 
   template<class _Cont, class _Pred>
   auto find_if(const _Cont& cont, _Pred pred) {
     return std::find_if(std::begin(cont), std::end(cont), pred);
+  }
+
+  template<class _Cont, class _Pred, class _Value>
+  _Value& find_value_if(_Cont& cont, _Value& defValue, _Pred pred) {
+    auto it = find_if(cont, pred);
+    if (it == std::end(cont))
+      return defValue;
+    return *it;
   }
 
   template<class _Cont, class _Pred>

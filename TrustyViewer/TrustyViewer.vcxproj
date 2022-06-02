@@ -103,6 +103,7 @@
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="models\IFSModelItem.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="MediaDatabase.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="extensions\StdVideoExtPlugin.h" />
     <ClInclude Include="MediaItem.h" />
+    <ClInclude Include="models\IFSModelItem.h" />
     <ClInclude Include="Utils.h" />
     <QtMoc Include="widgets\ImageMediaWidget.h" />
     <QtMoc Include="widgets\VideoButtonsWidget.h" />
