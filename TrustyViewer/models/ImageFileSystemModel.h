@@ -35,12 +35,9 @@ namespace realn {
 
   public slots:
     void reloadDatabase();
-    void beginRemoveItem(MediaItem::ptr_t item);
-    void endRemoveItem();
-    void beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
-    void endMoveItem();
-    void beginAddItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
-    void endAddItem();
+    void removeItem(MediaItem::ptr_t item);
+    void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void addItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
 
   private:
     static IFSModelItem::ptr_t fromIndex(const QModelIndex& index);
@@ -48,7 +45,7 @@ namespace realn {
     int getChildrenCount(IFSModelItem::ptr_t item) const;
     IFSModelItem::ptr_t getChild(int rowIndex, IFSModelItem::ptr_t parentItem) const;
     int getIndexFromParent(IFSModelItem::ptr_t item) const;
-    bool itemFulfillsCondition(IFSModelItem::ptr_t item) const;
+    bool itemFulfillsCondition(MediaItem::ptr_t item) const;
 
     IFSModelItem::ptr_t findItemForMediaItem(MediaItem::ptr_t dbItem, IFSModelItem::ptr_t parentItem = nullptr) const;
     void syncChildren(IFSModelItem::ptr_t parentItem, MediaItem::ptr_t dbParentItem);

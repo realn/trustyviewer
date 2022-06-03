@@ -29,12 +29,9 @@ namespace realn {
     connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
     connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
     connect(database.get(), &MediaDatabase::databaseRebuild, this, &DirBrowserWidget::enableTreeView);
-    connect(database.get(), &MediaDatabase::itemWillBeRemoved, model, &ImageFileSystemModel::beginRemoveItem);
-    connect(database.get(), &MediaDatabase::itemRemoved, model, &ImageFileSystemModel::endRemoveItem);
-    connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::beginMoveItem);
-    connect(database.get(), &MediaDatabase::itemMoved, model, &ImageFileSystemModel::endMoveItem);
-    connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::beginAddItem);
-    connect(database.get(), &MediaDatabase::itemAdded, model, &ImageFileSystemModel::endAddItem);
+    connect(database.get(), &MediaDatabase::itemWillBeRemoved, model, &ImageFileSystemModel::removeItem);
+    connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::moveItem);
+    connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::addItem);
 
     connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::setupNewSelection);
 

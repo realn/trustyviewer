@@ -5,6 +5,8 @@ namespace realn {
   ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, MediaItemFilter itemFilter)
     : database(mediaDatabase), filter(itemFilter) {
     iconProvider = std::make_unique<QFileIconProvider>();
+
+    reloadDatabase();
   }
 
   MediaItem::ptr_t ImageFileSystemModel::getItemForIndex(const QModelIndex& index) const {
@@ -57,7 +59,10 @@ namespace realn {
       return QModelIndex();
     }
 
-    return createIndex(row, column, getChild(row, parentItem).get());
+    auto child = getChild(row, parentItem);
+    assert(child);
+
+    return createIndex(row, column, child.get());
   }
 
   QModelIndex ImageFileSystemModel::parent(const QModelIndex& child) const {
@@ -65,6 +70,8 @@ namespace realn {
       return QModelIndex();
 
     auto item = fromIndex(child);
+    assert(item);
+
     auto parentLock = item->getParent();
     if (!parentLock)
       return QModelIndex();
@@ -107,55 +114,66 @@ namespace realn {
     return "Name";
   }
 
-  void ImageFileSystemModel::beginRemoveItem(MediaItem::ptr_t item) {
+  void ImageFileSystemModel::removeItem(MediaItem::ptr_t item) {
     auto modelIdx = getIndexForItem(item);
     auto modelParent = parent(modelIdx);
 
     beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row());
-  }
 
-  void ImageFileSystemModel::endRemoveItem() {
+    auto parent = fromIndex(modelParent);
+    auto ifsitem = fromIndex(modelIdx);
+    parent->removeChild(ifsitem);
+
     endRemoveRows();
   }
 
-  void ImageFileSystemModel::beginMoveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+  void ImageFileSystemModel::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
     auto modelIdx = getIndexForItem(item);
     auto modelParent = parent(modelIdx);
     auto modelNewParent = getIndexForItem(newParent);
 
+    if (modelParent == modelNewParent)
+      return;
+
+    auto ifParent = fromIndex(modelParent);
+    auto ifItem = fromIndex(modelIdx);
+    auto ifNewParent = fromIndex(modelNewParent);
+
     auto newRowIdx = 0;
     {
-      auto tempList = newParent->getChildren();
-      tempList.push_back(item);
-      std::sort(tempList.begin(), tempList.end(), MediaItem::AscTypeNameSorter);
-      auto it = std::find(tempList.begin(), tempList.end(), item);
+      auto tempList = ifNewParent->getChildren();
+      tempList.push_back(ifItem);
+      std::sort(tempList.begin(), tempList.end(), IFSModelItem::AscTypeNameSorter);
+      auto it = std::find(tempList.begin(), tempList.end(), ifItem);
 
       newRowIdx = static_cast<int>(it - tempList.begin());
     }
 
-    if (modelParent == modelNewParent)
-      return;
+    beginMoveRows(modelParent, modelIdx.row(), modelIdx.row(), modelNewParent, newRowIdx);
 
-    beginMoveRows(modelParent, modelIdx.row(), modelIdx.row(), modelNewParent, newRowIdx + 1);
-    
-  }
+    ifNewParent->addChild(ifItem);
 
-  void ImageFileSystemModel::endMoveItem() {
     endMoveRows();
   }
 
-  void ImageFileSystemModel::beginAddItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent) {
-    auto list = parent->getChildren();
-    list.push_back(newItem);
-    sort_cont(list, MediaItem::AscTypeNameSorter);
-    auto idx = find_index(list, newItem);
-
+  void ImageFileSystemModel::addItem(MediaItem::ptr_t newItem, MediaItem::ptr_t parent) {
     auto modelParent = getIndexForItem(parent);
+    auto ifParent = fromIndex(modelParent);
+
+    auto ifItem = std::make_shared<IFSModelItem>(newItem, *iconProvider);
+
+    int idx = 0;
+    {
+      auto list = ifParent->getChildren();
+      list.push_back(ifItem);
+      sort_cont(list, IFSModelItem::AscTypeNameSorter);
+      idx = static_cast<int>(find_index(list, ifItem));
+    }
 
     beginInsertRows(modelParent, idx, idx);
-  }
 
-  void ImageFileSystemModel::endAddItem() {
+    ifParent->addChild(ifItem);
+
     endInsertRows();
   }
 
@@ -165,9 +183,11 @@ namespace realn {
     root.reset();
 
     auto dbRoot = database->getRootItem();
-    root = std::make_shared<IFSModelItem>(dbRoot, *iconProvider);
+    if (dbRoot) {
+      root = std::make_shared<IFSModelItem>(dbRoot, *iconProvider);
 
-    syncChildren(root, dbRoot);
+      syncChildren(root, dbRoot);
+    }
 
     endResetModel();
   }
@@ -194,52 +214,22 @@ namespace realn {
   IFSModelItem::ptr_t ImageFileSystemModel::getChild(int rowIndex, IFSModelItem::ptr_t parentItem) const {
     assert(rowIndex >= 0);
 
-    auto list = parentItem->getChildren();
-    for (auto& item : list) {
-      if (!itemFulfillsCondition(item))
-        continue;
-
-      if (rowIndex > 0) {
-        rowIndex--;
-        continue;
-      }
-
-      return item;
-    }
-
-    throw std::runtime_error("Failed to find child for row index.");
+    return parentItem->getChild(static_cast<size_t>(rowIndex));
   }
 
   int ImageFileSystemModel::getChildrenCount(IFSModelItem::ptr_t item) const {
-    auto list = item->getChildren();
-
-    auto result = std::count_if(list.begin(), list.end(), [this](auto& listItem) {
-      return itemFulfillsCondition(listItem);
-                                });
-
-    return static_cast<int>(result);
+    return static_cast<int>(item->getNumberOfChildren());
   }
 
   int ImageFileSystemModel::getIndexFromParent(IFSModelItem::ptr_t item) const {
     auto parent = item->getParent();
     assert(parent);
 
-    int index = 0;
-    for (auto& listItem : parent->getChildren()) {
-      if (!itemFulfillsCondition(listItem))
-        continue;
-      if (item != listItem) {
-        index++;
-        continue;
-      }
-
-      return index;
-    }
-
-    throw std::runtime_error("Failed to find item index of parent.");
+    auto index = find_index(parent->getChildren(), item);
+    return static_cast<int>(index);
   }
 
-  bool ImageFileSystemModel::itemFulfillsCondition(IFSModelItem::ptr_t item) const {
+  bool ImageFileSystemModel::itemFulfillsCondition(MediaItem::ptr_t item) const {
     if (filter == MediaItemFilter::NoFilter)
       return true;
 
@@ -277,6 +267,9 @@ namespace realn {
       return;
 
     for (auto& dbItem : dbParentItem->getChildren()) {
+      if (!itemFulfillsCondition(dbItem))
+        continue;
+
       auto item = std::make_shared<IFSModelItem>(dbItem, *iconProvider);
 
       parentItem->addChild(item);
