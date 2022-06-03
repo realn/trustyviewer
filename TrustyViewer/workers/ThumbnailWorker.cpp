@@ -4,13 +4,13 @@
 #include "ThumbnailWorker.h"
 
 namespace realn {
-  ThumbnailWorker::ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins)
+  ThumbnailWorker::ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins, QSize targetThumbnailSize)
   {
     requests = std::make_shared<ThumbnailRequestList>();
     completed = std::make_shared<ThumbnailDoneList>();
 
     for (auto i = 0; i < std::thread::hardware_concurrency() / 2; i++) {
-      threads.push_back(std::make_unique<ThumbnailThread>(_plugins, requests, completed));
+      threads.push_back(std::make_unique<ThumbnailThread>(_plugins, requests, completed, targetThumbnailSize));
     }
   }
 
@@ -40,6 +40,12 @@ namespace realn {
   ThumbnailDoneList::done_vec_t ThumbnailWorker::popDoneThumbnails()
   {
     return completed->popAllDone();
+  }
+
+  void ThumbnailWorker::setTargetThumbnailSize(QSize size) {
+    for (auto& thread : threads) {
+      thread->setTargetThumbnailSize(size);
+    }
   }
 
 

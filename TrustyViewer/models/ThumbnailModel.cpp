@@ -9,18 +9,14 @@
 #include "ThumbnailModel.h"
 
 namespace realn {
-  namespace {
-    QPoint toPoint(const QSize& size) {
-      return QPoint(size.width(), size.height());
-    }
-  }
-
   ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize)
     : plugins(_plugins)
     , worker(_worker)
     , thumbnailSize(_thumbnailSize) {
     defaultThumbnail = QPixmap(thumbnailSize);
     defaultThumbnail.fill(QColor(Qt::lightGray));
+
+    worker->setTargetThumbnailSize(_thumbnailSize);
   }
 
   void ThumbnailModel::setRootItem(MediaItem::ptr_t item) {
@@ -190,11 +186,11 @@ namespace realn {
         if (item->isDirectory() || item->hasThumbnail())
           continue;
 
-        auto it = find_if(result, [&](auto& resItem) { return resItem.filePath == item->getFilepath(); });
+        auto it = std::find_if(result.begin(), result.end(), [&](auto& resItem) { return resItem.filePath == item->getFilepath(); });
         if (it == result.end())
           continue;
 
-        item->setThumbnail(createCorrectThumbnail(*it->thumbnail));
+        item->setThumbnail(std::move(it->thumbnail));
         changed << it->filePath;
       }
 
@@ -225,18 +221,5 @@ namespace realn {
     auto bottom = index(static_cast<int>(last), 0);
     QVector<int> roles = { Qt::DecorationRole };
     emit dataChanged(top, bottom, roles);
-  }
-
-  ThumbnailModel::pixmap_ptr_t ThumbnailModel::createCorrectThumbnail(const QPixmap& pixmap) const {
-    auto thumbnail = QPixmap(defaultThumbnail.size());
-    thumbnail.fill(QColor::fromRgb(230, 230, 230));
-
-    auto pos = (toPoint(thumbnail.size()) - toPoint(pixmap.size())) / 2;
-    {
-      QPainter pnt(&thumbnail);
-      pnt.drawPixmap(pos, pixmap);
-    }
-
-    return std::make_unique<QPixmap>(std::move(thumbnail));
   }
 }

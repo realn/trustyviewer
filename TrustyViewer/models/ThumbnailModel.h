@@ -48,7 +48,6 @@ namespace realn {
     void createThumbnails();
     QPixmap getThumbnail(const QString& filepath) const;
     void emitThumbnailsDataChanged(QStringList items);
-    pixmap_ptr_t createCorrectThumbnail(const QPixmap& pixmap) const;
 
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<ThumbnailWorker> worker;

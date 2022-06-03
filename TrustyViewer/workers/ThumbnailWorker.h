@@ -10,6 +10,7 @@
 #include <QString>
 #include <QStringList>
 #include <QPixmap>
+#include <QSize>
 
 #include "../extensions/ExtPlugin.h"
 #include "ThumbnailRequestList.h"
@@ -21,7 +22,7 @@ namespace realn {
   class ThumbnailWorker {
   public:
     
-    ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins);
+    ThumbnailWorker(std::shared_ptr<ExtPluginList> _plugins, QSize targetThumbnailSize);
     ~ThumbnailWorker();
 
     void addThumbnailRequest(const QString& filePath);
@@ -29,6 +30,8 @@ namespace realn {
 
     bool hasDoneThumbnails() const;
     ThumbnailDoneList::done_vec_t popDoneThumbnails();
+
+    void setTargetThumbnailSize(QSize size);
 
   private:
     using thread_ptr_t = std::unique_ptr<ThumbnailThread>;
