@@ -24,8 +24,7 @@ namespace realn {
     setLayout(layout);
   }
 
-  MediaItem::ptr_t ThumbnailView::getSelectedItem() const
-  {
+  MediaItem::ptr_t ThumbnailView::getSelectedItem() const {
     auto indices = listView->selectionModel()->selectedIndexes();
     if (indices.empty())
       return nullptr;
@@ -38,23 +37,11 @@ namespace realn {
   }
 
   void ThumbnailView::setSelectedItem(MediaItem::ptr_t item) {
-    if (item == getSelectedItem())
-      return;
+    setSelectedItemPriv(item, true);
+  }
 
-    auto block = QSignalBlocker(*this);
-    if (item == nullptr) {
-      listView->selectionModel()->clearSelection();
-      return;
-    }
-
-    if (item->getParent() != model->getRootItem()) {
-      model->setRootItem(item);
-      listView->selectionModel()->clearSelection();
-      return;
-    }
-
-    auto index = model->getIndexForItem(item);
-    listView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+  void ThumbnailView::setSelectedItemNoEmit(MediaItem::ptr_t item) {
+    setSelectedItemPriv(item, false);
   }
 
   void ThumbnailView::clearSelection() {
@@ -80,6 +67,30 @@ namespace realn {
 
   void ThumbnailView::refresh() {
     model->refreshModel();
+  }
+
+  void ThumbnailView::setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal) {
+    if (item == getSelectedItem())
+      return;
+    if (item == model->getRootItem())
+      return;
+    if (!item)
+      return;
+
+    if (item->isDirectory()) {
+      model->setRootItem(item);
+    }
+    else {
+      if (item->getParent() != model->getRootItem()) {
+        model->setRootItem(item->getParent());
+      }
+
+      auto index = model->getIndexForItem(item);
+      listView->setCurrentIndex(index);
+    }
+
+    if (emitSignal)
+      emitSelectionChanged();
   }
 
   void ThumbnailView::emitSelectionChanged() {

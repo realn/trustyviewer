@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QTimer>
 
 #include "DirBrowserWidget.h"
 #include "../models/ImageFileSystemModel.h"
@@ -25,6 +26,9 @@ namespace realn {
     treeView->setModel(model);
     treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
     treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
+    treeView->setItemsExpandable(true);
+    //treeView->setAnimated(true);
+    treeView->setExpandsOnDoubleClick(false);
 
     connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
     connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
@@ -33,20 +37,20 @@ namespace realn {
     connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::moveItem);
     connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::addItem);
 
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::setupNewSelection);
+    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::emitItemSelection);
+
+    connect(model, &ImageFileSystemModel::modelReset, this, &DirBrowserWidget::onModelReset);
 
     createUI();
     createTreeViewActions();
   }
 
   void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item) {
-    if (!item || item == getSelectedItem()) {
-      return;
-    }
+    setSelectedItemPriv(item, true);
+  }
 
-    auto block = QSignalBlocker(*this);
-    auto index = model->getIndexForItem(item);
-    treeView->selectionModel()->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+  void DirBrowserWidget::setSelectedItemNoEmit(MediaItem::ptr_t item) {
+    setSelectedItemPriv(item, false);
   }
 
   void DirBrowserWidget::clearSelection() {
@@ -88,6 +92,12 @@ namespace realn {
     emit newFolderItemRequested(item);
   }
 
+  void DirBrowserWidget::onModelReset() {
+    //auto root = database->getRootItem();
+    //if (root)
+    //  expandToItem(root);
+  }
+
   void DirBrowserWidget::pickNewRoot() {
     auto rootDir = QFileDialog::getExistingDirectory(this, "Choose new root", QString(), QFileDialog::ShowDirsOnly);
     if (rootDir.isEmpty())
@@ -115,6 +125,30 @@ namespace realn {
   QFileInfo DirBrowserWidget::getSelectedFileInfo() const {
     auto index = treeView->selectionModel()->selectedIndexes().first();
     return QFileInfo(model->getItemForIndex(index)->getFilePath());
+  }
+
+  void DirBrowserWidget::expandToItem(MediaItem::ptr_t item) {
+    if (!item)
+      return;
+
+    MediaItem::itemvector_t list;
+    do {
+      list.insert(list.begin(), item);
+      item = item->getParent();
+    } while (item);
+
+
+    for (auto& item : list) {
+      auto tv = treeView;
+      auto tm = model;
+
+      QTimer::singleShot(0, [tv, tm, item]() {
+        if (tv && tm) {
+          auto index = tm->getIndexForItem(item);
+          tv->expand(index);
+        }
+                         });
+    }
   }
 
   void DirBrowserWidget::createUI() {
@@ -172,11 +206,24 @@ namespace realn {
     menu.exec(event->globalPos());
   }
 
-  void DirBrowserWidget::setupNewSelection() {
-    emitItemSelection();
+  void DirBrowserWidget::setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal) {
+    if (!item || item == getSelectedItem()) {
+      return;
+    }
+
+    {
+      auto index = model->getIndexForItem(item);
+      treeView->setCurrentIndex(index);
+    }
+
+    expandToItem(item);
+
+    if (emitSignal)
+      emitItemSelection();
   }
 
   void DirBrowserWidget::emitItemSelection() {
+
     emit selectionChanged();
     emit selectedItemChanged(getSelectedItem());
   }

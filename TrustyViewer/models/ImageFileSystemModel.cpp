@@ -35,14 +35,21 @@ namespace realn {
       return QModelIndex();
 
     if (item == root->getMediaItem())
-      return index(0, 0);
+      return createIndex(0, 0, root.get());
 
     auto modelItem = findItemForMediaItem(item);
     if (!modelItem)
       return QModelIndex();
 
     int row = getIndexFromParent(modelItem);
-    return index(row, 0, getIndexForItem(item->getParent()));
+    return createIndex(row, 0, modelItem.get());
+  }
+
+  bool ImageFileSystemModel::isDirectory(const QModelIndex& index) const {
+    auto item = fromIndex(index);
+    if (!item)
+      return false;
+    return item->getType() == MediaItemType::Directory;
   }
 
   QModelIndex ImageFileSystemModel::index(int row, int column, const QModelIndex& parent) const {
@@ -112,6 +119,14 @@ namespace realn {
       return QVariant();
 
     return "Name";
+  }
+
+  Qt::ItemFlags ImageFileSystemModel::flags(const QModelIndex& index) const {
+    auto item = fromIndex(index);
+    if (item->getType() == MediaItemType::Directory) {
+      return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable;
+    }
+    return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemNeverHasChildren;
   }
 
   void ImageFileSystemModel::removeItem(MediaItem::ptr_t item) {

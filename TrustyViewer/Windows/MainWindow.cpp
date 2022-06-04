@@ -96,17 +96,15 @@ namespace realn {
 
     setCentralWidget(view);
 
-    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setRootByItem));
-
     cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, this, &MainWindow::setMediaFromItem));
-    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setSelectedItem));
+    cC(connect(dirBrowser, &DirBrowserWidget::selectedItemChanged, thumbnailView, &ThumbnailView::setSelectedItemNoEmit));
     cC(connect(dirBrowser, &DirBrowserWidget::selectionCleared, this, &MainWindow::clearMedia));
     cC(connect(dirBrowser, &DirBrowserWidget::moveItemRequested, this, &MainWindow::tryMoveItem));
     cC(connect(dirBrowser, &DirBrowserWidget::deleteItemRequested, this, &MainWindow::tryDeleteItem));
     cC(connect(dirBrowser, &DirBrowserWidget::newFolderItemRequested, this, &MainWindow::tryNewFolder));
 
     cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, this, &MainWindow::setMediaFromItem));
-    cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, dirBrowser, &DirBrowserWidget::setSelectedItem));
+    cC(connect(thumbnailView, &ThumbnailView::selectedItemChanged, dirBrowser, &DirBrowserWidget::setSelectedItemNoEmit));
     cC(connect(thumbnailView, &ThumbnailView::selectionCleared, this, &MainWindow::clearMedia));
 
     cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::removeItem));

@@ -84,4 +84,21 @@ namespace realn {
   private:
     size_t counter = 0;
   };
+
+  
+  template<class _ValueT>
+  class value_guard {
+  public:
+    value_guard(_ValueT& flag, const _ValueT& valueTo)
+      : targetFlag(flag), memValue(flag) {
+      targetFlag = valueTo;
+    }
+    ~value_guard() {
+      targetFlag = memValue;
+    }
+
+  private:
+    _ValueT& targetFlag;
+    const _ValueT memValue;
+  };
 }

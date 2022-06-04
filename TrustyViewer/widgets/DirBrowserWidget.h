@@ -22,6 +22,8 @@ namespace realn {
     MediaItem::itemvector_t getSelectedItems() const;
     QFileInfo getSelectedFileInfo() const;
 
+    void expandToItem(MediaItem::ptr_t item);
+
   signals:
     void rootChanged(QString newRoot);
     void selectionChanged();
@@ -34,22 +36,24 @@ namespace realn {
   public slots:
     void pickNewRoot();
     void setSelectedItem(MediaItem::ptr_t item);
+    void setSelectedItemNoEmit(MediaItem::ptr_t item);
     void clearSelection();
     
   private slots:
-    void setupNewSelection();
     void emitItemSelection();
     void disableTreeView();
     void enableTreeView();
     void onDeleteItem();
     void onMoveItem();
     void onNewFolderItem();
+    void onModelReset();
 
   private:
     void createUI();
     void createTreeViewActions();
     void setupRoot(QString rootDir);
     void contextMenuEvent(QContextMenuEvent* event) override;
+    void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
 
     QPointer<QLabel> rootLabel;
     QPointer<QTreeView> treeView;
@@ -58,5 +62,6 @@ namespace realn {
     QPointer<QAction> actionDelete;
     QPointer<QAction> actionNewFolder;
     std::shared_ptr<MediaDatabase> database;
+    bool emitItemSelectionFlag = true;
   };
 }

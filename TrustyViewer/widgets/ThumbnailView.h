@@ -24,6 +24,7 @@ namespace realn {
 
   public slots:
     void setSelectedItem(MediaItem::ptr_t item);
+    void setSelectedItemNoEmit(MediaItem::ptr_t item);
     void clearSelection();
     void setRootByItem(MediaItem::ptr_t item);
     void refresh();
@@ -32,6 +33,8 @@ namespace realn {
     void emitSelectionChanged();
 
   private:
+    void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
+
     QPointer<QListView> listView;
     QPointer<ThumbnailModel> model;
   };
