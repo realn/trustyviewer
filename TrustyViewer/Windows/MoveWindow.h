@@ -28,10 +28,12 @@ namespace realn {
   private slots:
     void onSelectionChanged();
 
+  protected:
+    void closeEvent(QCloseEvent* event) override;
+
   private:
     QPointer<QLineEdit> pathWidget;
     QPointer<QTreeView> browseWidget;
     QPointer<ImageFileSystemModel> model;
-
   };
 }

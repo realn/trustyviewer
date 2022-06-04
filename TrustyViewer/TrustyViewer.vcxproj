@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="extensions\DummyVideoSurface.cpp" />
     <ClCompile Include="extensions\ExtPlugin.cpp" />
     <ClCompile Include="Extensions\GifImageExtPlugin.cpp" />
@@ -141,6 +142,7 @@
     <QtMoc Include="widgets\BaseMediaContentPlayerWidget.h" />
     <QtMoc Include="widgets\AnimationMediaWidget.h" />
     <QtMoc Include="extensions\DummyVideoSurface.h" />
+    <ClInclude Include="AppSettings.h" />
     <ClInclude Include="extensions\ExtPlugin.h" />
     <ClInclude Include="extensions\GifImageExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />

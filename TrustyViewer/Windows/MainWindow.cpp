@@ -5,6 +5,7 @@
 #include <QStatusBar>
 #include <QMessageBox>
 
+#include "../AppSettings.h"
 #include "../Utils.h"
 #include "MoveWindow.h"
 #include "TextPromptDialog.h"
@@ -18,7 +19,12 @@ namespace realn {
     thumbnailView = new ThumbnailView(plugins, worker);
 
     createUI();
+
+    AppSettings settings;
+    settings.readMainWindow("mainwindow", this);
   }
+
+  MainWindow::~MainWindow() = default;
 
   void MainWindow::clearMedia() {
     view->clearMedia();
@@ -68,6 +74,12 @@ namespace realn {
     }
   }
 
+  void MainWindow::closeEvent(QCloseEvent* event) {
+    AppSettings settings;
+    settings.writeMainWindow("mainwindow", this);
+    QMainWindow::closeEvent(event);
+  }
+
   void MainWindow::setMediaFromItem(MediaItem::ptr_t item) {
     if (!item) {
       return;
@@ -79,8 +91,8 @@ namespace realn {
   }
 
   void MainWindow::createUI() {
-    addDock(dirBrowser, "Library Explorer", Qt::LeftDockWidgetArea, true);
-    addDock(thumbnailView, "Thumbnails", Qt::RightDockWidgetArea, true);
+    addDock(dirBrowser, "libraryview", "Library Explorer", Qt::LeftDockWidgetArea, true);
+    addDock(thumbnailView, "thumbnailview", "Thumbnails", Qt::RightDockWidgetArea, true);
 
     setCentralWidget(view);
 
@@ -107,15 +119,16 @@ namespace realn {
     setStatusBar(statusBar);
   }
 
-  void MainWindow::addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible) {
+  void MainWindow::addDock(QWidget* widget, const QString& id, const QString& name, Qt::DockWidgetArea dockArea, bool visible) {
     auto dock = new QDockWidget(name, this);
+    dock->setObjectName(id);
 
     dock->setFeatures(QDockWidget::DockWidgetFeature::DockWidgetMovable);
     dock->setAllowedAreas(Qt::DockWidgetArea::AllDockWidgetAreas);
     dock->setWidget(widget);
     dock->setVisible(visible);
 
-    docks.push_back(dock);
+    docks[id] = dock;
 
     addDockWidget(dockArea, dock);
   }

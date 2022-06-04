@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <vector>
 
 #include <QMainWindow>
@@ -16,6 +17,7 @@ namespace realn {
     Q_OBJECT;
   public:
     MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker);
+    ~MainWindow() override;
 
   private slots:
     void setMediaFromItem(MediaItem::ptr_t item);
@@ -27,11 +29,15 @@ namespace realn {
     void tryMoveItem(MediaItem::ptr_t item);
     void tryDeleteItem(MediaItem::ptr_t item);
 
+  protected:
+    void closeEvent(QCloseEvent* event) override;
+
   private:
     using dockptr_t = QPointer<QDockWidget>;
+    using dockmap_t = std::map<QString, dockptr_t>;
 
     void createUI();
-    void addDock(QWidget* widget, const QString& name, Qt::DockWidgetArea dockArea, bool visible);
+    void addDock(QWidget* widget, const QString& id, const QString& name, Qt::DockWidgetArea dockArea, bool visible);
     void clearSelections();
 
     QPointer<MediaContentWidget> view;
@@ -39,6 +45,6 @@ namespace realn {
     QPointer<ThumbnailView> thumbnailView;
     QPointer<QStatusBar> statusBar;
     std::shared_ptr<MediaDatabase> database;
-    std::vector<dockptr_t> docks;
+    dockmap_t docks;
   };
 }

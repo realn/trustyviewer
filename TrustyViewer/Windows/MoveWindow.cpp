@@ -6,6 +6,7 @@
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 
+#include "../AppSettings.h"
 #include "../models/ImageFileSystemModel.h"
 #include "MoveWindow.h"
 
@@ -35,6 +36,9 @@ namespace realn {
     connect(buttons, &QDialogButtonBox::rejected, this, &MoveWindow::reject);
 
     setLayout(layout);
+
+    AppSettings settings;
+    settings.readWindow("movewindow", this);
   }
 
   MoveWindow::~MoveWindow() = default;
@@ -54,6 +58,12 @@ namespace realn {
       return nullptr;
     const auto& index = indices.first();
     return model->getItemForIndex(index);
+  }
+
+  void MoveWindow::closeEvent(QCloseEvent* event) {
+    AppSettings settings;
+    settings.writeWindow("movewindow", this);
+    QWidget::closeEvent(event);
   }
 
   void MoveWindow::onSelectionChanged() {
