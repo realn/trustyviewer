@@ -16,6 +16,8 @@ namespace realn {
     defaultThumbnail = QPixmap(thumbnailSize);
     defaultThumbnail.fill(QColor(Qt::lightGray));
 
+    folderThumbnail = createFolderThumbnail();
+
     worker->setTargetThumbnailSize(_thumbnailSize);
   }
 
@@ -121,6 +123,8 @@ namespace realn {
     if (role == Qt::DisplayRole)
       return item->getName();
     if (role == Qt::DecorationRole) {
+      if (item->isDirectory())
+        return folderThumbnail;
       if (!item->hasThumbnail())
         return defaultThumbnail;
       return item->getThumbnail();
@@ -221,5 +225,14 @@ namespace realn {
     auto bottom = index(static_cast<int>(last), 0);
     QVector<int> roles = { Qt::DecorationRole };
     emit dataChanged(top, bottom, roles);
+  }
+
+  QPixmap ThumbnailModel::createFolderThumbnail() {
+    auto img = QImage();
+    if (!img.load("assets/folder_thumbnail.png"))
+      return defaultThumbnail;
+
+    img = img.scaled(thumbnailSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+    return QPixmap::fromImage(img);
   }
 }
