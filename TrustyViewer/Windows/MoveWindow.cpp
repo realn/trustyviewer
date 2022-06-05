@@ -1,5 +1,5 @@
 
-
+#include <QTimer>
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QTreeView>
@@ -41,10 +41,14 @@ namespace realn {
     settings.readWindow("movewindow", this);
   }
 
-  MoveWindow::~MoveWindow() = default;
+  MoveWindow::~MoveWindow() {
+    AppSettings settings;
+    settings.writeWindow("movewindow", this);
+  }
 
   QDialog::DialogCode MoveWindow::showDialog() {
     auto result = exec();
+    
     return static_cast<QDialog::DialogCode>(result);
   }
   
@@ -53,17 +57,49 @@ namespace realn {
   }
 
   MediaItem::ptr_t MoveWindow::getSelectedItem() const {
-    auto indices = browseWidget->selectionModel()->selectedIndexes();
-    if (indices.empty())
+    auto index = browseWidget->currentIndex();
+    if (!index.isValid())
       return nullptr;
-    const auto& index = indices.first();
     return model->getItemForIndex(index);
   }
 
+  void MoveWindow::setSelectedItem(MediaItem::ptr_t item) {
+    if (!item)
+      return;
+    if (!item->isDirectory())
+      item = item->getParent();
+
+    auto index = model->getIndexForItem(item);
+    if (index.isValid())
+      browseWidget->setCurrentIndex(index);
+  }
+
   void MoveWindow::closeEvent(QCloseEvent* event) {
-    AppSettings settings;
-    settings.writeWindow("movewindow", this);
     QWidget::closeEvent(event);
+  }
+
+  void MoveWindow::expandToItem(MediaItem::ptr_t item) {
+    if (!item)
+      return;
+
+    MediaItem::itemvector_t list;
+    do {
+      list.insert(list.begin(), item);
+      item = item->getParent();
+    } while (item);
+
+
+    for (auto& item : list) {
+      auto tv = browseWidget;
+      auto tm = model;
+
+      QTimer::singleShot(0, [tv, tm, item]() {
+        if (tv && tm) {
+          auto index = tm->getIndexForItem(item);
+          tv->expand(index);
+        }
+                         });
+    }
   }
 
   void MoveWindow::onSelectionChanged() {

@@ -50,7 +50,7 @@ namespace realn {
 
   private:
     void createUI();
-    void createTreeViewActions();
+    void createActions();
     void setupRoot(QString rootDir);
     void contextMenuEvent(QContextMenuEvent* event) override;
     void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
@@ -62,6 +62,5 @@ namespace realn {
     QPointer<QAction> actionDelete;
     QPointer<QAction> actionNewFolder;
     std::shared_ptr<MediaDatabase> database;
-    bool emitItemSelectionFlag = true;
   };
 }

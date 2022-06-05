@@ -24,6 +24,7 @@ namespace realn {
     MediaItem::ptr_t getNewParent() const;
 
     MediaItem::ptr_t getSelectedItem() const;
+    void setSelectedItem(MediaItem::ptr_t item);
 
   private slots:
     void onSelectionChanged();
@@ -32,6 +33,8 @@ namespace realn {
     void closeEvent(QCloseEvent* event) override;
 
   private:
+    void expandToItem(MediaItem::ptr_t item);
+
     QPointer<QLineEdit> pathWidget;
     QPointer<QTreeView> browseWidget;
     QPointer<ImageFileSystemModel> model;

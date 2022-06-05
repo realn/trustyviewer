@@ -42,7 +42,7 @@ namespace realn {
     connect(model, &ImageFileSystemModel::modelReset, this, &DirBrowserWidget::onModelReset);
 
     createUI();
-    createTreeViewActions();
+    createActions();
   }
 
   void DirBrowserWidget::setSelectedItem(MediaItem::ptr_t item) {
@@ -170,7 +170,7 @@ namespace realn {
     setLayout(layout);
   }
 
-  void DirBrowserWidget::createTreeViewActions() {
+  void DirBrowserWidget::createActions() {
     actionMove = new QAction("Move");
     connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::onMoveItem);
 

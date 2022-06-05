@@ -1,4 +1,6 @@
 
+#include <QMenu>
+#include <QAction>
 #include <QBoxLayout>
 
 #include "ThumbnailView.h"
@@ -17,11 +19,16 @@ namespace realn {
     listView->setFlow(QListView::Flow::LeftToRight);
     listView->setResizeMode(QListView::ResizeMode::Adjust);
     listView->setGridSize(gridSize);
+    listView->setContextMenuPolicy(Qt::CustomContextMenu);
+
     connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged);
+    connect(listView, &QListView::customContextMenuRequested, this, &ThumbnailView::showContextMenu);
 
     auto layout = new QHBoxLayout();
     layout->addWidget(listView);
     setLayout(layout);
+
+    createActions();
   }
 
   MediaItem::ptr_t ThumbnailView::getSelectedItem() const {
@@ -69,6 +76,37 @@ namespace realn {
     model->refreshModel();
   }
 
+  void ThumbnailView::onMoveItem() {
+    auto item = getSelectedItem();
+    if (item == nullptr)
+      return;
+
+    emit moveItemRequested(item);
+  }
+
+  void ThumbnailView::onDeleteItem() {
+    auto item = getSelectedItem();
+    if (item == nullptr)
+      return;
+
+    emit deleteItemRequested(item);
+  }
+
+  void ThumbnailView::showContextMenu(const QPoint& pos) {
+    auto item = getSelectedItem();
+    if (item == nullptr)
+      return;
+
+    actionMove->setEnabled(true);
+    actionDelete->setEnabled(true);
+
+    QMenu menu(this);
+    menu.addAction(actionMove);
+    menu.addAction(actionDelete);
+
+    menu.exec(listView->mapToGlobal(pos));
+  }
+
   void ThumbnailView::setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal) {
     if (item == getSelectedItem())
       return;
@@ -91,6 +129,14 @@ namespace realn {
 
     if (emitSignal)
       emitSelectionChanged();
+  }
+
+  void ThumbnailView::createActions() {
+    actionMove = new QAction("Move");
+    connect(actionMove, &QAction::triggered, this, &ThumbnailView::onMoveItem);
+
+    actionDelete = new QAction("Delete");
+    connect(actionDelete, &QAction::triggered, this, &ThumbnailView::onDeleteItem);
   }
 
   void ThumbnailView::emitSelectionChanged() {

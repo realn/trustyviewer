@@ -8,6 +8,8 @@
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
 
+class QAction;
+
 namespace realn {
   class ThumbnailView : public QWidget {
     Q_OBJECT;
@@ -21,6 +23,8 @@ namespace realn {
   signals:
     void selectedItemChanged(MediaItem::ptr_t item);
     void selectionCleared();
+    void deleteItemRequested(MediaItem::ptr_t item);
+    void moveItemRequested(MediaItem::ptr_t item);
 
   public slots:
     void setSelectedItem(MediaItem::ptr_t item);
@@ -31,11 +35,17 @@ namespace realn {
 
   private slots:
     void emitSelectionChanged();
+    void onMoveItem();
+    void onDeleteItem();
+    void showContextMenu(const QPoint& pos);
 
   private:
     void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
+    void createActions();
 
     QPointer<QListView> listView;
     QPointer<ThumbnailModel> model;
+    QPointer<QAction> actionMove;
+    QPointer<QAction> actionDelete;
   };
 }
