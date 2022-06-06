@@ -30,13 +30,18 @@ namespace realn {
 
   void ImageMediaWidget::clearMedia()
   {
+    if (!image)
+      return;
     image.reset();
+    repaint();
   }
 
   void ImageMediaWidget::paintEvent(QPaintEvent* event)
   {
-    if (!image)
+    if (!image) {
+      QWidget::paintEvent(event);
       return;
+    }
 
     QPainter painter(this);
 

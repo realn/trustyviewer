@@ -112,11 +112,10 @@ namespace realn {
     cC(connect(thumbnailView, &ThumbnailView::moveItemRequested, this, &MainWindow::tryMoveItem));
     cC(connect(thumbnailView, &ThumbnailView::deleteItemRequested, this, &MainWindow::tryDeleteItem));
 
-    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::removeItem));
-    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, thumbnailView->getThumbnailModel(), &ThumbnailModel::moveItem));
-
     cC(connect(database.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
     cC(connect(database.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, this, &MainWindow::clearMedia));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, this, &MainWindow::clearMedia));
 
     statusBar = new QStatusBar();
     setStatusBar(statusBar);

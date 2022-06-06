@@ -56,9 +56,11 @@ namespace realn {
   }
 
   void AnimationMediaWidget::clearMedia() {
+    if (!movie)
+      return;
+
     timer->stop();
-    if (movie)
-      movie->stop();
+    movie->stop();
     animationPlayer->setMovie(nullptr);
     movie.reset();
   }

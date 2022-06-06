@@ -50,18 +50,22 @@ namespace realn {
 
   public slots:
     void refreshModel();
-    void removeItem(MediaItem::ptr_t item);
-    void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
 
   private slots:
     void retrieveThumbnails();
+    void removeItem(MediaItem::ptr_t item);
+    void removeItems(MediaItem::itemvector_t items);
+    void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void moveItems(MediaItem::itemvector_t items, MediaItem::ptr_t newParent);
 
   private:
     using pixmap_ptr_t = std::unique_ptr<QPixmap>;
     using thumbnail_map_t = std::unordered_map<QString, pixmap_ptr_t>;
     using items_t = std::vector<ThumbnailModelItem::ptr_t>;
 
+    void updateItemIndices();
     ThumbnailModelItem::ptr_t fromIndex(const QModelIndex& index) const;
+    QModelIndex toIndex(ThumbnailModelItem::ptr_t item);
     void createThumbnails();
     QPixmap getThumbnail(const QString& filepath) const;
     void emitThumbnailsDataChanged(QStringList items);

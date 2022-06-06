@@ -32,11 +32,15 @@ namespace realn {
 
     ThumbnailModelItem::ptr_t getPtr();
 
+    void setIndex(size_t index);
+    size_t getIndex() const;
+
   private:
     MediaItem::ptr_t mediaItem;
     QString name;
     QString filepath;
     MediaItemType type;
     pixmap_ptr_t thumbnail;
+    size_t index = 0;
   };
 }

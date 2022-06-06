@@ -45,35 +45,8 @@ namespace realn {
   }
 
   void MediaDatabase::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
-    if (item->getParent() == newParent)
+    if (!moveItemPriv(item, newParent))
       return;
-    if (newParent->hasInPathToRoot(item))
-      return;
-
-    if (item->isDirectory()) {
-      auto oldDir = QDir(item->getFilePath());
-      auto newDir = QDir(newParent->getFilePath());
-
-      auto newPath = newDir.filePath(oldDir.dirName());
-
-      if (oldDir.rename(item->getFilePath(), newPath)) {
-        item->replaceFilePath(newPath);
-      }
-      else
-        return;
-    }
-    else {
-      auto oldFile = QFileInfo(item->getFilePath());
-      auto newDir = QDir(newParent->getFilePath());
-
-      auto newFilePath = newDir.filePath(oldFile.fileName());
-
-      if (QFile::rename(item->getFilePath(), newFilePath)) {
-        item->replaceFilePath(newFilePath);
-      }
-      else
-        return;
-    }
 
     emit itemWillBeMoved(item, newParent);
 
@@ -81,6 +54,28 @@ namespace realn {
     newParent->sortChildren(MediaItem::AscTypeNameSorter);
 
     emit itemMoved(item, newParent);
+  }
+
+  void MediaDatabase::moveItems(MediaItem::itemvector_t items, MediaItem::ptr_t newParent) {
+    auto result = MediaItem::itemvector_t();
+    for (auto& item : items) {
+      if (moveItemPriv(item, newParent))
+        result.push_back(item);
+    }
+
+    emit itemsWillBeMoved(result, newParent);
+
+    for (auto& item : result) {
+
+      emit itemWillBeMoved(item, newParent);
+
+      newParent->addChild(item);
+
+      emit itemMoved(item, newParent);
+    }
+    newParent->sortChildren(MediaItem::AscTypeNameSorter);
+
+    emit itemsMoved(result, newParent);
   }
 
   void MediaDatabase::deleteItem(MediaItem::ptr_t item) {
@@ -132,5 +127,39 @@ namespace realn {
 
   void MediaDatabase::asyncWaitForCheck(std::chrono::milliseconds value) {
     QTimer::singleShot(value, this, &MediaDatabase::checkForData);
+
+  }
+  bool MediaDatabase::moveItemPriv(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    if (item->getParent() == newParent)
+      return false;
+    if (newParent->hasInPathToRoot(item))
+      return false;
+
+    if (item->isDirectory()) {
+      auto oldDir = QDir(item->getFilePath());
+      auto newDir = QDir(newParent->getFilePath());
+
+      auto newPath = newDir.filePath(oldDir.dirName());
+
+      if (oldDir.rename(item->getFilePath(), newPath)) {
+        item->replaceFilePath(newPath);
+      }
+      else
+        return false;
+    }
+    else {
+      auto oldFile = QFileInfo(item->getFilePath());
+      auto newDir = QDir(newParent->getFilePath());
+
+      auto newFilePath = newDir.filePath(oldFile.fileName());
+
+      if (QFile::rename(item->getFilePath(), newFilePath)) {
+        item->replaceFilePath(newFilePath);
+      }
+      else
+        return false;
+    }
+
+    return true;
   }
 }

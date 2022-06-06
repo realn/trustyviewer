@@ -21,12 +21,15 @@ namespace realn {
     , worker(_worker)
     , itemStorage(storage)
     , thumbnailSize(_thumbnailSize)
-    , view(dragDropView)
-  {
+    , view(dragDropView) {
     defaultThumbnail = QPixmap(thumbnailSize);
     defaultThumbnail.fill(QColor(Qt::lightGray));
 
     folderThumbnail = createFolderThumbnail();
+
+    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, this, &ThumbnailModel::removeItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, this, &ThumbnailModel::moveItem));
+    cC(connect(database.get(), &MediaDatabase::itemsWillBeMoved, this, &ThumbnailModel::moveItems));
 
     worker->setTargetThumbnailSize(_thumbnailSize);
   }
@@ -60,6 +63,13 @@ namespace realn {
     return rootItem;
   }
 
+  void ThumbnailModel::updateItemIndices() {
+    //std::sort(items.begin(), items.end(), ThumbnailModelItem::AscTypeNameSorter);
+    for (size_t i = 0; i < items.size(); i++) {
+      items[i]->setIndex(i);
+    }
+  }
+
   ThumbnailModelItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
     if (!index.isValid())
       return nullptr;
@@ -67,6 +77,15 @@ namespace realn {
     if (!ptr)
       return nullptr;
     return ptr->getPtr();
+  }
+
+  QModelIndex ThumbnailModel::toIndex(ThumbnailModelItem::ptr_t item) {
+    auto it = std::find(items.begin(), items.end(), item);
+    if (it == items.end())
+      return QModelIndex();
+
+    auto rowIndex = it - items.begin();
+    return createIndex(static_cast<int>(rowIndex), 0, item.get());
   }
 
   void ThumbnailModel::refreshModel() {
@@ -194,7 +213,7 @@ namespace realn {
     auto idx = index(row, column, parent);
     if (!idx.isValid()) {
       idx = view->findDropIndex();
-      if(!idx.isValid())
+      if (!idx.isValid())
         return false;
     }
 
@@ -240,11 +259,12 @@ namespace realn {
         items.push_back(item);
     }
 
-    for (auto& item : items) {
-      database->moveItem(item, newParent);
-    }
+    database->moveItems(items, newParent);
+    //for (auto& item : items) {
+    //  database->moveItem(item, newParent);
+    //}
 
-    return false;
+    return true;
   }
 
   void ThumbnailModel::removeItem(MediaItem::ptr_t item) {
@@ -257,6 +277,9 @@ namespace realn {
       return;
 
     auto modelIdx = getIndexForItem(item);
+    if (!modelIdx.isValid())
+      return;
+
     auto modelParent = parent(modelIdx);
 
     beginRemoveRows(modelParent, modelIdx.row(), modelIdx.row());
@@ -272,11 +295,79 @@ namespace realn {
     endRemoveRows();
   }
 
+  void ThumbnailModel::removeItems(MediaItem::itemvector_t mediaItems) {
+
+    auto modelItems = std::vector<ThumbnailModelItem::ptr_t>();
+    for (auto& item : mediaItems) {
+      if (item == rootItem || item->getParent() != rootItem)
+        continue;
+
+      auto modelIdx = getIndexForItem(item);
+      if (modelIdx.isValid()) {
+        auto modelItem = fromIndex(modelIdx);
+        modelItems.push_back(modelItem);
+      }
+    }
+    if (modelItems.empty())
+      return;
+
+    updateItemIndices();
+    std::sort(modelItems.begin(), modelItems.end(), [this](const ThumbnailModelItem::ptr_t& item1, const ThumbnailModelItem::ptr_t& item2) {
+      return item1->getIndex() < item2->getIndex();
+              });
+
+
+    do {
+      updateItemIndices();
+
+      auto it = modelItems.begin();
+
+      auto beg = it;
+      auto last = it;
+      it++;
+
+      while (it != modelItems.end() && (*last)->getIndex() + 1 == (*it)->getIndex()) {
+        last = it;
+        it++;
+      }
+
+      beginRemoveRows(QModelIndex(), (*beg)->getIndex(), (*last)->getIndex());
+
+      auto itemFirst = std::find(items.begin(), items.end(), *beg);
+      auto itemLast = std::find(items.begin(), items.end(), *last) + 1;
+
+      for (auto dit = beg; dit != last + 1; dit++) {
+        auto item = *dit;
+
+        auto idx = item->getIndex();
+        {
+          ThumbnailModelItem::ptr_t temp;
+          std::swap(temp, items[idx]);
+          std::thread([](ThumbnailModelItem::ptr_t memory) { memory.reset(); }, std::move(temp)).detach();
+        }
+      }
+
+      items.erase(itemFirst, itemLast);
+
+      endRemoveRows();
+
+      modelItems.erase(beg, last + 1);
+
+    } while (!modelItems.empty());
+  }
+
   void ThumbnailModel::moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
     if (newParent == rootItem)
       return;
 
     removeItem(item);
+  }
+
+  void ThumbnailModel::moveItems(MediaItem::itemvector_t items, MediaItem::ptr_t newParent) {
+    if (newParent == rootItem)
+      return;
+
+    removeItems(items);
   }
 
   void ThumbnailModel::createThumbnails() {

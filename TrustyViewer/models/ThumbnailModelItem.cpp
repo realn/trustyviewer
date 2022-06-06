@@ -55,4 +55,12 @@ namespace realn {
     return shared_from_this();
   }
 
+  void ThumbnailModelItem::setIndex(size_t index) {
+    this->index = index;
+  }
+
+  size_t ThumbnailModelItem::getIndex() const {
+    return index;
+  }
+
 }

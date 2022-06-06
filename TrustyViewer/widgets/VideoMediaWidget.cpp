@@ -61,8 +61,12 @@ namespace realn {
   }
 
   void VideoMediaWidget::clearMedia() {
+    if (!video)
+      return;
+
     videoPlayer->stop();
     videoPlayer->setMedia(QMediaContent());
+    video.reset();
   }
 
   void VideoMediaWidget::play() {

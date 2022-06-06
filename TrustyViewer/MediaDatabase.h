@@ -24,12 +24,15 @@ namespace realn {
     void itemRemoved(MediaItem::ptr_t item);
     void itemWillBeMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
     void itemMoved(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void itemsWillBeMoved(MediaItem::itemvector_t items, MediaItem::ptr_t newParent);
+    void itemsMoved(MediaItem::itemvector_t items, MediaItem::ptr_t newParent);
     void itemWillBeAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
     void itemAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
     void rebuildProgressUpdated(int doneTasks, int totalTasks);
 
   public slots:
     void moveItem(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    void moveItems(MediaItem::itemvector_t items, MediaItem::ptr_t newParent);
     void deleteItem(MediaItem::ptr_t item);
     void makeFolderItem(QString newName, MediaItem::ptr_t parent);
 
@@ -38,6 +41,7 @@ namespace realn {
 
   private:
     void asyncWaitForCheck(std::chrono::milliseconds value);
+    bool moveItemPriv(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
 
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<MediaItemWorker> worker;
