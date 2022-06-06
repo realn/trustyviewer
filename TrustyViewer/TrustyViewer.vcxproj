@@ -103,7 +103,9 @@
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
     </ClCompile>
+    <ClCompile Include="ImageUtils.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MediaItemStorage.cpp" />
     <ClCompile Include="models\IFSModelItem.cpp" />
     <ClCompile Include="models\ThumbnailModelItem.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -147,7 +149,9 @@
     <ClInclude Include="extensions\GifImageExtPlugin.h" />
     <ClInclude Include="extensions\StdImageExtPlugin.h" />
     <ClInclude Include="extensions\StdVideoExtPlugin.h" />
+    <ClInclude Include="ImageUtils.h" />
     <ClInclude Include="MediaItem.h" />
+    <ClInclude Include="MediaItemStorage.h" />
     <ClInclude Include="models\IFSModelItem.h" />
     <ClInclude Include="models\ThumbnailModelItem.h" />
     <ClInclude Include="Utils.h" />

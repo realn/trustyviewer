@@ -64,41 +64,4 @@ namespace realn {
   qt_unique_ptr<_Type> qt_make_unique(_Types&&... args) {
     return qt_unique_ptr<_Type>(new _Type(std::forward<_Types>(args)...), &qt_delete_later);
   }
-
-  class pair_call_guard {
-  public:
-    template<class _Call>
-    void begin(_Call call) {
-      call();
-      counter++;
-    }
-
-    template<class _Call>
-    void end(_Call call) {
-      if (counter > 0) {
-        call();
-        counter--;
-      }
-    }
-
-  private:
-    size_t counter = 0;
-  };
-
-  
-  template<class _ValueT>
-  class value_guard {
-  public:
-    value_guard(_ValueT& flag, const _ValueT& valueTo)
-      : targetFlag(flag), memValue(flag) {
-      targetFlag = valueTo;
-    }
-    ~value_guard() {
-      targetFlag = memValue;
-    }
-
-  private:
-    _ValueT& targetFlag;
-    const _ValueT memValue;
-  };
 }

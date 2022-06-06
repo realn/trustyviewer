@@ -17,6 +17,7 @@ namespace realn {
   class MediaItem : public std::enable_shared_from_this<MediaItem> {
   public:
     using ptr_t = std::shared_ptr<MediaItem>;
+    using weak_ptr_t = std::weak_ptr<MediaItem>;
     using itemvector_t = std::vector<ptr_t>;
     using itemsorter_t = std::function<bool(ptr_t&, ptr_t&)>;
 

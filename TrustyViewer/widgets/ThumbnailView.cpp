@@ -2,16 +2,17 @@
 #include <QMenu>
 #include <QAction>
 #include <QBoxLayout>
+#include <QMouseEvent>
 
 #include "ThumbnailView.h"
 
 namespace realn {
-  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker) {
+  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage) {
 
     auto thumbSize = QSize(100, 150);
     auto gridSize = thumbSize + QSize(20, 20);
 
-    model = new ThumbnailModel(plugins, worker, thumbSize);
+    model = new ThumbnailModel(plugins, worker, storage, this, thumbSize);
 
     listView = new QListView();
     listView->setViewMode(QListView::ViewMode::IconMode);
@@ -20,16 +21,27 @@ namespace realn {
     listView->setResizeMode(QListView::ResizeMode::Adjust);
     listView->setGridSize(gridSize);
     listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    listView->setDragEnabled(true);
+    listView->setDragDropMode(QAbstractItemView::DragDropMode::DragDrop);
+    listView->setAcceptDrops(true);
+    listView->setDropIndicatorShown(true);
+    listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
     connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged);
     connect(listView, &QListView::customContextMenuRequested, this, &ThumbnailView::showContextMenu);
+    connect(model, &ThumbnailModel::moveItemRequested, this, &ThumbnailView::moveItemRequested);
 
     auto layout = new QHBoxLayout();
     layout->addWidget(listView);
     setLayout(layout);
 
     createActions();
+
+    listView->setMouseTracking(true);
+    setMouseTracking(true);
   }
+
+  ThumbnailView::~ThumbnailView() = default;
 
   MediaItem::ptr_t ThumbnailView::getSelectedItem() const {
     auto indices = listView->selectionModel()->selectedIndexes();
@@ -41,6 +53,15 @@ namespace realn {
 
   QPointer<ThumbnailModel> ThumbnailView::getThumbnailModel() const {
     return model;
+  }
+
+  QModelIndex ThumbnailView::findDropIndex() const {
+    auto index = listView->indexAt(mouseMove);
+
+    qInfo() << index.row();
+    qInfo() << index.column();
+
+    return index;
   }
 
   void ThumbnailView::setSelectedItem(MediaItem::ptr_t item) {
@@ -105,6 +126,11 @@ namespace realn {
     menu.addAction(actionDelete);
 
     menu.exec(listView->mapToGlobal(pos));
+  }
+
+  void ThumbnailView::mouseMoveEvent(QMouseEvent* event) {
+    mouseMove = event->pos();
+    QWidget::mouseMoveEvent(event);
   }
 
   void ThumbnailView::setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal) {

@@ -7,6 +7,7 @@
 #include "extensions/ExtPlugin.h"
 #include "workers/ThumbnailWorker.h"
 #include "workers/MediaItemWorker.h"
+
 #include "MediaDatabase.h"
 
 namespace realn {

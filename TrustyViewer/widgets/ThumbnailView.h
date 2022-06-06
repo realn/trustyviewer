@@ -11,14 +11,19 @@
 class QAction;
 
 namespace realn {
-  class ThumbnailView : public QWidget {
+  class MediaItemStorage;
+
+  class ThumbnailView : public QWidget, public ThumbnailDragDropView {
     Q_OBJECT;
   public:
-    ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker);
+    ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage);
+    ~ThumbnailView();
 
     MediaItem::ptr_t getSelectedItem() const;
 
     QPointer<ThumbnailModel> getThumbnailModel() const;
+
+    QModelIndex findDropIndex() const override;
 
   signals:
     void selectedItemChanged(MediaItem::ptr_t item);
@@ -39,6 +44,9 @@ namespace realn {
     void onDeleteItem();
     void showContextMenu(const QPoint& pos);
 
+  protected:
+    void mouseMoveEvent(QMouseEvent* event) override;
+
   private:
     void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
     void createActions();
@@ -47,5 +55,6 @@ namespace realn {
     QPointer<ThumbnailModel> model;
     QPointer<QAction> actionMove;
     QPointer<QAction> actionDelete;
+    QPoint mouseMove;
   };
 }

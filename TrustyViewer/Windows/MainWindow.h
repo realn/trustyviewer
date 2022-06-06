@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QDockWidget>
 
+#include "../MediaItemStorage.h"
 #include "../widgets/MediaContentWidget.h"
 #include "../widgets/DirBrowserWidget.h"
 #include "../widgets/ThumbnailView.h"
@@ -45,6 +46,7 @@ namespace realn {
     QPointer<ThumbnailView> thumbnailView;
     QPointer<QStatusBar> statusBar;
     std::shared_ptr<MediaDatabase> database;
+    std::shared_ptr<MediaItemStorage> itemStorage;
     dockmap_t docks;
   };
 }

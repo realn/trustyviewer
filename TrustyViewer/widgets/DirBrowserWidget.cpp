@@ -14,7 +14,7 @@
 #include "../Windows/MoveWindow.h"
 
 namespace realn {
-  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase)
+  DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<MediaItemStorage> storage)
     : database(mediaDatabase) {
     setMinimumWidth(200);
 
@@ -156,7 +156,7 @@ namespace realn {
 
     {
       auto rootLayout = new QHBoxLayout();
-      rootLayout->addWidget(rootLabel);
+      rootLayout->addWidget(rootLabel, 1);
 
       auto button = new QPushButton("Change");
       connect(button, &QPushButton::clicked, this, &DirBrowserWidget::pickNewRoot);

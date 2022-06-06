@@ -1,18 +1,26 @@
 
+#include <QMimeData>
+#include <QDataStream>
 #include <QTimer>
 #include <QColor>
 #include <QFileInfo>
 #include <QPainter>
 
 #include "../Utils.h"
+#include "../ImageUtils.h"
 
 #include "ThumbnailModel.h"
 
 namespace realn {
-  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize)
+  const QString ITEM_MIME_TYPE = "application/trust.view.item";
+
+  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize)
     : plugins(_plugins)
     , worker(_worker)
-    , thumbnailSize(_thumbnailSize) {
+    , itemStorage(storage)
+    , thumbnailSize(_thumbnailSize)
+    , view(dragDropView)
+  {
     defaultThumbnail = QPixmap(thumbnailSize);
     defaultThumbnail.fill(QColor(Qt::lightGray));
 
@@ -51,6 +59,8 @@ namespace realn {
   }
 
   ThumbnailModelItem::ptr_t ThumbnailModel::fromIndex(const QModelIndex& index) const {
+    if (!index.isValid())
+      return nullptr;
     auto ptr = reinterpret_cast<ThumbnailModelItem*>(index.internalPointer());
     if (!ptr)
       return nullptr;
@@ -86,7 +96,7 @@ namespace realn {
   }
 
   QModelIndex ThumbnailModel::index(int row, int column, const QModelIndex& parent) const {
-    if (parent.isValid() || !rootItem)
+    if (parent.isValid() || !rootItem || column != 0)
       return QModelIndex();
 
     auto modelIdx = static_cast<size_t>(row);
@@ -131,6 +141,108 @@ namespace realn {
     }
 
     return QVariant();
+  }
+
+  Qt::DropActions ThumbnailModel::supportedDropActions() const {
+    return Qt::DropActions() | Qt::MoveAction;
+  }
+
+  Qt::ItemFlags ThumbnailModel::flags(const QModelIndex& index) const {
+    auto flags = QAbstractItemModel::flags(index);
+    auto item = fromIndex(index);
+    if (!item)
+      return flags;
+
+    if (item->isDirectory())
+      return flags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+
+    return flags | Qt::ItemIsDragEnabled;
+  }
+
+  QStringList ThumbnailModel::mimeTypes() const {
+    return QStringList()
+      << ITEM_MIME_TYPE;
+  }
+
+  QMimeData* ThumbnailModel::mimeData(const QModelIndexList& indices) const {
+
+    QByteArray data;
+    auto stream = QDataStream(&data, QIODevice::WriteOnly);
+
+    for (auto& index : indices) {
+      auto item = fromIndex(index);
+      if (!item)
+        continue;
+
+      auto id = itemStorage->store(item->getMediaItem());
+      stream << id;
+    }
+
+    auto result = new QMimeData();
+    result->setData(ITEM_MIME_TYPE, data);
+    return result;
+  }
+
+  bool ThumbnailModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const {
+    if (action != Qt::MoveAction)
+      return false;
+    if (!data->hasFormat(ITEM_MIME_TYPE))
+      return false;
+
+    auto idx = index(row, column, parent);
+    if (!idx.isValid()) {
+      idx = view->findDropIndex();
+      if(!idx.isValid())
+        return false;
+      else {
+        int a = 0;
+      }
+    }
+
+    auto item = fromIndex(idx);
+    if (!item)
+      return false;
+
+    if (!item->isDirectory())
+      return false;
+
+    return true;
+  }
+
+  bool ThumbnailModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+    if (action == Qt::IgnoreAction)
+      return true;
+    if (!canDropMimeData(data, action, row, column, parent))
+      return false;
+
+    auto idx = index(row, column, parent);
+    if (!idx.isValid())
+      return false;
+
+    auto targetItem = fromIndex(idx);
+    if (!targetItem)
+      return false;
+
+    auto newParent = targetItem->getMediaItem();
+
+    auto encData = data->data(ITEM_MIME_TYPE);
+    auto stream = QDataStream(&encData, QIODevice::ReadOnly);
+
+    auto items = MediaItem::itemvector_t();
+    while (!stream.atEnd()) {
+      MediaItemStorage::item_id itemId;
+      stream >> itemId;
+
+      auto item = itemStorage->retrieve(itemId);
+      if (item)
+        items.push_back(item);
+    }
+
+    for (auto& item : items) {
+      emit moveItemRequested(item, newParent);
+    }
+
+    return false;
   }
 
   void ThumbnailModel::removeItem(MediaItem::ptr_t item) {
@@ -228,11 +340,7 @@ namespace realn {
   }
 
   QPixmap ThumbnailModel::createFolderThumbnail() {
-    auto img = QImage();
-    if (!img.load("assets/folder_thumbnail.png"))
-      return defaultThumbnail;
-
-    img = img.scaled(thumbnailSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-    return QPixmap::fromImage(img);
+    auto image = loadScaled("assets/folder_thumbnail.png", thumbnailSize, defaultThumbnail);
+    return createFilledThumbnail(image, thumbnailSize);
   }
 }

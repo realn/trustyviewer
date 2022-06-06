@@ -118,6 +118,12 @@
     <ClCompile Include="AppSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MediaItemStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -159,5 +165,7 @@
     <ClInclude Include="models\IFSModelItem.h" />
     <ClInclude Include="models\ThumbnailModelItem.h" />
     <ClInclude Include="AppSettings.h" />
+    <ClInclude Include="MediaItemStorage.h" />
+    <ClInclude Include="ImageUtils.h" />
   </ItemGroup>
 </Project>

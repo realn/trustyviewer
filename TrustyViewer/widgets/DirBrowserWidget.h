@@ -12,11 +12,13 @@ class QAction;
 class QContextMenuEvent;
 
 namespace realn {
+  class MediaItemStorage;
+
   class DirBrowserWidget : public QWidget {
     Q_OBJECT
 
   public:
-    DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase);
+    DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<MediaItemStorage> storage);
 
     MediaItem::ptr_t getSelectedItem() const;
     MediaItem::itemvector_t getSelectedItems() const;

@@ -14,9 +14,11 @@
 namespace realn {
   MainWindow::MainWindow(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<ThumbnailWorker> worker)
     : database(mediaDatabase) {
+    itemStorage = std::make_shared<MediaItemStorage>();
+
     view = new MediaContentWidget(plugins);
-    dirBrowser = new DirBrowserWidget(mediaDatabase);
-    thumbnailView = new ThumbnailView(plugins, worker);
+    dirBrowser = new DirBrowserWidget(mediaDatabase, itemStorage);
+    thumbnailView = new ThumbnailView(plugins, worker, itemStorage);
 
     createUI();
 

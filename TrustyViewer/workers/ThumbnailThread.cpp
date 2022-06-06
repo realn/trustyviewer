@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
+#include "../ImageUtils.h"
 #include "ThumbnailThread.h"
 
 namespace realn {
@@ -63,15 +64,7 @@ namespace realn {
   }
 
   ThumbnailThread::pixmap_ptr_t ThumbnailThread::createCorrectThumbnail(const QPixmap& pixmap) const {
-    auto thumbnail = QPixmap(targetThumbnailSize);
-    thumbnail.fill(QColor::fromRgb(230, 230, 230));
-
-    auto pos = (toPoint(thumbnail.size()) - toPoint(pixmap.size())) / 2;
-    {
-      QPainter pnt(&thumbnail);
-      pnt.drawPixmap(pos, pixmap);
-    }
-
+    auto thumbnail = createFilledThumbnail(pixmap, targetThumbnailSize);
     return std::make_unique<QPixmap>(std::move(thumbnail));
   }
 

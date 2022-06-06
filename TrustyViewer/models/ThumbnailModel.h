@@ -6,16 +6,22 @@
 #include <QAbstractItemModel>
 
 #include "ThumbnailModelItem.h"
+#include "../MediaItemStorage.h"
 #include "../Utils.h"
 #include "../MediaItem.h"
 #include "../extensions/ExtPlugin.h"
 #include "../workers/ThumbnailWorker.h"
 
 namespace realn {
+  class ThumbnailDragDropView {
+  public:
+    virtual QModelIndex findDropIndex() const = 0;
+  };
+
   class ThumbnailModel : public QAbstractItemModel {
     Q_OBJECT;
   public:
-    ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, QSize _thumbnailSize);
+    ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize);
 
     void setRootItem(MediaItem::ptr_t item);
     MediaItem::ptr_t getRootItem() const;
@@ -30,6 +36,15 @@ namespace realn {
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     //QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    Qt::DropActions supportedDropActions() const override;
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    QStringList mimeTypes() const override;
+    QMimeData* mimeData(const QModelIndexList& indices) const override;
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
+    bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
+
+  signals:
+    void moveItemRequested(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
 
   public slots:
     void refreshModel();
@@ -52,6 +67,7 @@ namespace realn {
 
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<ThumbnailWorker> worker;
+    std::shared_ptr<MediaItemStorage> itemStorage;
 
     MediaItem::ptr_t rootItem;
     items_t items;
@@ -60,5 +76,7 @@ namespace realn {
     QSize thumbnailSize;
     QPixmap defaultThumbnail;
     QPixmap folderThumbnail;
+
+    ThumbnailDragDropView* view;
   };
 }
