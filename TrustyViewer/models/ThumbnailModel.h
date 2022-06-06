@@ -13,6 +13,8 @@
 #include "../workers/ThumbnailWorker.h"
 
 namespace realn {
+  class MediaDatabase;
+
   class ThumbnailDragDropView {
   public:
     virtual QModelIndex findDropIndex() const = 0;
@@ -21,7 +23,7 @@ namespace realn {
   class ThumbnailModel : public QAbstractItemModel {
     Q_OBJECT;
   public:
-    ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize);
+    ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize);
 
     void setRootItem(MediaItem::ptr_t item);
     MediaItem::ptr_t getRootItem() const;
@@ -65,6 +67,7 @@ namespace realn {
     void emitThumbnailsDataChanged(QStringList items);
     QPixmap createFolderThumbnail();
 
+    std::shared_ptr<MediaDatabase> database;
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<ThumbnailWorker> worker;
     std::shared_ptr<MediaItemStorage> itemStorage;

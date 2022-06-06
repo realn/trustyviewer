@@ -18,7 +18,7 @@ namespace realn {
 
     view = new MediaContentWidget(plugins);
     dirBrowser = new DirBrowserWidget(mediaDatabase, itemStorage);
-    thumbnailView = new ThumbnailView(plugins, worker, itemStorage);
+    thumbnailView = new ThumbnailView(mediaDatabase, plugins, worker, itemStorage);
 
     createUI();
 

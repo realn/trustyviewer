@@ -124,6 +124,9 @@
     <ClCompile Include="ImageUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\ListViewEx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -147,6 +150,7 @@
     <QtMoc Include="Windows\TestWindow.h" />
     <QtMoc Include="Windows\MoveWindow.h" />
     <QtMoc Include="Windows\TextPromptDialog.h" />
+    <QtMoc Include="widgets\ListViewEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />

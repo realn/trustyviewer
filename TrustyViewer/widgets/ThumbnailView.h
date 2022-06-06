@@ -4,6 +4,7 @@
 #include <QListView>
 #include <QPointer>
 
+#include "../widgets/ListViewEx.h"
 #include "../models/ThumbnailModel.h"
 #include "../extensions/ExtPlugin.h"
 #include "../MediaItem.h"
@@ -16,7 +17,7 @@ namespace realn {
   class ThumbnailView : public QWidget, public ThumbnailDragDropView {
     Q_OBJECT;
   public:
-    ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage);
+    ThumbnailView(std::shared_ptr<MediaDatabase> database, std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage);
     ~ThumbnailView();
 
     MediaItem::ptr_t getSelectedItem() const;
@@ -43,6 +44,7 @@ namespace realn {
     void onMoveItem();
     void onDeleteItem();
     void showContextMenu(const QPoint& pos);
+    void onMouseMove(const QPoint& pos);
 
   protected:
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -51,10 +53,11 @@ namespace realn {
     void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
     void createActions();
 
-    QPointer<QListView> listView;
+    QPointer<ListViewEx> listView;
     QPointer<ThumbnailModel> model;
     QPointer<QAction> actionMove;
     QPointer<QAction> actionDelete;
+    QPointer<QLineEdit> debugEdit;
     QPoint mouseMove;
   };
 }

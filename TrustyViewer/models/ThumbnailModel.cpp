@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
+#include "../MediaDatabase.h"
 #include "../Utils.h"
 #include "../ImageUtils.h"
 
@@ -14,8 +15,9 @@
 namespace realn {
   const QString ITEM_MIME_TYPE = "application/trust.view.item";
 
-  ThumbnailModel::ThumbnailModel(std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize)
-    : plugins(_plugins)
+  ThumbnailModel::ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize)
+    : database(_database)
+    , plugins(_plugins)
     , worker(_worker)
     , itemStorage(storage)
     , thumbnailSize(_thumbnailSize)
@@ -194,9 +196,6 @@ namespace realn {
       idx = view->findDropIndex();
       if(!idx.isValid())
         return false;
-      else {
-        int a = 0;
-      }
     }
 
     auto item = fromIndex(idx);
@@ -216,8 +215,11 @@ namespace realn {
       return false;
 
     auto idx = index(row, column, parent);
-    if (!idx.isValid())
-      return false;
+    if (!idx.isValid()) {
+      idx = view->findDropIndex();
+      if (!idx.isValid())
+        return false;
+    }
 
     auto targetItem = fromIndex(idx);
     if (!targetItem)
@@ -239,7 +241,7 @@ namespace realn {
     }
 
     for (auto& item : items) {
-      emit moveItemRequested(item, newParent);
+      database->moveItem(item, newParent);
     }
 
     return false;

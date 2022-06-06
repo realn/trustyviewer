@@ -1,4 +1,5 @@
 
+#include <QLineEdit>
 #include <QMenu>
 #include <QAction>
 #include <QBoxLayout>
@@ -7,14 +8,16 @@
 #include "ThumbnailView.h"
 
 namespace realn {
-  ThumbnailView::ThumbnailView(std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage) {
+  ThumbnailView::ThumbnailView(std::shared_ptr<MediaDatabase> database, std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage) {
 
     auto thumbSize = QSize(100, 150);
     auto gridSize = thumbSize + QSize(20, 20);
 
-    model = new ThumbnailModel(plugins, worker, storage, this, thumbSize);
+    model = new ThumbnailModel(database, plugins, worker, storage, this, thumbSize);
 
-    listView = new QListView();
+    debugEdit = new QLineEdit();
+
+    listView = new ListViewEx();
     listView->setViewMode(QListView::ViewMode::IconMode);
     listView->setModel(model);
     listView->setFlow(QListView::Flow::LeftToRight);
@@ -26,18 +29,21 @@ namespace realn {
     listView->setAcceptDrops(true);
     listView->setDropIndicatorShown(true);
     listView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+    listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged);
     connect(listView, &QListView::customContextMenuRequested, this, &ThumbnailView::showContextMenu);
+    connect(listView, &ListViewEx::mousePosChanged, this, &ThumbnailView::onMouseMove);
     connect(model, &ThumbnailModel::moveItemRequested, this, &ThumbnailView::moveItemRequested);
 
-    auto layout = new QHBoxLayout();
+    auto layout = new QVBoxLayout();
+    layout->addWidget(debugEdit);
     layout->addWidget(listView);
     setLayout(layout);
 
     createActions();
 
-    listView->setMouseTracking(true);
+    //listView->setMouseTracking(true);
     setMouseTracking(true);
   }
 
@@ -128,8 +134,27 @@ namespace realn {
     menu.exec(listView->mapToGlobal(pos));
   }
 
+  void ThumbnailView::onMouseMove(const QPoint& pos) {
+    auto textMousePos = QString("M( %1, %2 )").arg(pos.x()).arg(pos.y());
+    mouseMove = pos;
+
+    auto idx = findDropIndex();
+    auto textIdx = QString();
+    if (idx.isValid()) {
+      textIdx = QString("I( %1, %2 )").arg(idx.row()).arg(idx.column());
+    }
+    else {
+      textIdx = QString("I(invalid)");
+    }
+
+    debugEdit->setText(textMousePos + " " + textIdx);
+  }
+
   void ThumbnailView::mouseMoveEvent(QMouseEvent* event) {
-    mouseMove = event->pos();
+    mouseMove = listView->mapFromParent(event->pos());
+
+    onMouseMove(mouseMove);
+
     QWidget::mouseMoveEvent(event);
   }
 
