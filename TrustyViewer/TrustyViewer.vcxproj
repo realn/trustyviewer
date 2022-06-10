@@ -114,6 +114,7 @@
     <ClCompile Include="models\ThumbnailModelItem.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="widgets\ListViewEx.cpp" />
+    <ClCompile Include="widgets\TreeViewEx.cpp" />
     <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="MediaDatabase.cpp" />
     <ClCompile Include="MediaItem.cpp" />
@@ -166,6 +167,8 @@
     <QtMoc Include="Windows\MoveWindow.h" />
     <QtMoc Include="Windows\TextPromptDialog.h" />
     <QtMoc Include="widgets\ListViewEx.h" />
+    <ClInclude Include="widgets\DragDropView.h" />
+    <QtMoc Include="widgets\TreeViewEx.h" />
     <ClInclude Include="workers\MediaItemWorkerTaskList.h" />
     <ClInclude Include="workers\MediaItemWorker.h" />
     <ClInclude Include="workers\MediaItemWorkerTask.h" />

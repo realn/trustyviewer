@@ -56,7 +56,7 @@ namespace realn {
   }
 
   void MainWindow::tryMoveItem(MediaItem::ptr_t item) {
-    auto dialog = qt_make_unique<MoveWindow>(database, this);
+    auto dialog = qt_make_unique<MoveWindow>(database, itemStorage, this);
     dialog->setSelectedItem(item);
     if (dialog->showDialog() == QDialog::Accepted) {
       clearSelections();
@@ -112,6 +112,7 @@ namespace realn {
     cC(connect(thumbnailView, &ThumbnailView::moveItemRequested, this, &MainWindow::tryMoveItem));
     cC(connect(thumbnailView, &ThumbnailView::deleteItemRequested, this, &MainWindow::tryDeleteItem));
 
+    cC(connect(database.get(), &MediaDatabase::itemWillBeChanged, this, &MainWindow::clearMedia));
     cC(connect(database.get(), &MediaDatabase::rebuildProgressUpdated, this, &MainWindow::showDatabaseRebuildProgress));
     cC(connect(database.get(), &MediaDatabase::databaseRebuild, this, &MainWindow::showDatabaseRebuildDone));
     cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, this, &MainWindow::clearMedia));

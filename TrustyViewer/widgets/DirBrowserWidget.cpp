@@ -18,17 +18,22 @@ namespace realn {
     : database(mediaDatabase) {
     setMinimumWidth(200);
 
-    model = new ImageFileSystemModel(database);
 
     rootLabel = new QLabel();
 
-    treeView = new QTreeView();
-    treeView->setModel(model);
+    treeView = new TreeViewEx();
     treeView->setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
     treeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
     treeView->setItemsExpandable(true);
     //treeView->setAnimated(true);
     treeView->setExpandsOnDoubleClick(false);
+    treeView->setDragDropMode(QAbstractItemView::DragDropMode::DragDrop);
+    treeView->setAcceptDrops(true);
+    treeView->setDefaultDropAction(Qt::MoveAction);
+    treeView->setDropIndicatorShown(true);
+
+    model = new ImageFileSystemModel(database, storage, treeView);
+    treeView->setModel(model);
 
     connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
     connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);

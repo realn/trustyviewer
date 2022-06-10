@@ -28,6 +28,7 @@ namespace realn {
     void itemsMoved(MediaItem::itemvector_t items, MediaItem::ptr_t newParent);
     void itemWillBeAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
     void itemAdded(MediaItem::ptr_t newItem, MediaItem::ptr_t parent);
+    void itemWillBeChanged(MediaItem::ptr_t item);
     void rebuildProgressUpdated(int doneTasks, int totalTasks);
 
   public slots:

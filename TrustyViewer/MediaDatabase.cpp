@@ -79,6 +79,7 @@ namespace realn {
   }
 
   void MediaDatabase::deleteItem(MediaItem::ptr_t item) {
+    emit itemWillBeChanged(item);
     if (item->isDirectory()) {
       for (auto& child : item->getChildren()) {
         deleteItem(child);
@@ -135,6 +136,7 @@ namespace realn {
     if (newParent->hasInPathToRoot(item))
       return false;
 
+    emit itemWillBeChanged(item);
     if (item->isDirectory()) {
       auto oldDir = QDir(item->getFilePath());
       auto newDir = QDir(newParent->getFilePath());

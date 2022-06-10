@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
+#include "../widgets/DragDropView.h"
 #include "../MediaDatabase.h"
 #include "../Utils.h"
 #include "../ImageUtils.h"
@@ -13,9 +14,9 @@
 #include "ThumbnailModel.h"
 
 namespace realn {
-  const QString ITEM_MIME_TYPE = "application/trust.view.item";
+  const QString ITEM_MIME_TYPE = "application/trust.view.item.list";
 
-  ThumbnailModel::ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize)
+  ThumbnailModel::ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, DragDropView* dragDropView, QSize _thumbnailSize)
     : database(_database)
     , plugins(_plugins)
     , worker(_worker)
@@ -212,7 +213,7 @@ namespace realn {
 
     auto idx = index(row, column, parent);
     if (!idx.isValid()) {
-      idx = view->findDropIndex();
+      idx = view->getPointedIndex();
       if (!idx.isValid())
         return false;
     }
@@ -235,7 +236,7 @@ namespace realn {
 
     auto idx = index(row, column, parent);
     if (!idx.isValid()) {
-      idx = view->findDropIndex();
+      idx = view->getPointedIndex();
       if (!idx.isValid())
         return false;
     }

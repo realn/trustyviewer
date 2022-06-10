@@ -62,9 +62,9 @@ namespace realn {
   }
 
   void MediaContentWidget::clearMedia() {
+    loadedItem.reset();
     for (auto& widget : mediaWidgets)
       widget->clearMedia();
-    loadedItem.reset();
   }
 
   void MediaContentWidget::addMediaWidget(mpwidget_ptr_t widget)

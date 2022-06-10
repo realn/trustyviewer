@@ -14,16 +14,12 @@
 
 namespace realn {
   class MediaDatabase;
-
-  class ThumbnailDragDropView {
-  public:
-    virtual QModelIndex findDropIndex() const = 0;
-  };
+  class DragDropView;
 
   class ThumbnailModel : public QAbstractItemModel {
     Q_OBJECT;
   public:
-    ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, ThumbnailDragDropView* dragDropView, QSize _thumbnailSize);
+    ThumbnailModel(std::shared_ptr<MediaDatabase> _database, std::shared_ptr<ExtPluginList> _plugins, std::shared_ptr<ThumbnailWorker> _worker, std::shared_ptr<MediaItemStorage> storage, DragDropView* dragDropView, QSize _thumbnailSize);
 
     void setRootItem(MediaItem::ptr_t item);
     MediaItem::ptr_t getRootItem() const;
@@ -84,6 +80,6 @@ namespace realn {
     QPixmap defaultThumbnail;
     QPixmap folderThumbnail;
 
-    ThumbnailDragDropView* view;
+    DragDropView* view;
   };
 }

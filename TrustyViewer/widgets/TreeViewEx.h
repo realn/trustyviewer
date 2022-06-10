@@ -1,15 +1,15 @@
 #pragma once
 
-#include <QListView>
+#include <QTreeView>
 #include <QPoint>
 
 #include "DragDropView.h"
 
 namespace realn {
-  class ListViewEx : public QListView, public DragDropView {
+  class TreeViewEx : public QTreeView, public DragDropView {
     Q_OBJECT;
   public:
-    explicit ListViewEx(QWidget* parent = nullptr);
+    explicit TreeViewEx(QWidget* parent = nullptr);
 
     QModelIndex getPointedIndex() const override;
 
@@ -17,6 +17,8 @@ namespace realn {
     void dragMoveEvent(QDragMoveEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
 
+  private:
     QPoint cursorPos;
   };
 }
+

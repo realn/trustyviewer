@@ -11,13 +11,13 @@
 #include "MoveWindow.h"
 
 namespace realn {
-  MoveWindow::MoveWindow(std::shared_ptr<MediaDatabase> database, QWidget* parent)
+  MoveWindow::MoveWindow(std::shared_ptr<MediaDatabase> database, std::shared_ptr<MediaItemStorage> storage, QWidget* parent)
     : QDialog(parent) {
 
     pathWidget = new QLineEdit();
     pathWidget->setReadOnly(true);
 
-    model = new ImageFileSystemModel(database, MediaItemFilter::OnlyDirectories);
+    model = new ImageFileSystemModel(database, storage, nullptr, MediaItemFilter::OnlyDirectories);
 
     browseWidget = new QTreeView();
     browseWidget->setModel(model);
@@ -48,10 +48,10 @@ namespace realn {
 
   QDialog::DialogCode MoveWindow::showDialog() {
     auto result = exec();
-    
+
     return static_cast<QDialog::DialogCode>(result);
   }
-  
+
   MediaItem::ptr_t MoveWindow::getNewParent() const {
     return getSelectedItem();
   }

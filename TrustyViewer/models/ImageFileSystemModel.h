@@ -11,6 +11,9 @@
 #include "../MediaDatabase.h"
 
 namespace realn {
+  class MediaItemStorage;
+  class DragDropView;
+
   enum class MediaItemFilter {
     NoFilter = 0,
     OnlyDirectories
@@ -19,7 +22,7 @@ namespace realn {
   class ImageFileSystemModel : public QAbstractItemModel {
     Q_OBJECT;
   public:
-    ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, MediaItemFilter filter = MediaItemFilter::NoFilter);
+    ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<MediaItemStorage> storage, DragDropView* view = nullptr, MediaItemFilter filter = MediaItemFilter::NoFilter);
 
     MediaItem::ptr_t getItemForIndex(const QModelIndex& index) const;
     MediaItem::itemvector_t getItemsForIndices(const QModelIndexList& indices) const;
@@ -34,6 +37,11 @@ namespace realn {
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
+    Qt::DropActions supportedDropActions() const override;
+    QStringList mimeTypes() const override;
+    QMimeData* mimeData(const QModelIndexList& indices) const override;
+    bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
+    bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
   public slots:
     void reloadDatabase();
@@ -55,7 +63,9 @@ namespace realn {
     IFSModelItem::ptr_t root;
 
     std::shared_ptr<MediaDatabase> database;
+    std::shared_ptr<MediaItemStorage> itemStorage;
     std::unique_ptr<QFileIconProvider> iconProvider;
+    DragDropView* view;
     MediaItemFilter filter;
   };
 }

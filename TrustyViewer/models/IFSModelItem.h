@@ -27,6 +27,8 @@ namespace realn {
     MediaItem::ptr_t getMediaItem();
     MediaItemType getType() const;
 
+    bool isDirectory() const;
+
     ptr_t getParent() const;
     bool hasParent() const;
 

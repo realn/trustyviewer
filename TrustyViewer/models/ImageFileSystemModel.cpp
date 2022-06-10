@@ -1,9 +1,15 @@
 
+#include <QMimeData>
+
+#include "../widgets/DragDropView.h"
+#include "../MediaItemStorage.h"
 #include "ImageFileSystemModel.h"
 
 namespace realn {
-  ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, MediaItemFilter itemFilter)
-    : database(mediaDatabase), filter(itemFilter) {
+  const QString ITEM_MIME_TYPE = "application/trust.view.item.list";
+
+  ImageFileSystemModel::ImageFileSystemModel(std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<MediaItemStorage> storage, DragDropView* view, MediaItemFilter itemFilter)
+    : database(mediaDatabase), itemStorage(storage), view(view), filter(itemFilter) {
     iconProvider = std::make_unique<QFileIconProvider>();
 
     reloadDatabase();
@@ -67,7 +73,8 @@ namespace realn {
     }
 
     auto child = getChild(row, parentItem);
-    assert(child);
+    if (!child)
+      return QModelIndex();
 
     return createIndex(row, column, child.get());
   }
@@ -123,10 +130,97 @@ namespace realn {
 
   Qt::ItemFlags ImageFileSystemModel::flags(const QModelIndex& index) const {
     auto item = fromIndex(index);
+    if (!item)
+      return Qt::ItemFlags();
     if (item->getType() == MediaItemType::Directory) {
-      return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable;
+      return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
     }
-    return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemNeverHasChildren;
+    return Qt::ItemFlags() | Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemNeverHasChildren | Qt::ItemIsDragEnabled;
+  }
+
+  Qt::DropActions ImageFileSystemModel::supportedDropActions() const {
+    return Qt::DropActions() | Qt::MoveAction;
+  }
+
+  QStringList ImageFileSystemModel::mimeTypes() const {
+    return QStringList() << ITEM_MIME_TYPE;
+  }
+
+  QMimeData* ImageFileSystemModel::mimeData(const QModelIndexList& indices) const {
+    QByteArray data;
+    auto stream = QDataStream(&data, QIODevice::WriteOnly);
+
+    for (auto& index : indices) {
+      auto item = fromIndex(index);
+      if (!item)
+        continue;
+
+      auto id = itemStorage->store(item->getMediaItem());
+      stream << id;
+    }
+
+    auto result = new QMimeData();
+    result->setData(ITEM_MIME_TYPE, data);
+    return result;
+  }
+
+  bool ImageFileSystemModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const {
+    if (action != Qt::MoveAction)
+      return false;
+    if (!data->hasFormat(ITEM_MIME_TYPE))
+      return false;
+
+    auto idx = index(row, column, parent);
+    if (view && !idx.isValid()) {
+      idx = view->getPointedIndex();
+    }
+    if (!idx.isValid())
+      return false;
+
+    auto item = fromIndex(idx);
+    if (!item)
+      return false;
+
+    if (!item->isDirectory())
+      return false;
+
+    return true;
+  }
+
+  bool ImageFileSystemModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
+    if (action == Qt::IgnoreAction)
+      return true;
+    if (!canDropMimeData(data, action, row, column, parent))
+      return false;
+
+    auto idx = index(row, column, parent);
+    if (view && !idx.isValid()) {
+      idx = view->getPointedIndex();
+    }
+    if (!idx.isValid())
+      return false;
+
+    auto targetItem = fromIndex(idx);
+    if (!targetItem)
+      return false;
+
+    auto newParent = targetItem->getMediaItem();
+
+    auto encData = data->data(ITEM_MIME_TYPE);
+    auto stream = QDataStream(&encData, QIODevice::ReadOnly);
+
+    auto items = MediaItem::itemvector_t();
+    while (!stream.atEnd()) {
+      MediaItemStorage::item_id itemId;
+      stream >> itemId;
+
+      auto item = itemStorage->retrieve(itemId);
+      if (item)
+        items.push_back(item);
+    }
+
+    database->moveItems(items, newParent);
+    return true;
   }
 
   void ImageFileSystemModel::removeItem(MediaItem::ptr_t item) {
@@ -227,7 +321,8 @@ namespace realn {
   }
 
   IFSModelItem::ptr_t ImageFileSystemModel::getChild(int rowIndex, IFSModelItem::ptr_t parentItem) const {
-    assert(rowIndex >= 0);
+    if (rowIndex < 0)
+      return nullptr;
 
     return parentItem->getChild(static_cast<size_t>(rowIndex));
   }
@@ -238,7 +333,8 @@ namespace realn {
 
   int ImageFileSystemModel::getIndexFromParent(IFSModelItem::ptr_t item) const {
     auto parent = item->getParent();
-    assert(parent);
+    if (!parent)
+      return -1;
 
     auto index = find_index(parent->getChildren(), item);
     return static_cast<int>(index);

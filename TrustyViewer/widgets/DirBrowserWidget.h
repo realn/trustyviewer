@@ -5,6 +5,7 @@
 #include <QTreeView>
 #include <QLabel>
 
+#include "TreeViewEx.h"
 #include "../models/ImageFileSystemModel.h"
 #include "../MediaDatabase.h"
 
@@ -58,7 +59,7 @@ namespace realn {
     void setSelectedItemPriv(MediaItem::ptr_t item, bool emitSignal);
 
     QPointer<QLabel> rootLabel;
-    QPointer<QTreeView> treeView;
+    QPointer<TreeViewEx> treeView;
     QPointer<ImageFileSystemModel> model;
     QPointer<QAction> actionMove;
     QPointer<QAction> actionDelete;

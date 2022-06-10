@@ -42,6 +42,10 @@ namespace realn {
     return type;
   }
 
+  bool IFSModelItem::isDirectory() const {
+      return type == MediaItemType::Directory;
+  }
+
   IFSModelItem::ptr_t IFSModelItem::getParent() const {
     if (parent.expired())
       return nullptr;

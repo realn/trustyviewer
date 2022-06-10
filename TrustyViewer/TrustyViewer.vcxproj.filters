@@ -127,6 +127,9 @@
     <ClCompile Include="widgets\ListViewEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\TreeViewEx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Application.h">
@@ -151,6 +154,7 @@
     <QtMoc Include="Windows\MoveWindow.h" />
     <QtMoc Include="Windows\TextPromptDialog.h" />
     <QtMoc Include="widgets\ListViewEx.h" />
+    <QtMoc Include="widgets\TreeViewEx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="extensions\ExtPlugin.h" />
@@ -171,5 +175,6 @@
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="MediaItemStorage.h" />
     <ClInclude Include="ImageUtils.h" />
+    <ClInclude Include="widgets\DragDropView.h" />
   </ItemGroup>
 </Project>
