@@ -46,6 +46,15 @@ namespace realn {
 
     connect(stopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onStopButtonPressed);
 
+    loopButton = new QPushButton("L");
+    loopButton->setContentsMargins(0, 0, 0, 0);
+    loopButton->setMinimumSize(24, 24);
+    loopButton->setBaseSize(24, 24);
+    loopButton->setFixedSize(24, 24);
+    loopButton->setCheckable(true);
+
+    connect(loopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onLoopButtonPressed);
+
     volumeButton = new QPushButton("V");
     volumeButton->setContentsMargins(0, 0, 0, 0);
     volumeButton->setMinimumSize(10, 10);
@@ -95,6 +104,7 @@ namespace realn {
     auto layout = new QHBoxLayout();
     layout->addWidget(playButton);
     layout->addWidget(stopButton);
+    layout->addWidget(loopButton);
     layout->addWidget(progressLabelWidget);
     layout->addWidget(sliderWidget);
     layout->addWidget(volumeLabelWidget);
@@ -158,6 +168,8 @@ namespace realn {
 
   void VideoButtonsWidget::finishVideo() {
     state = VideoState::STOPPED;
+    if (loopVideo)
+      onPlayButtonPressed();
   }
 
   void VideoButtonsWidget::onSliderPressed() {
@@ -209,6 +221,11 @@ namespace realn {
   void VideoButtonsWidget::onMuteButtonPressed() {
     emit volumeSliderPositionChanged();
     updateVolumeLabel();
+  }
+
+  void VideoButtonsWidget::onLoopButtonPressed() {
+    loopVideo = !loopVideo;
+    loopButton->setChecked(loopVideo);
   }
 
   void VideoButtonsWidget::closeEvent(QCloseEvent* evt) {

@@ -63,6 +63,7 @@ namespace realn {
     void onVolumeButtonPressed();
     void onVolumeSliderValueChanged();
     void onMuteButtonPressed();
+    void onLoopButtonPressed();
 
   protected:
     virtual void closeEvent(QCloseEvent*) override;
@@ -74,6 +75,7 @@ namespace realn {
 
     QPointer<QPushButton> playButton;
     QPointer<QPushButton> stopButton;
+    QPointer<QPushButton> loopButton;
     QPointer<QPushButton> muteButton;
     QPointer<QPushButton> volumeButton;
     QPointer<QSlider> sliderWidget;
@@ -82,5 +84,6 @@ namespace realn {
     QPointer<QLabel> progressLabelWidget;
     std::unique_ptr<QTimer> timer;
     VideoState state = VideoState::STOPPED;
+    bool loopVideo = false;
   };
 }
