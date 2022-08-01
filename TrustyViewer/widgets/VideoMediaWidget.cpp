@@ -19,7 +19,7 @@ namespace realn {
     videoWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     connect(videoPlayer.get(), &QMediaPlayer::positionChanged, this, &VideoMediaWidget::onVideoPositionChanged);
-    connect(videoPlayer.get(), SIGNAL("error(Error)"), this, SLOT("onMediaError(Error)"));
+    connect(videoPlayer.get(), SIGNAL(error(Error)), this, SLOT(onMediaError(Error)));
     connect(videoPlayer.get(), &QMediaPlayer::stateChanged, this, &VideoMediaWidget::onVideoStateChanged);
 
     videoButtonsWidget = new VideoButtonsWidget();
@@ -49,6 +49,9 @@ namespace realn {
     if (!newVideo)
       return false;
 
+    videoPlayer->stop();
+    videoPlayer->setMedia(QMediaContent());
+
     video = std::move(newVideo);
     videoPlayer->setMedia(*video);
 
@@ -70,14 +73,20 @@ namespace realn {
   }
 
   void VideoMediaWidget::play() {
+    if (!video)
+      return;
     videoPlayer->play();
   }
 
   void VideoMediaWidget::pause() {
+    if (!video)
+      return;
     videoPlayer->pause();
   }
 
   void VideoMediaWidget::stop() {
+    if (!video)
+      return;
     videoPlayer->stop();
   }
 
@@ -85,32 +94,41 @@ namespace realn {
   }
 
   void VideoMediaWidget::onSliderPositionPressed() {
+    if (!video)
+      return;
     videoPlayer->pause();
   }
 
   void VideoMediaWidget::onSliderPositionReleased() {
+    if (!video)
+      return;
     videoPlayer->setPosition(getSliderPositionForPlayer());
     if(videoButtonsWidget->getState() == VideoState::PLAYING)
       videoPlayer->play();
   }
 
   void VideoMediaWidget::onSliderPositionChanged() {
+    if (!video)
+      return;
     videoPlayer->setPosition(getSliderPositionForPlayer());
   }
 
   void VideoMediaWidget::updateSliderPosition() {
-    if (video) {
-      videoButtonsWidget->setVideoPosition(getPlayerPositionForSlider());
+    if (!video)
+      return;
 
-      auto maxDuration = videoPlayer->duration();
-      auto position = videoPlayer->position();
+    videoButtonsWidget->setVideoPosition(getPlayerPositionForSlider());
 
-      auto text = formatTime(position) + "/" + formatTime(maxDuration);
-      videoButtonsWidget->setProgressLabel(text);
-    }
+    auto maxDuration = videoPlayer->duration();
+    auto position = videoPlayer->position();
+
+    auto text = formatTime(position) + "/" + formatTime(maxDuration);
+    videoButtonsWidget->setProgressLabel(text);
   }
 
   void VideoMediaWidget::onVolumePositionChanged() {
+    if (!video)
+      return;
     videoPlayer->setVolume(videoButtonsWidget->getVolume());
   }
 
@@ -120,15 +138,19 @@ namespace realn {
   }
 
   void VideoMediaWidget::onMediaError(QMediaPlayer::Error err) {
-    assert(err == QMediaPlayer::Error::NoError);
+    //assert(err == QMediaPlayer::Error::NoError);
   }
 
   qint64 VideoMediaWidget::getSliderPositionForPlayer() const {
+    if (!video)
+      return 1;
     auto pos = videoButtonsWidget->getVideoPosition() * videoPlayer->duration();
     return static_cast<qint64>(pos);
   }
 
   float VideoMediaWidget::getPlayerPositionForSlider() const {
+    if (!video)
+      return 1.0f;
     return static_cast<float>(videoPlayer->position()) / videoPlayer->duration();
   }
 
