@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 
 #include "ThumbnailView.h"
+#include "../Utils.h"
 
 namespace realn {
   ThumbnailView::ThumbnailView(std::shared_ptr<MediaDatabase> database, std::shared_ptr<ExtPluginList> plugins, std::shared_ptr<ThumbnailWorker> worker, std::shared_ptr<MediaItemStorage> storage) {
@@ -32,9 +33,9 @@ namespace realn {
     model = new ThumbnailModel(database, plugins, worker, storage, listView, thumbSize);
     listView->setModel(model);
 
-    connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged);
-    connect(listView, &QListView::customContextMenuRequested, this, &ThumbnailView::showContextMenu);
-    connect(model, &ThumbnailModel::moveItemRequested, this, &ThumbnailView::moveItemRequested);
+    cC(connect(listView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ThumbnailView::emitSelectionChanged));
+    cC(connect(listView, &QListView::customContextMenuRequested, this, &ThumbnailView::showContextMenu));
+    cC(connect(model, &ThumbnailModel::moveItemRequested, this, &ThumbnailView::moveItemRequested));
 
     auto layout = new QVBoxLayout();
     layout->addWidget(debugEdit);
@@ -151,10 +152,10 @@ namespace realn {
 
   void ThumbnailView::createActions() {
     actionMove = new QAction("Move");
-    connect(actionMove, &QAction::triggered, this, &ThumbnailView::onMoveItem);
+    cC(connect(actionMove, &QAction::triggered, this, &ThumbnailView::onMoveItem));
 
     actionDelete = new QAction("Delete");
-    connect(actionDelete, &QAction::triggered, this, &ThumbnailView::onDeleteItem);
+    cC(connect(actionDelete, &QAction::triggered, this, &ThumbnailView::onDeleteItem));
   }
 
   void ThumbnailView::emitSelectionChanged() {

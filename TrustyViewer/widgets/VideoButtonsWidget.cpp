@@ -8,6 +8,7 @@
 #include <QLabel>
 
 #include "VideoButtonsWidget.h"
+#include "../Utils.h"
 
 namespace realn {
   constexpr auto MAX_VIDEO_POS = 1.0f;
@@ -36,7 +37,7 @@ namespace realn {
     playButton->setFixedSize(24, 24);
     playButton->setCheckable(true);
 
-    connect(playButton, &QPushButton::clicked, this, &VideoButtonsWidget::onPlayButtonPressed);
+    cC(connect(playButton, &QPushButton::clicked, this, &VideoButtonsWidget::onPlayButtonPressed));
 
     stopButton = new QPushButton("S");
     stopButton->setContentsMargins(0, 0, 0, 0);
@@ -44,7 +45,7 @@ namespace realn {
     stopButton->setBaseSize(24, 24);
     stopButton->setFixedSize(24, 24);
 
-    connect(stopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onStopButtonPressed);
+    cC(connect(stopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onStopButtonPressed));
 
     loopButton = new QPushButton("L");
     loopButton->setContentsMargins(0, 0, 0, 0);
@@ -53,7 +54,7 @@ namespace realn {
     loopButton->setFixedSize(24, 24);
     loopButton->setCheckable(true);
 
-    connect(loopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onLoopButtonPressed);
+    cC(connect(loopButton, &QPushButton::clicked, this, &VideoButtonsWidget::onLoopButtonPressed));
 
     volumeButton = new QPushButton("V");
     volumeButton->setContentsMargins(0, 0, 0, 0);
@@ -62,7 +63,7 @@ namespace realn {
     volumeButton->setBaseSize(24, 24);
     volumeButton->setFixedSize(24, 24);
 
-    connect(volumeButton, &QPushButton::clicked, this, &VideoButtonsWidget::onVolumeButtonPressed);
+    cC(connect(volumeButton, &QPushButton::clicked, this, &VideoButtonsWidget::onVolumeButtonPressed));
 
     muteButton = new QPushButton("M");
     muteButton->setContentsMargins(0, 0, 0, 0);
@@ -71,14 +72,14 @@ namespace realn {
     muteButton->setFixedSize(24, 24);
     muteButton->setCheckable(true);
 
-    connect(muteButton, &QPushButton::clicked, this, &VideoButtonsWidget::onMuteButtonPressed);
+    cC(connect(muteButton, &QPushButton::clicked, this, &VideoButtonsWidget::onMuteButtonPressed));
 
     sliderWidget = new QSlider(Qt::Horizontal, this);
     sliderWidget->setRange(0, MAX_SLIDER_POS);
 
-    connect(sliderWidget, &QSlider::sliderPressed, this, &VideoButtonsWidget::onSliderPressed);
-    connect(sliderWidget, &QSlider::sliderReleased, this, &VideoButtonsWidget::onSliderReleased);
-    connect(sliderWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onSliderValueChanged);
+    cC(connect(sliderWidget, &QSlider::sliderPressed, this, &VideoButtonsWidget::onSliderPressed));
+    cC(connect(sliderWidget, &QSlider::sliderReleased, this, &VideoButtonsWidget::onSliderReleased));
+    cC(connect(sliderWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onSliderValueChanged));
 
     volumeWidget = new QSlider(Qt::Vertical, this);
     //volumeWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -88,7 +89,7 @@ namespace realn {
     volumeWidget->setValue(MAX_VOLUME_SLIDER_POS);
     volumeWidget->setContentsMargins(0, 0, 0, 0);
 
-    connect(volumeWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onVolumeSliderValueChanged);
+    cC(connect(volumeWidget, &QSlider::valueChanged, this, &VideoButtonsWidget::onVolumeSliderValueChanged));
 
     volumeLabelWidget = new QLabel(this);
     volumeLabelWidget->setText("100%");
@@ -96,7 +97,8 @@ namespace realn {
     timer = std::make_unique<QTimer>();
     timer->setInterval(std::chrono::milliseconds(50));
     timer->setSingleShot(false);
-    connect(timer.get(), &QTimer::timeout, this, &VideoButtonsWidget::onTimerTimeout);
+
+    cC(connect(timer.get(), &QTimer::timeout, this, &VideoButtonsWidget::onTimerTimeout));
 
     progressLabelWidget = new QLabel();
     progressLabelWidget->setAlignment(Qt::AlignCenter);

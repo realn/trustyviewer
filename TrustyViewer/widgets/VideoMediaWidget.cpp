@@ -5,6 +5,7 @@
 
 #include "VideoButtonsWidget.h"
 #include "VideoMediaWidget.h"
+#include "../Utils.h"
 
 namespace realn {
   QString formatTime(qint64 durationMs) {
@@ -18,20 +19,19 @@ namespace realn {
     videoPlayer->setVideoOutput(videoWidget);
     videoWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    connect(videoPlayer.get(), &QMediaPlayer::positionChanged, this, &VideoMediaWidget::onVideoPositionChanged);
-    connect(videoPlayer.get(), SIGNAL(error(Error)), this, SLOT(onMediaError(Error)));
-    connect(videoPlayer.get(), &QMediaPlayer::stateChanged, this, &VideoMediaWidget::onVideoStateChanged);
+    cC(connect(videoPlayer.get(), &QMediaPlayer::positionChanged, this, &VideoMediaWidget::onVideoPositionChanged));
+    cC(connect(videoPlayer.get(), &QMediaPlayer::stateChanged, this, &VideoMediaWidget::onVideoStateChanged));
 
     videoButtonsWidget = new VideoButtonsWidget();
 
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionChanged, this, &VideoMediaWidget::onSliderPositionChanged);
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &VideoMediaWidget::onSliderPositionPressed);
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &VideoMediaWidget::onSliderPositionReleased);
-    connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &VideoMediaWidget::updateSliderPosition);
-    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::play);
-    connect(videoButtonsWidget, &VideoButtonsWidget::pauseClicked, this, &VideoMediaWidget::pause);
-    connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &VideoMediaWidget::stop);
-    connect(videoButtonsWidget, &VideoButtonsWidget::volumeSliderPositionChanged, this, &VideoMediaWidget::onVolumePositionChanged);
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionChanged, this, &VideoMediaWidget::onSliderPositionChanged));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &VideoMediaWidget::onSliderPositionPressed));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &VideoMediaWidget::onSliderPositionReleased));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &VideoMediaWidget::updateSliderPosition));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &VideoMediaWidget::play));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::pauseClicked, this, &VideoMediaWidget::pause));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &VideoMediaWidget::stop));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::volumeSliderPositionChanged, this, &VideoMediaWidget::onVolumePositionChanged));
 
     auto layout = new QVBoxLayout();
     layout->addWidget(videoWidget);
@@ -135,10 +135,6 @@ namespace realn {
   void VideoMediaWidget::onVideoStateChanged(QMediaPlayer::State state) {
     if(state == QMediaPlayer::State::StoppedState)
       videoButtonsWidget->finishVideo();
-  }
-
-  void VideoMediaWidget::onMediaError(QMediaPlayer::Error err) {
-    //assert(err == QMediaPlayer::Error::NoError);
   }
 
   qint64 VideoMediaWidget::getSliderPositionForPlayer() const {

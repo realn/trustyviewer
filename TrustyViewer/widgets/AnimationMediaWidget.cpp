@@ -4,6 +4,7 @@
 
 #include "VideoButtonsWidget.h"
 #include "AnimationMediaWidget.h"
+#include "../Utils.h"
 
 namespace realn {
   AnimationMediaWidget::AnimationMediaWidget() {
@@ -15,13 +16,13 @@ namespace realn {
     videoButtonsWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
     videoButtonsWidget->setVolumeControlVisibility(false);
 
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionChanged, this, &AnimationMediaWidget::onSliderPositionChanged);
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &AnimationMediaWidget::onSliderPositionPressed);
-    connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &AnimationMediaWidget::onSliderPositionReleased);
-    connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &AnimationMediaWidget::updateSliderPosition);
-    connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &AnimationMediaWidget::play);
-    connect(videoButtonsWidget, &VideoButtonsWidget::pauseClicked, this, &AnimationMediaWidget::pause);
-    connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &AnimationMediaWidget::stop);
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionChanged, this, &AnimationMediaWidget::onSliderPositionChanged));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionPressed, this, &AnimationMediaWidget::onSliderPositionPressed));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::sliderPositionReleased, this, &AnimationMediaWidget::onSliderPositionReleased));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::videoPositionTimeout, this, &AnimationMediaWidget::updateSliderPosition));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::playClicked, this, &AnimationMediaWidget::play));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::pauseClicked, this, &AnimationMediaWidget::pause));
+    cC(connect(videoButtonsWidget, &VideoButtonsWidget::stopClicked, this, &AnimationMediaWidget::stop));
 
     auto layout = new QVBoxLayout();
     layout->addWidget(animationPlayer);
@@ -31,7 +32,7 @@ namespace realn {
     timer = std::make_unique<QTimer>();
     timer->setSingleShot(false);
     
-    connect(timer.get(), &QTimer::timeout, this, &AnimationMediaWidget::onTimerTimeout);
+    cC(connect(timer.get(), &QTimer::timeout, this, &AnimationMediaWidget::onTimerTimeout));
   }
 
   AnimationMediaWidget::~AnimationMediaWidget() = default;

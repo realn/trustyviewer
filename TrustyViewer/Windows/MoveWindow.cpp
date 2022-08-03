@@ -9,6 +9,7 @@
 #include "../AppSettings.h"
 #include "../models/ImageFileSystemModel.h"
 #include "MoveWindow.h"
+#include "../Utils.h"
 
 namespace realn {
   MoveWindow::MoveWindow(std::shared_ptr<MediaDatabase> database, std::shared_ptr<MediaItemStorage> storage, QWidget* parent)
@@ -22,7 +23,7 @@ namespace realn {
     browseWidget = new QTreeView();
     browseWidget->setModel(model);
 
-    connect(browseWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MoveWindow::onSelectionChanged);
+    cC(connect(browseWidget->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MoveWindow::onSelectionChanged));
 
     auto layout = new QVBoxLayout();
 
@@ -32,8 +33,8 @@ namespace realn {
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     layout->addWidget(buttons, 0);
 
-    connect(buttons, &QDialogButtonBox::accepted, this, &MoveWindow::accept);
-    connect(buttons, &QDialogButtonBox::rejected, this, &MoveWindow::reject);
+    cC(connect(buttons, &QDialogButtonBox::accepted, this, &MoveWindow::accept));
+    cC(connect(buttons, &QDialogButtonBox::rejected, this, &MoveWindow::reject));
 
     setLayout(layout);
 

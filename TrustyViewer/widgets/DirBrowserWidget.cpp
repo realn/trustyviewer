@@ -12,6 +12,7 @@
 #include "DirBrowserWidget.h"
 #include "../models/ImageFileSystemModel.h"
 #include "../Windows/MoveWindow.h"
+#include "../Utils.h"
 
 namespace realn {
   DirBrowserWidget::DirBrowserWidget(std::shared_ptr<MediaDatabase> mediaDatabase, std::shared_ptr<MediaItemStorage> storage)
@@ -35,16 +36,16 @@ namespace realn {
     model = new ImageFileSystemModel(database, storage, treeView);
     treeView->setModel(model);
 
-    connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView);
-    connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase);
-    connect(database.get(), &MediaDatabase::databaseRebuild, this, &DirBrowserWidget::enableTreeView);
-    connect(database.get(), &MediaDatabase::itemWillBeRemoved, model, &ImageFileSystemModel::removeItem);
-    connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::moveItem);
-    connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::addItem);
+    cC(connect(database.get(), &MediaDatabase::rebuildingDatabase, this, &DirBrowserWidget::disableTreeView));
+    cC(connect(database.get(), &MediaDatabase::databaseRebuild, model, &ImageFileSystemModel::reloadDatabase));
+    cC(connect(database.get(), &MediaDatabase::databaseRebuild, this, &DirBrowserWidget::enableTreeView));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeRemoved, model, &ImageFileSystemModel::removeItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeMoved, model, &ImageFileSystemModel::moveItem));
+    cC(connect(database.get(), &MediaDatabase::itemWillBeAdded, model, &ImageFileSystemModel::addItem));
 
-    connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::emitItemSelection);
+    cC(connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &DirBrowserWidget::emitItemSelection));
 
-    connect(model, &ImageFileSystemModel::modelReset, this, &DirBrowserWidget::onModelReset);
+    cC(connect(model, &ImageFileSystemModel::modelReset, this, &DirBrowserWidget::onModelReset));
 
     createUI();
     createActions();
@@ -164,7 +165,7 @@ namespace realn {
       rootLayout->addWidget(rootLabel, 1);
 
       auto button = new QPushButton("Change");
-      connect(button, &QPushButton::clicked, this, &DirBrowserWidget::pickNewRoot);
+      cC(connect(button, &QPushButton::clicked, this, &DirBrowserWidget::pickNewRoot));
 
       rootLayout->addWidget(button);
       layout->addLayout(rootLayout);
@@ -177,13 +178,13 @@ namespace realn {
 
   void DirBrowserWidget::createActions() {
     actionMove = new QAction("Move");
-    connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::onMoveItem);
+    cC(connect(actionMove, &QAction::triggered, this, &DirBrowserWidget::onMoveItem));
 
     actionDelete = new QAction("Delete");
-    connect(actionDelete, &QAction::triggered, this, &DirBrowserWidget::onDeleteItem);
+    cC(connect(actionDelete, &QAction::triggered, this, &DirBrowserWidget::onDeleteItem));
 
     actionNewFolder = new QAction("New folder");
-    connect(actionNewFolder, &QAction::triggered, this, &DirBrowserWidget::onNewFolderItem);
+    cC(connect(actionNewFolder, &QAction::triggered, this, &DirBrowserWidget::onNewFolderItem));
   }
 
   void DirBrowserWidget::setupRoot(QString rootDir) {
