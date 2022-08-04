@@ -46,6 +46,8 @@ namespace realn {
       return false;
 
     movie = std::move(newMovie);
+    movie->setCacheMode(QMovie::CacheAll);
+
     animationPlayer->setMovie(movie.get());
     movie->setPaused(true);
 
