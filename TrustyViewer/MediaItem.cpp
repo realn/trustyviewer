@@ -49,6 +49,13 @@ namespace realn {
     filepath = filePath;
   }
 
+  void MediaItem::updateFilePath() {
+    auto parent = getParent();
+    if (parent != nullptr) {
+      auto newPath = QDir::cleanPath(parent->getFilePath() + QDir::separator() + getName());
+    }
+  }
+
   void MediaItem::setParent(ptr_t item) {
     parent = item;
   }

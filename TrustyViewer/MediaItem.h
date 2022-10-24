@@ -58,6 +58,8 @@ namespace realn {
 
     void replaceFilePath(const QString& filePath);
 
+    void updateFilePath();
+
   private:
     void setParent(ptr_t item);
     void removeChild(ptr_t item);

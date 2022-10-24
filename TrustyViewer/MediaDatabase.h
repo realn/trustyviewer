@@ -44,6 +44,9 @@ namespace realn {
     void asyncWaitForCheck(std::chrono::milliseconds value);
     bool moveItemPriv(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
 
+    bool moveDirectory(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+    bool moveFile(MediaItem::ptr_t item, MediaItem::ptr_t newParent);
+
     std::shared_ptr<ExtPluginList> plugins;
     std::shared_ptr<MediaItemWorker> worker;
     QString rootPath;

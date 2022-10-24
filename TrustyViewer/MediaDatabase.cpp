@@ -138,28 +138,36 @@ namespace realn {
 
     emit itemWillBeChanged(item);
     if (item->isDirectory()) {
-      auto oldDir = QDir(item->getFilePath());
-      auto newDir = QDir(newParent->getFilePath());
-
-      auto newPath = newDir.filePath(oldDir.dirName());
-
-      if (oldDir.rename(item->getFilePath(), newPath)) {
-        item->replaceFilePath(newPath);
-      }
-      else
+      if (!moveDirectory(item, newParent))
         return false;
     }
     else {
-      auto oldFile = QFileInfo(item->getFilePath());
-      auto newDir = QDir(newParent->getFilePath());
-
-      auto newFilePath = newDir.filePath(oldFile.fileName());
-
-      if (QFile::rename(item->getFilePath(), newFilePath)) {
-        item->replaceFilePath(newFilePath);
-      }
-      else
+      if (!moveFile(item, newParent))
         return false;
+    }
+
+    return true;
+  }
+
+  bool MediaDatabase::moveDirectory(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    auto oldDir = QDir(item->getFilePath());
+    auto newDir = QDir(newParent->getFilePath());
+
+    auto newPath = newDir.filePath(oldDir.dirName());
+
+    if (!oldDir.rename(item->getFilePath(), newPath))
+      return false;
+
+    return true;
+  }
+  bool MediaDatabase::moveFile(MediaItem::ptr_t item, MediaItem::ptr_t newParent) {
+    auto oldFile = QFileInfo(item->getFilePath());
+    auto newDir = QDir(newParent->getFilePath());
+
+    auto newFilePath = newDir.filePath(oldFile.fileName());
+
+    if (!QFile::rename(item->getFilePath(), newFilePath)) {
+      return false;
     }
 
     return true;
